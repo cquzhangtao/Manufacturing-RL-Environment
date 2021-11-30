@@ -11,14 +11,25 @@ class SimModel(SimEntity):
     '''
 
 
-    def __init__(self, uuid, name,model,engine):
+    def __init__(self, uuid, name):
         '''
         Constructor
         '''
-        super().__init__(uuid,name,model, engine)
+        super().__init__(uuid,name,self)
+        self.replication=0
+        self.simEntities=[]
         
     def getInitalEvents(self):
         pass
     
     def getSimEntities(self):
-        pass
+        return self.simEntities
+    
+    def addSimEntity(self,entity):   
+        self.simEntities.append(entity)
+        
+    def getReplication(self):
+        return self.replication
+    
+    def setReplication(self,rep):
+        self.replication=rep

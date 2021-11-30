@@ -10,7 +10,7 @@ class SimConfig(object):
     '''
 
 
-    def __init__(self, simLen,rep):
+    def __init__(self, rep,simLen):
         '''
         Constructor
         '''
@@ -19,3 +19,5 @@ class SimConfig(object):
         
     def getSimLen(self):
         return self.simLen
+    def getReplication(self):
+        return self.replication

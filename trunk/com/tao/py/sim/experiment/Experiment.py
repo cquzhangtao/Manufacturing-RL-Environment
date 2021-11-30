@@ -23,14 +23,13 @@ class Experiment(Entity):
     def start(self):
         for scenario in self.scenarios:
             simConfig=scenario.getSimConfig()
-            for rep in range(simConfig.getReplicaiton()):
+            for rep in range(simConfig.getReplication()):
                 
                 model=copy.deepcopy(scenario.getModel())
                 model.setReplication(rep)               
                 sim=Simulator(simConfig)
                 
                 for simEntity in model.getSimEntities():
-                    simEntity.setModel(model)
                     simEntity.setEngine(sim)
                 
                 sim.run(model)

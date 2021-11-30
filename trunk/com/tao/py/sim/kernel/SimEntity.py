@@ -11,13 +11,13 @@ class SimEntity(Entity):
     '''
 
 
-    def __init__(self, uuid, name):
+    def __init__(self, uuid, name,model):
         '''
         Constructor
         '''
         super().__init__(uuid,name)
         
-        self.model=None
+        self.model=model
         self.engine=None
         self.event=None
         
