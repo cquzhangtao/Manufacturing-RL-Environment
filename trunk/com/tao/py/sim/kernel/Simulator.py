@@ -10,28 +10,31 @@ class Simulator(object):
     '''
 
 
-    def __init__(self, simLen,model):
+    def __init__(self, simConfig):
         '''
         Constructor
         '''
-        self.simLen=simLen
+        self.simConfig=simConfig
         self.eventList=[]
-        self.insertEvents(model.getInitialEvents())
-        self.model=model
         self.time=0
         
     def getFirstEvents(self):
         events=[]
-        index=0
-        for index in range(len(self.eventList)-1):
-            events.append(self.eventList[index])
-            if self.eventList[index].getTime()!= self.eventList[index+1].getTime():
-                break
- 
+        
+        
         if len(self.eventList)==1:
             events.append(self.eventList[0])
-            
-        del self.eventList[:index+1]
+            del self.eventList[0]
+        else:
+            index=0
+            curEventlen=len(self.eventList) 
+            for index in range(curEventlen):
+                events.append(self.eventList[index])
+                if index==curEventlen-1 or self.eventList[index].getTime()!= self.eventList[index+1].getTime():
+                    break           
+            del self.eventList[:index+1]
+        
+            events.sort(key=lambda x: x.priority)
         
         return events    
     
@@ -46,14 +49,17 @@ class Simulator(object):
     def insertEvents(self,newEvents):
         for event in newEvents:
             self.insertEvent(event)
+            
     
-    def run(self):
-        while len(self.eventList)>0 and self.time<self.simLen:
+    def run(self,model):
+        self.insertEvents(model.getInitialEvents())
+        while len(self.eventList)>0 and self.time<self.simConfig.getSimLen():
             events=self.getFirstEvents()
             self.time=events[0].getTime()
             #print("Time:"+str(self.time))
             for event in events:
-                self.insertEvents(event.trigger())
+                event.trigger()
+
             
             
         

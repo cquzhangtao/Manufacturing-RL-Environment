@@ -11,15 +11,19 @@ class SimEvent(Entity):
     '''
 
 
-    def __init__(self, time):
+    def __init__(self, time,priority):
         '''
         Constructor
         '''
         self.time=time
+        self.priority=priority
         
     def trigger(self):
         pass
     
     def getTime(self):
         return self.time
+    
+    def getPriority(self):
+        return self.priority
         
