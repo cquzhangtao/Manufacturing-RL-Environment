@@ -13,12 +13,13 @@ class Experiment(Entity):
     '''
 
 
-    def __init__(self, uuid,name,scenarios):
+    def __init__(self, uuid,name,scenarios, eventListeners):
         '''
         Constructor
         '''
         super().__init__(uuid,name)
         self.scenarios=scenarios
+        self.eventListeners=eventListeners
         
     def start(self):
         for scenario in self.scenarios:
@@ -27,7 +28,7 @@ class Experiment(Entity):
                 
                 model=copy.deepcopy(scenario.getModel())
                 model.setReplication(rep)               
-                sim=Simulator(simConfig)
+                sim=Simulator(simConfig,self.eventListeners)
                 
                 for simEntity in model.getSimEntities():
                     simEntity.setEngine(sim)

@@ -10,13 +10,14 @@ class Simulator(object):
     '''
 
 
-    def __init__(self, simConfig):
+    def __init__(self, simConfig,eventListeners):
         '''
         Constructor
         '''
         self.simConfig=simConfig
         self.eventList=[]
         self.time=0
+        self.eventListeners=eventListeners
         
     def getFirstEvents(self):
         events=[]
@@ -59,6 +60,8 @@ class Simulator(object):
             #print("Time:"+str(self.time))
             for event in events:
                 event.trigger()
+                for lis in self.eventListeners:
+                    lis.onEventTriggered(event)
 
             
             
