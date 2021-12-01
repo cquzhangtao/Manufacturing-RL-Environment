@@ -3,9 +3,10 @@ Created on Nov 29, 2021
 
 @author: Shufang
 '''
-from com.tao.py.utilities.Entity import Entity
 
-class SimEvent(Entity):
+from com.tao.py.sim.kernel.SimEntity import SimEntity
+
+class SimEvent(SimEntity):
     '''
     classdocs
     '''

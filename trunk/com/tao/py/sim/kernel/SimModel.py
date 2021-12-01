@@ -16,7 +16,6 @@ class SimModel(SimEntity):
         Constructor
         '''
         super().__init__(uuid,name,self)
-        self.replication=0
         self.simEntities=[]
         
     def getInitalEvents(self):
@@ -28,8 +27,3 @@ class SimModel(SimEntity):
     def addSimEntity(self,entity):   
         self.simEntities.append(entity)
         
-    def getReplication(self):
-        return self.replication
-    
-    def setReplication(self,rep):
-        self.replication=rep

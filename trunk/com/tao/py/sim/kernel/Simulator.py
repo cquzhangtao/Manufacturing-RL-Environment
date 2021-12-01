@@ -53,7 +53,7 @@ class Simulator(object):
             
     
     def run(self,model):
-        self.insertEvents(model.getInitialEvents())
+        model.insertInitialEvents()
         while len(self.eventList)>0 and self.time<self.simConfig.getSimLen():
             events=self.getFirstEvents()
             self.time=events[0].getTime()

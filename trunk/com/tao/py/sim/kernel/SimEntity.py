@@ -4,6 +4,7 @@ Created on Nov 30, 2021
 @author: cquzh
 '''
 from com.tao.py.utilities.Entity import Entity
+from pyexpat import model
 
 class SimEntity(Entity):
     '''
@@ -20,7 +21,15 @@ class SimEntity(Entity):
         self.model=model
         self.engine=None
         self.event=None
+        self.replication=0
+        self.scenario=None
         
+    def copySimContext(self,entity):
+        entity.engine=self.engine
+        entity.scenario=self.scenario
+        entity.replication=self.replication
+    
+    
     def getModel(self):
         return self.model
     
@@ -34,6 +43,7 @@ class SimEntity(Entity):
         self.engine=engine
     
     def addEvent(self,event):
+        self.copySimContext(event)        
         self.engine.insertEvent(event)
         
     def removeEvent(self,event):
@@ -44,3 +54,15 @@ class SimEntity(Entity):
     
     def setEvent(self,event):
         self.event=event
+        
+    def getScenario(self):
+        return self.scenario
+    
+    def getReplication(self):
+        return self.replication
+    
+    def setScenario(self,scenario):
+        self.scenario=scenario
+    
+    def setReplication(self,rep):
+        self.replication=rep
