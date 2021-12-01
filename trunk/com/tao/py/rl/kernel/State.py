@@ -15,6 +15,9 @@ class State(object):
         Constructor
         '''
         self.data=data
+        
+    def getData(self):
+        return self.data
     
     def __str__(self):
         return ",".join(map(str,self.data))  

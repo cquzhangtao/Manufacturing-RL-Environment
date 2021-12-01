@@ -62,5 +62,10 @@ class TrainDataCollector(SimEventListener):
         return self.dataset
     
     def __str__(self):
-        return ",".join(map(str,self.dataset))
+        return "\n".join(map(str,[item.__str__() for item in self.dataset]))
+    
+    def flatten(self):
+        data=[]
+        data.extends([item.flatten() for item in self.dataset])
+        return data
     

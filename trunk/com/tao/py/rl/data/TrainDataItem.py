@@ -22,5 +22,20 @@ class TrainDataItem(object):
         self.nextActions=nextActions
         self.nextState=nextState
         
+    def getState(self):
+        return self.state
+    
+    def getAction(self):
+        return self.action
+    
     def __str__(self):
-        return "{},{},{},{},{},{}".format(self.state,self.action,self.reward,self.nextState,self.nextActions)
+        return "S[{}]====a[{}]====r[{}]====S'[{}]====A'[{}]".format(self.state.__str__(),self.action.__str__(),self.reward,self.nextState.__str__(),";".join(["a{}[{}]".format(idx,action.__str__()) for idx,action in enumerate(self.nextActions)]))
+    
+    def flatten(self):
+        data=[]
+        data.extend(self.state.getData())
+        data.extend(self.action.getData())
+        data.append(self.reward)
+        data.extend(self.nextState.getData())
+        data.extend([x for action in self.nextActions for x in action.getData()] )
+        return data
