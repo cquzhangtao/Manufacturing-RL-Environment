@@ -3,9 +3,7 @@ Created on Dec 1, 2021
 
 @author: cquzh
 '''
-from com.tao.py.rl.data.TrainDataItem import TrainDataItem
-from com.tao.py.rl.kernel.State import State
-from com.tao.py.rl.kernel.Action import Action
+
 from com.tao.py.sim.kernel.SimEventListener import SimEventListener
 from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
 from com.tao.py.rl.data.TrainDataCollector import TrainDataCollector
