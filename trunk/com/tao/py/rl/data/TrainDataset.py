@@ -32,29 +32,36 @@ class TrainDataset(object):
         
         #self.getTrainData()
     def calNextMaxReward(self,agent):
-        inputSize=self.getInputSize()
         nextMaxReward=[]
 
         for rowIdx in range(len(self.newActionSet)):
             row=self.newActionSet[rowIdx]
             state=self.newState[rowIdx]
-            inputData=[]
-                                  
+            inputData=[]                   
             for col in range(0,len(row),self.actionFeatureNum):
-                inputData=numpy.r_[inputData,row[col:col+self.actionFeatureNum]]
-            inputData=numpy.reshape(inputData,(len(row)//self.actionFeatureNum,self.actionFeatureNum))
-            inputData=numpy.c_[state,inputData]
-            qvalue=self.calQValueFromInput(agent,inputData)
+                inputData.append(state+row[col:col+self.actionFeatureNum])
+            qvalue=self.calQValueFromInput(agent,numpy.vstack(inputData))
             nextMaxReward.append([max(qvalue)])
             
         return nextMaxReward
     
     def getOutputTarget(self,agent):
         nextMaxReward=self.calNextMaxReward(agent)
-        qvalue=self.reward+self.discount*nextMaxReward
-        
+        qvalue=numpy.vstack(self.reward)+self.discount*numpy.vstack(nextMaxReward)
+        #actQvalue=self.getActualOutput(agent)
+        #qvalue=self.normalizeTargetOutput(qvalue)
         return qvalue
-  
+    
+    def normalizeTargetOutput(self,target):
+        minV=min(target)
+        maxV=max(target)
+        datalist=[(row-minV)/(maxV-minV) for row in target ] 
+        
+        return numpy.vstack(datalist) 
+ 
+    
+    def getActualOutput(self,agent):
+        return self.calQValueFromInput(agent,self.getNormalizedInput())
         
     def getInputSize(self): 
         return  self.actionFeatureNum+ self.stateFeatureNum
