@@ -22,11 +22,25 @@ class TrainDataset(object):
         self.calPreProcParameters()
         
         self.input=[row[self.stateIdx:self.rewardIdx] for row in self.rawData]
+        self.state=[row[self.stateIdx:self.actionIdx] for row in self.rawData]
+        self.action=[row[self.actionIdx:self.rewardIdx] for row in self.rawData]
+        self.reward=[row[self.rewardIdx:self.newStateIdx] for row in self.rawData]
+        self.newState=[row[self.newStateIdx:self.newActionSetIdx] for row in self.rawData]
+        self.newActionSet=[row[self.newActionSetIdx:len(row)] for row in self.rawData]
         
         self.normalizedInput=self.normalizeInput()
         
         #self.getTrainData()
-    
+    def calNextMaxReward(self,agent):
+        nextReward=[]
+        for row in self.newActionSet:
+            entry=[]
+            nextReward.append(entry)
+            maxQ=0
+            for col in range(0,len(row),self.actionFeatureNum):
+                entry.append(calQValue)
+        [row for ]
+        
     def getInputSize(self): 
         return  self.actionFeatureNum+ self.stateFeatureNum
         
@@ -88,5 +102,5 @@ class TrainDataset(object):
         #trainData=[row[self.stateIdx:self.rewardIdx]+[self.calTargetQValue(row[self.rewardIdx],row[self.newStateIdx:self.newActionSetIdx],row[self.newActionSetIdx:len(row)])] for row in self.rawData]
         #trainData=[ numpy.concatenate((self.normalizedInput[row],[self.calTargetQValue(self.rawData[row][self.rewardIdx],self.rawData[row][self.newStateIdx:self.newActionSetIdx],self.rawData[row][self.newActionSetIdx:len(self.rawData[row])])])) for row in range(len(self.normalizedInput)) ]
         #trainData=[[self.rawData[row][self.rewardIdx]]for row in range(len(self.normalizedInput)) ]
-        output=numpy.vstack([[self.calTargetQValue(agent,row[self.rewardIdx],row[self.newStateIdx:self.newActionSetIdx],row[self.newActionSetIdx:len(row)])] for row in self.rawData ])
+        output=numpy.vstack([self.calTargetQValue(agent,row[self.rewardIdx],row[self.newStateIdx:self.newActionSetIdx],row[self.newActionSetIdx:len(row)]) for row in self.rawData ])
         return output
