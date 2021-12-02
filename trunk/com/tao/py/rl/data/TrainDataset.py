@@ -32,22 +32,36 @@ class TrainDataset(object):
         
         #self.getTrainData()
     def calNextMaxReward(self,agent):
-        nextReward=[]
-        for row in self.newActionSet:
-            entry=[]
-            nextReward.append(entry)
-            maxQ=0
+        inputSize=self.getInputSize()
+        nextMaxReward=[]
+
+        for rowIdx in range(len(self.newActionSet)):
+            row=self.newActionSet[rowIdx]
+            state=self.newState[rowIdx]
+            inputData=[]
+                                  
             for col in range(0,len(row),self.actionFeatureNum):
-                entry.append(calQValue)
-        [row for ]
+                inputData=numpy.r_[inputData,row[col:col+self.actionFeatureNum]]
+            inputData=numpy.reshape(inputData,(len(row)//self.actionFeatureNum,self.actionFeatureNum))
+            inputData=numpy.c_[state,inputData]
+            qvalue=self.calQValueFromInput(agent,inputData)
+            nextMaxReward.append([max(qvalue)])
+            
+        return nextMaxReward
+    
+    def getOutputTarget(self,agent):
+        nextMaxReward=self.calNextMaxReward(agent)
+        qvalue=self.reward+self.discount*nextMaxReward
+        
+        return qvalue
+  
         
     def getInputSize(self): 
         return  self.actionFeatureNum+ self.stateFeatureNum
         
         
     def getDataSpec(self): 
-        item=self.dataCollector.getOneTrainDataItem()
-        
+        item=self.dataCollector.getOneTrainDataItem()       
         self.actionFeatureNum =len(item.getAction().getData())
         self.stateFeatureNum=len(item.getState().getData())
         self.stateIdx=0
@@ -94,13 +108,16 @@ class TrainDataset(object):
         qvalues=([self.calQValue(agent,nextState,nextActions[col:col+self.actionFeatureNum]) for col in range(0,len(nextActions),self.actionFeatureNum) ])
         return reward+self.discount*max(qvalues)
     
+    def calQValueFromInput(self,agent,inputData):
+        return agent.eval(inputData)
+    
     def calQValue(self,agent,state,action):
         inputData=numpy.concatenate((state,action))
         return agent.eval(numpy.reshape(inputData,(1,len(inputData))))
     
-    def getOutputTarget(self,agent):
-        #trainData=[row[self.stateIdx:self.rewardIdx]+[self.calTargetQValue(row[self.rewardIdx],row[self.newStateIdx:self.newActionSetIdx],row[self.newActionSetIdx:len(row)])] for row in self.rawData]
-        #trainData=[ numpy.concatenate((self.normalizedInput[row],[self.calTargetQValue(self.rawData[row][self.rewardIdx],self.rawData[row][self.newStateIdx:self.newActionSetIdx],self.rawData[row][self.newActionSetIdx:len(self.rawData[row])])])) for row in range(len(self.normalizedInput)) ]
-        #trainData=[[self.rawData[row][self.rewardIdx]]for row in range(len(self.normalizedInput)) ]
-        output=numpy.vstack([self.calTargetQValue(agent,row[self.rewardIdx],row[self.newStateIdx:self.newActionSetIdx],row[self.newActionSetIdx:len(row)]) for row in self.rawData ])
-        return output
+    # def getOutputTarget(self,agent):
+    #     #trainData=[row[self.stateIdx:self.rewardIdx]+[self.calTargetQValue(row[self.rewardIdx],row[self.newStateIdx:self.newActionSetIdx],row[self.newActionSetIdx:len(row)])] for row in self.rawData]
+    #     #trainData=[ numpy.concatenate((self.normalizedInput[row],[self.calTargetQValue(self.rawData[row][self.rewardIdx],self.rawData[row][self.newStateIdx:self.newActionSetIdx],self.rawData[row][self.newActionSetIdx:len(self.rawData[row])])])) for row in range(len(self.normalizedInput)) ]
+    #     #trainData=[[self.rawData[row][self.rewardIdx]]for row in range(len(self.normalizedInput)) ]
+    #     output=numpy.vstack([self.calTargetQValue(agent,row[self.rewardIdx],row[self.newStateIdx:self.newActionSetIdx],row[self.newActionSetIdx:len(row)]) for row in self.rawData ])
+    #     return output
