@@ -44,7 +44,9 @@ class TrainDataset(object):
         
     def normalizeInput(self):
         #return [(row[idx]-self.min[idx])/(self.max[idx]-self.min[idx]) for row in self.input for idx in range(len(row))]
-        return [(row-self.min)/(self.max-self.min) for row in self.input ]
+        datalist=[(row-self.min)/(self.max-self.min) for row in self.input ] 
+        
+        return numpy.vstack(datalist) 
     
     def getNormalizedInput(self):  
         return self.normalizedInput  
@@ -74,16 +76,17 @@ class TrainDataset(object):
         maxAction=numpy.max(allActionData,axis=0)
         self. max=numpy.concatenate((maxState,maxAction))
     
-    def calTargetQValue(self,reward,nextState,nextActions):
-        qvalues=([self.calQValue(nextState,nextActions[col:col+self.actionFeatureNum]) for col in range(0,len(nextActions),self.actionFeatureNum) ])
+    def calTargetQValue(self,agent,reward,nextState,nextActions):
+        qvalues=([self.calQValue(agent,nextState,nextActions[col:col+self.actionFeatureNum]) for col in range(0,len(nextActions),self.actionFeatureNum) ])
         return reward+self.discount*max(qvalues)
     
-    def calQValue(self,state,action):
-        return 0
+    def calQValue(self,agent,state,action):
+        inputData=numpy.concatenate((state,action))
+        return agent.eval(numpy.reshape(inputData,(1,len(inputData))))
     
-    def getOutputTarget(self):
+    def getOutputTarget(self,agent):
         #trainData=[row[self.stateIdx:self.rewardIdx]+[self.calTargetQValue(row[self.rewardIdx],row[self.newStateIdx:self.newActionSetIdx],row[self.newActionSetIdx:len(row)])] for row in self.rawData]
         #trainData=[ numpy.concatenate((self.normalizedInput[row],[self.calTargetQValue(self.rawData[row][self.rewardIdx],self.rawData[row][self.newStateIdx:self.newActionSetIdx],self.rawData[row][self.newActionSetIdx:len(self.rawData[row])])])) for row in range(len(self.normalizedInput)) ]
         #trainData=[[self.rawData[row][self.rewardIdx]]for row in range(len(self.normalizedInput)) ]
-        output=[[self.calTargetQValue(self.rawData[row][self.rewardIdx],self.rawData[row][self.newStateIdx:self.newActionSetIdx],self.rawData[row][self.newActionSetIdx:len(self.rawData[row])])] for row in range(len(self.normalizedInput)) ]
+        output=numpy.vstack([[self.calTargetQValue(agent,row[self.rewardIdx],row[self.newStateIdx:self.newActionSetIdx],row[self.newActionSetIdx:len(row)])] for row in self.rawData ])
         return output
