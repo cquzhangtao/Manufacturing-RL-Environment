@@ -19,4 +19,4 @@ class Action(object):
     def getData(self):
         return self.data
     def __str__(self):
-        return ",".join(map(str,self.data))  
+        return ",".join([ "{:.2f}".format(value) for value in self.data])  

@@ -29,7 +29,7 @@ class TrainDataItem(object):
         return self.action
     
     def __str__(self):
-        return "S[{}]====a[{}]====r[{}]====S'[{}]====A'[{}]".format(self.state.__str__(),self.action.__str__(),self.reward,self.nextState.__str__(),";".join(["a{}[{}]".format(idx,action.__str__()) for idx,action in enumerate(self.nextActions)]))
+        return "S[{}]====a[{}]====r[{:.2f}]====S'[{}]====A'[{}]".format(self.state.__str__(),self.action.__str__(),self.reward,self.nextState.__str__(),";".join(["a{}[{}]".format(idx,action.__str__()) for idx,action in enumerate(self.nextActions)]))
     
     def flatten(self):
         data=[]

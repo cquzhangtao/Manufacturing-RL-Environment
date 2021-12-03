@@ -31,10 +31,15 @@ class TrainDataset(object):
         self.normalizedInput=self.normalizeInput()
         
         #self.getTrainData()
-    def calNextMaxReward(self,agent):
+    def getSize(self):
+        return len(self.rawData)
+    
+    
+    def calNextMaxReward(self,agent,start,end):
         nextMaxReward=[]
 
-        for rowIdx in range(len(self.newActionSet)):
+        for rowIdx in range(start,end):
+
             row=self.newActionSet[rowIdx]
             state=self.newState[rowIdx]
             inputData=[]                   
@@ -45,9 +50,9 @@ class TrainDataset(object):
             
         return nextMaxReward
     
-    def getOutputTarget(self,agent):
-        nextMaxReward=self.calNextMaxReward(agent)
-        qvalue=numpy.vstack(self.reward)+self.discount*numpy.vstack(nextMaxReward)
+    def getOutputTarget(self,agent,start,end):
+        nextMaxReward=self.calNextMaxReward(agent,start,end)
+        qvalue=numpy.vstack(self.reward[start:end])+self.discount*numpy.vstack(nextMaxReward)
         #actQvalue=self.getActualOutput(agent)
         #qvalue=self.normalizeTargetOutput(qvalue)
         return qvalue
@@ -83,8 +88,8 @@ class TrainDataset(object):
         
         return numpy.vstack(datalist) 
     
-    def getNormalizedInput(self):  
-        return self.normalizedInput  
+    def getNormalizedInput(self,start,end):  
+        return self.normalizedInput[start:end]  
     
     def calPreProcParameters(self):
         allStateData=[row[self.stateIdx:self.actionIdx] for row in self.rawData]
