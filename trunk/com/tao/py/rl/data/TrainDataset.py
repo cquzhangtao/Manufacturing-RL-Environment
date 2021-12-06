@@ -4,6 +4,8 @@ Created on Dec 1, 2021
 @author: Shufang
 '''
 import numpy 
+import math
+
 class TrainDataset(object):
     '''
     classdocs
@@ -17,6 +19,9 @@ class TrainDataset(object):
         self.dataCollector=dataCollector
         self.discount=0.1        
         self.rawData=dataCollector.flatten()
+        
+        if len(self.rawData)==0:
+            return;
 
         self.getDataSpec()
         self.calPreProcParameters()
@@ -34,7 +39,7 @@ class TrainDataset(object):
     def getSize(self):
         return len(self.rawData)
     
-    
+  
     def calNextMaxReward(self,agent,start,end):
         nextMaxReward=[]
 
@@ -73,9 +78,7 @@ class TrainDataset(object):
         
         
     def getDataSpec(self): 
-        item=self.dataCollector.getOneTrainDataItem()       
-        self.actionFeatureNum =len(item.getAction().getData())
-        self.stateFeatureNum=len(item.getState().getData())
+        self.stateFeatureNum,self.actionFeatureNum=self.dataCollector.getEnvironmentSpec()       
         self.stateIdx=0
         self.actionIdx=self.stateIdx+self.stateFeatureNum
         self.rewardIdx=self.actionIdx+self.actionFeatureNum
@@ -84,8 +87,15 @@ class TrainDataset(object):
         
     def normalizeInput(self):
         #return [(row[idx]-self.min[idx])/(self.max[idx]-self.min[idx]) for row in self.input for idx in range(len(row))]
-        datalist=[(row-self.min)/(self.max-self.min) for row in self.input ] 
+        # if all(v == 0 for v in self.max-self.min):
+        #     return numpy.vstack(self.input)  
+        #
+        # datalist=[(row-self.min)/(self.max-self.min) for row in self.input ] 
         
+        #datalist=[(row-self.mean)/self.std for row in self.input ] 
+        return self.normalize(self.input) 
+    def normalize(self,listData):
+        datalist=[(row-self.mean)/self.std for row in listData ] 
         return numpy.vstack(datalist) 
     
     def getNormalizedInput(self,start,end):  
@@ -99,6 +109,8 @@ class TrainDataset(object):
         allActionData.extend([row[col:col+self.actionFeatureNum] for row in self.rawData for col in range(self.newActionSetIdx,len(row),self.actionFeatureNum) ])       
         
         #TODO remove duplication
+        if len(allStateData)==0 or len(allActionData)==0:
+            a=1
         
         varState=numpy.var(allStateData,axis=0)
         varAction=numpy.var(allActionData,axis=0)
@@ -115,16 +127,22 @@ class TrainDataset(object):
         maxState=numpy.max(allStateData,axis=0)
         maxAction=numpy.max(allActionData,axis=0)
         self. max=numpy.concatenate((maxState,maxAction))
-    
+        
+        stdState=numpy.std(allStateData,axis=0)
+        stdAction=numpy.std(allActionData,axis=0)
+        self.std=numpy.concatenate((stdState,stdAction))
+     
     def calTargetQValue(self,agent,reward,nextState,nextActions):
         qvalues=([self.calQValue(agent,nextState,nextActions[col:col+self.actionFeatureNum]) for col in range(0,len(nextActions),self.actionFeatureNum) ])
         return reward+self.discount*max(qvalues)
     
     def calQValueFromInput(self,agent,inputData):
+        inputData=self.normalize(inputData)
         return agent.eval(inputData)
     
     def calQValue(self,agent,state,action):
         inputData=numpy.concatenate((state,action))
+        inputData=self.normalize(inputData)
         return agent.eval(numpy.reshape(inputData,(1,len(inputData))))
     
     # def getOutputTarget(self,agent):

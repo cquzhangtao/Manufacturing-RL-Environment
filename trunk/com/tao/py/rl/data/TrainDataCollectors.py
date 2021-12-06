@@ -15,13 +15,15 @@ class TrainDataCollectors(SimEventListener):
     '''
 
 
-    def __init__(self,result):
+    def __init__(self,environment):
         '''
         Constructor
         '''
         self.dataset=[]
-        self.resut=result
+        #self.resut=result
         self.collectors=[]
+        
+        self.environment=environment
 
     
     def onEventTriggered(self,event): 
@@ -33,7 +35,7 @@ class TrainDataCollectors(SimEventListener):
             self.extendArray(self.collectors, scenario, rep)
             
             if self.collectors[scenario][rep]==None:
-                self.collectors[scenario][rep]=TrainDataCollector(self.resut)
+                self.collectors[scenario][rep]=TrainDataCollector(self.environment)
                 self.dataset.append(self.collectors[scenario][rep].getDataset())
             subCollector=self.collectors[scenario][rep]
             subCollector.onDecisionMade(event,event.getJob(),event.getTool(),event.getQueue(),event.getTime())
@@ -48,5 +50,5 @@ class TrainDataCollectors(SimEventListener):
         data=[]
         data.extend([repData.flatten() for sceData in self.dataset for repData in sceData])
         return data
-    def getOneTrainDataItem(self):
-        return self.collectors[0][0].getDataset()[0]
+    def getEnvironmentSpec(self):
+        return self.environment.getSpec()

@@ -16,15 +16,16 @@ class TrainDataCollector(SimEventListener):
     '''
 
 
-    def __init__(self,result):
+    def __init__(self,environment):
         '''
         Constructor
         '''
         self.dataset=[]
-        self.result=result
+        #self.result=result
         self.preState=None
         self.preAction=None
         self.preReward=0
+        self.environment=environment
     
     def onEventTriggered(self,event): 
         if isinstance(event, DecisionMadeEvent):
@@ -39,24 +40,20 @@ class TrainDataCollector(SimEventListener):
         
         self.preState=state
         self.preAction=self.getActionFromJob(job,time)        
-        self.preReward=self.getReward(event.getScenario().getIndex(),event.getReplication())
+        self.preReward=self.getReward(event.getScenario().getIndex(),event.getReplication(),job.getModel(),tool,queue,job,time)
             
     
     def getStateFromModel(self,model,tool,queue,time):
-        return State([time,len(queue)])
+        return self.environment.getStateFromModel(model,tool,queue,time)
     
     def getActionFromJob(self,job,time): 
-        return Action([job.getProcessTime(),time-job.getReleaseTime()])
+        return self.environment.getActionFromJob(job,time)
        
     def getActionSetFromQueue(self,queue,time):  
-        actions=[]
-        for job in queue:
-            actions.append(self.getActionFromJob(job,time))  
-            
-        return actions
+        return self.environment.getActionSetFromQueue(queue,time)
     
-    def getReward(self,scenario,replication):        
-        return 1/self.result.getDataset(scenario,replication).getAvgCT()
+    def getReward(self,scenario,replication,model,tool,queue,job,time):        
+        return self.environment.getReward(scenario,replication,model,tool,queue,job,time)
     
     def getDataset(self):
         return self.dataset

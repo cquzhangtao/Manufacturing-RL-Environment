@@ -27,5 +27,5 @@ class DecisionEventListener(SimEventListener):
 
         if isinstance(event, DecisionMakingEvent):
             self.tool=event.getTool()
-            self.queue=event.getQueue()
+            self.queue=event.getTool().getQueue()
             self.time=event.getTime()

@@ -23,5 +23,5 @@ class Scenario(Entity):
     def getSimConfig(self):
         return self.simConfig
     
-    def getModel(self):
-        return self.model
+    def createModel(self):
+        return self.model()

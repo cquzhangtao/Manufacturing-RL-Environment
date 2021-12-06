@@ -11,6 +11,11 @@ from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
 import copy
 from com.tao.py.rl.environment.DecisionEventListener import DecisionEventListener
 from com.tao.py.manu.stat.SimDataCollector import SimDataCollector
+from com.tao.py.rl.data.TrainDataCollectors import TrainDataCollectors
+from com.tao.py.rl.data.TrainDataset import TrainDataset
+from com.tao.py.rl.kernel.State import State
+from com.tao.py.rl.kernel.Action import Action
+from com.tao.py.manu.rule.Rule import AgentRule, FIFORule
 
 
 class SimEnvironment(PyEnvironment):
@@ -20,8 +25,9 @@ class SimEnvironment(PyEnvironment):
         self.state=None
         self.rep=1
         self.eventListeners=[]
+        self.simResult=None
 
-        self.start()
+        #self.start()
     
     
     def createEventListeners(self):
@@ -30,27 +36,28 @@ class SimEnvironment(PyEnvironment):
         self.simResult=SimDataCollector()
         self.eventListeners.append(self.simResult)
     
-    def start(self):
+    def start(self,training=False,rule=FIFORule()):
         self.createEventListeners()
-        self.model=copy.deepcopy(self.scenario.getModel())       
+        self.model=self.scenario.createModel()       
         self.model.setReplication(self.rep) 
         self.model.setScenario(self.scenario)
-        self.model.training=True 
+        self.model.training=training 
+        
+        for machine in self.model.machines:
+            machine.rule=rule
             
         self.sim=Simulator(self.scenario.getSimConfig(),self.eventListeners)                
-        self.model.setEngine(self.sim)
                 
         for simEntity in self.model.getSimEntities():
-            simEntity.setEngine(self.sim)
             simEntity.setReplication(self.rep) 
             simEntity.setScenario(self.scenario)
-            simEntity.training=True   
+            simEntity.training=training   
         
         self.sim.start(self.model)
     
     def restart(self):
         self.rep+=1
-        self.start()
+        self.start(training=True)
     
     def action_spec(self):
         return self._action_spec
@@ -82,6 +89,40 @@ class SimEnvironment(PyEnvironment):
             return ts.transition(
               np.array([self.state], dtype=np.int32), reward=0.0, discount=1.0)
             
+    def collectData(self,policy): 
+        self.eventListeners=[] 
+        trainDataCollector=TrainDataCollectors(self) 
+        self.eventListeners.append(trainDataCollector)
+
+        self.start(rule=AgentRule(policy))
+        trainDataset=TrainDataset(trainDataCollector)
+        
+        while len(trainDataset.rawData)==0:
+            self.start(rule=AgentRule(policy))
+            trainDataset=TrainDataset(trainDataCollector)            
+        
+        return trainDataset
+    
+    def getStateFromModel(self,model,tool,queue,time):
+        return State([time,len(queue)])
+    
+
+    
+    def getActionFromJob(self,job,time): 
+        return Action([job.getProcessTime(),time-job.getReleaseTime()])
+    
+    def getSpec(self):
+        return 2,2
+       
+    def getActionSetFromQueue(self,queue,time):  
+        actions=[]
+        for job in queue:
+            actions.append(self.getActionFromJob(job,time))  
             
+        return actions
+    
+    def getReward(self,scenario,replication,model,tool,queue,job,time):        
+        return 1/self.simResult.getDataset(scenario,replication).getAvgCT()
+             
             
             

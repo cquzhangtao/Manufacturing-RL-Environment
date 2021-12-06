@@ -26,7 +26,7 @@ class Experiment(Entity):
             simConfig=scenario.getSimConfig()
             for rep in range(simConfig.getReplication()):
                 
-                model=copy.deepcopy(scenario.getModel())
+                model=scenario.createModel()
                 model.setReplication(rep) 
                 model.setScenario(scenario)              
                 sim=Simulator(simConfig,self.eventListeners)
