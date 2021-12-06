@@ -67,13 +67,13 @@ class SimEnvironment(PyEnvironment):
         if self.sim.getState()==3: 
             return self._reset()        
         
-        event=DecisionMadeEvent(self.decisionMaking.time,self.decisionMaking.tool,1/self.simResult.getSummary().getAvgCT(),self.decisionMaking.queue)
+        event=DecisionMadeEvent(self.decisionMaking.time,self.decisionMaking.tool,self.decisionMaking.queue[action.getIndex()],self.decisionMaking.queue)
         self.sim.insertEventOnTop(event)
 
         self.sim.resume()
         
         self.state=self.model.getState()
-        reward=0
+        reward=1/self.simResult.getSummary().getAvgCT()
         
         if self.sim.getState()==3:  
             #return self._reset()      
