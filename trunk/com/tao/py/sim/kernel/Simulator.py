@@ -16,8 +16,10 @@ class Simulator(object):
         '''
         self.simConfig=simConfig
         self.eventList=[]
+        self.currentEventList=[]
         self.time=0
         self.eventListeners=eventListeners
+        self.state=0 #0 idle 1 busy 2 pause 3 done
         
     def getFirstEvents(self):
         events=[]
@@ -50,20 +52,50 @@ class Simulator(object):
     def insertEvents(self,newEvents):
         for event in newEvents:
             self.insertEvent(event)
-            
+     
+    def insertEventIntoCurrentList(self,newEvent):
+        index=0
+        for event in self.currentEventList:
+            if event.getPriority()<newEvent.getPriority():
+                break
+            index=index+1
+        self.currentEventList.insert(index,newEvent)
+        
+    def insertEventOnTop(self,newEvent):   
+        self.currentEventList.insert(0,newEvent)                   
     
-    def run(self,model):
-        model.insertInitialEvents()
-        while len(self.eventList)>0 and self.time<self.simConfig.getSimLen():
-            events=self.getFirstEvents()
-            self.time=events[0].getTime()
-            #print("Time:"+str(self.time))
-            for event in events:
-                event.trigger()
-                for lis in self.eventListeners:
-                    lis.onEventTriggered(event)
+    def run(self):
 
+        while self.state!=2 and self.time<self.simConfig.getSimLen() and self.advance():
+            pass
+
+        if self.state!=2:
+            self.state=3   
             
+    def advance(self):
+        if len(self.eventList)+len(self.currentEventList)==0:
+            self.state=3  
+            return False
+        if len(self.currentEventList)==0:
+            self.currentEventList=self.getFirstEvents()
+        event=self.currentEventList[0]
+        del self.currentEventList[0]
+        self.time=event.getTime()        
+        event.trigger()
+        for lis in self.eventListeners:
+            lis.onEventTriggered(event)            
             
+        return True
         
+    def start(self,model):
+        model.insertInitialEvents()
+        self.state=1
+        self.run()
+
         
+    def pause(self): 
+        self.state=2 
+        
+    def resume(self):   
+        self.state=1
+        self.run()  

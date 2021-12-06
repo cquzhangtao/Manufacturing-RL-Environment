@@ -23,12 +23,13 @@ class SimEntity(Entity):
         self.event=None
         self.replication=0
         self.scenario=None
+        self.training=False
         
     def copySimContext(self,entity):
         entity.engine=self.engine
         entity.scenario=self.scenario
         entity.replication=self.replication
-    
+        entity.training=self.training
     
     def getModel(self):
         return self.model
@@ -45,6 +46,10 @@ class SimEntity(Entity):
     def addEvent(self,event):
         self.copySimContext(event)        
         self.engine.insertEvent(event)
+    
+    def addEventOnTop(self,event):
+        self.copySimContext(event)        
+        self.engine.insertEventOnTop(event)
         
     def removeEvent(self,event):
         self.engine.eventList.remove(event)
