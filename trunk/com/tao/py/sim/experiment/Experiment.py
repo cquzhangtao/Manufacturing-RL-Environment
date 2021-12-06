@@ -31,13 +31,11 @@ class Experiment(Entity):
                 model.setScenario(scenario)              
                 sim=Simulator(simConfig,self.eventListeners)
                 
-                model.setEngine(sim)
                 
                 for simEntity in model.getSimEntities():
-                    simEntity.setEngine(sim)
                     simEntity.setReplication(rep) 
                     simEntity.setScenario(scenario)
                 
-                sim.run(model)
+                sim.start(model)
                 
             

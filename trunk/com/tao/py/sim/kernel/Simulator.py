@@ -88,6 +88,9 @@ class Simulator(object):
         return True
         
     def start(self,model):
+        model.setEngine(self)
+        for simEntity in model.getSimEntities():
+            simEntity.setEngine(self)
         model.insertInitialEvents()
         self.state=1
         self.run()

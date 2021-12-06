@@ -94,28 +94,28 @@ def train_eval(
                                        critic_action_fc_layers,
                                        critic_joint_fc_layers)
     
-    tf_agent =DdpgAgent(
-      tf_env.time_step_spec(),
-      tf_env.action_spec(),
-      actor_network=actor_net,
-      critic_network=critic_net,
-      actor_optimizer=tf.compat.v1.train.AdamOptimizer(
-          learning_rate=actor_learning_rate),
-      critic_optimizer=tf.compat.v1.train.AdamOptimizer(
-          learning_rate=critic_learning_rate),
-      ou_stddev=ou_stddev,
-      ou_damping=ou_damping,
-      target_update_tau=target_update_tau,
-      target_update_period=target_update_period,
-      dqda_clipping=dqda_clipping,
-      td_errors_loss_fn=td_errors_loss_fn,
-      gamma=gamma,
-      reward_scale_factor=reward_scale_factor,
-      gradient_clipping=gradient_clipping,
-      debug_summaries=debug_summaries,
-      summarize_grads_and_vars=summarize_grads_and_vars,
-      train_step_counter=None)
-    tf_agent.initialize()
+    # tf_agent =DdpgAgent(
+    #   tf_env.time_step_spec(),
+    #   tf_env.action_spec(),
+    #   actor_network=actor_net,
+    #   critic_network=critic_net,
+    #   actor_optimizer=tf.compat.v1.train.AdamOptimizer(
+    #       learning_rate=actor_learning_rate),
+    #   critic_optimizer=tf.compat.v1.train.AdamOptimizer(
+    #       learning_rate=critic_learning_rate),
+    #   ou_stddev=ou_stddev,
+    #   ou_damping=ou_damping,
+    #   target_update_tau=target_update_tau,
+    #   target_update_period=target_update_period,
+    #   dqda_clipping=dqda_clipping,
+    #   td_errors_loss_fn=td_errors_loss_fn,
+    #   gamma=gamma,
+    #   reward_scale_factor=reward_scale_factor,
+    #   gradient_clipping=gradient_clipping,
+    #   debug_summaries=debug_summaries,
+    #   summarize_grads_and_vars=summarize_grads_and_vars,
+    #   train_step_counter=None)
+    # tf_agent.initialize()
     
    
     
