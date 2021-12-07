@@ -4,7 +4,6 @@ Created on Dec 1, 2021
 @author: Shufang
 '''
 import numpy 
-import math
 
 class TrainDataset(object):
     '''
@@ -95,7 +94,8 @@ class TrainDataset(object):
         #datalist=[(row-self.mean)/self.std for row in self.input ] 
         return self.normalize(self.input) 
     def normalize(self,listData):
-        datalist=[(row-self.mean)/self.std for row in listData ] 
+        #datalist=[(row-self.mean)/self.std for row in listData ] 
+        datalist=[row/self.max for row in listData ] 
         return numpy.vstack(datalist) 
     
     def getNormalizedInput(self,start,end):  
@@ -140,10 +140,10 @@ class TrainDataset(object):
         inputData=self.normalize(inputData)
         return agent.eval(inputData)
     
-    def calQValue(self,agent,state,action):
-        inputData=numpy.concatenate((state,action))
-        inputData=self.normalize(inputData)
-        return agent.eval(numpy.reshape(inputData,(1,len(inputData))))
+    # def calQValue(self,agent,state,action):
+    #     inputData=numpy.concatenate((state,action))
+    #     inputData=self.normalize(inputData)
+    #     return agent.eval(numpy.reshape(inputData,(1,len(inputData))))
     
     # def getOutputTarget(self,agent):
     #     #trainData=[row[self.stateIdx:self.rewardIdx]+[self.calTargetQValue(row[self.rewardIdx],row[self.newStateIdx:self.newActionSetIdx],row[self.newActionSetIdx:len(row)])] for row in self.rawData]

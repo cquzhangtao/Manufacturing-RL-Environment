@@ -16,6 +16,7 @@ class SimEvent(SimEntity):
         '''
         Constructor
         '''
+        super().__init__(0, "",None)
         self.time=time
         self.priority=priority
         
