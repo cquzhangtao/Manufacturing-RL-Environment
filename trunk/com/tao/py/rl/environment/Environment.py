@@ -8,7 +8,6 @@ from tf_agents.trajectories import time_step as ts
 import numpy as np
 from com.tao.py.sim.kernel.Simulator import Simulator
 from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
-import copy
 from com.tao.py.rl.environment.DecisionEventListener import DecisionEventListener
 from com.tao.py.manu.stat.SimDataCollector import SimDataCollector
 from com.tao.py.rl.data.TrainDataCollectors import TrainDataCollectors
@@ -95,6 +94,8 @@ class SimEnvironment(PyEnvironment):
         self.eventListeners.append(trainDataCollector)
 
         self.start(rule=AgentRule(policy))
+        
+        print(self.simResult.getSummaryStr())
         trainDataset=TrainDataset(trainDataCollector)
         
         while len(trainDataset.rawData)==0:
