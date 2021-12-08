@@ -55,6 +55,7 @@ class SimEnvironment2(SimEnvironment):
         self.reward=1/self.simResult.getSummary().getAvgCT()
         
         if self.sim.getState()==3: 
+            print(self.simResult.getSummaryStr())
             self._reset()    
         
         # if self.sim.getState()==3:  
