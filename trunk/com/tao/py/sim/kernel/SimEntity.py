@@ -18,7 +18,7 @@ class SimEntity(Entity):
         '''
         super().__init__(uuid,name)
         
-        self.model=model
+        self.network=model
         self.engine=None
         self.event=None
         self.replication=0
@@ -32,13 +32,13 @@ class SimEntity(Entity):
         entity.training=self.training
     
     def getModel(self):
-        return self.model
+        return self.network
     
     def getEngine(self):
         return self.engine
     
     def setModel(self,model):
-        self.model=model
+        self.network=model
         
     def setEngine(self,engine):
         self.engine=engine

@@ -18,10 +18,10 @@ class Scenario(Entity):
         '''
         super().__init__(uuid, name)
         self.simConfig=simConfig
-        self.model=model
+        self.network=model
         
     def getSimConfig(self):
         return self.simConfig
     
     def createModel(self):
-        return self.model()
+        return self.network()

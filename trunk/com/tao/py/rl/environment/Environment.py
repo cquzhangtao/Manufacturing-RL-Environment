@@ -37,22 +37,22 @@ class SimEnvironment(PyEnvironment):
     
     def start(self,training=False,rule=FIFORule()):
         self.createEventListeners()
-        self.model=self.scenario.createModel()       
-        self.model.setReplication(self.rep) 
-        self.model.setScenario(self.scenario)
-        self.model.training=training 
+        self.network=self.scenario.createModel()       
+        self.network.setReplication(self.rep) 
+        self.network.setScenario(self.scenario)
+        self.network.training=training 
         
-        for machine in self.model.machines:
+        for machine in self.network.machines:
             machine.rule=rule
             
         self.sim=Simulator(self.scenario.getSimConfig(),self.eventListeners)                
                 
-        for simEntity in self.model.getSimEntities():
+        for simEntity in self.network.getSimEntities():
             simEntity.setReplication(self.rep) 
             simEntity.setScenario(self.scenario)
             simEntity.training=training   
         
-        self.sim.start(self.model)
+        self.sim.start(self.network)
     
     def restart(self):
         self.rep+=1
@@ -66,7 +66,7 @@ class SimEnvironment(PyEnvironment):
     
     def _reset(self):
         self.restart()
-        self.state=self.model.getState()
+        self.state=self.network.getState()
         return ts.restart(np.array([self.state], dtype=np.int32))
     
     def _step(self, action):
@@ -78,7 +78,7 @@ class SimEnvironment(PyEnvironment):
 
         self.sim.resume()
         
-        self.state=self.model.getState()
+        self.state=self.network.getState()
         reward=1/self.simResult.getSummary().getAvgCT()
         
         if self.sim.getState()==3:  
