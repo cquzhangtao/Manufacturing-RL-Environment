@@ -26,88 +26,53 @@ class SimEnvironment(PyEnvironment):
         self.eventListeners=[]
         self.simResult=None
 
-        #self.start()
-    
-    
-    def createEventListeners(self):
-        self.decisionMaking=DecisionEventListener()
-        self.eventListeners.append(self.decisionMaking)
-        self.simResult=SimDataCollector()
-        self.eventListeners.append(self.simResult)
     
     def start(self,training=False,rule=FIFORule()):
-        self.createEventListeners()
-        self.network=self.scenario.createModel()       
-        self.network.setReplication(self.rep) 
-        self.network.setScenario(self.scenario)
-        self.network.training=training 
+        self.simResult=SimDataCollector()
+        self.eventListeners.append(self.simResult)
         
-        for machine in self.network.machines:
+        self.model=self.scenario.createModel()       
+        self.model.setReplication(self.rep) 
+        self.model.setScenario(self.scenario)
+        self.model.training=training 
+        
+        for machine in self.model.machines:
             machine.rule=rule
             
         self.sim=Simulator(self.scenario.getSimConfig(),self.eventListeners)                
                 
-        for simEntity in self.network.getSimEntities():
+        for simEntity in self.model.getSimEntities():
             simEntity.setReplication(self.rep) 
             simEntity.setScenario(self.scenario)
             simEntity.training=training   
         
-        self.sim.start(self.network)
+        self.sim.start(self.model)
     
-    def restart(self):
-        self.rep+=1
-        self.start(training=True)
-    
-    def action_spec(self):
-        return self._action_spec
-    
-    def observation_spec(self):
-        return self._observation_spec
-    
-    def _reset(self):
-        self.restart()
-        self.state=self.network.getState()
-        return ts.restart(np.array([self.state], dtype=np.int32))
-    
-    def _step(self, action):
-        if self.sim.getState()==3: 
-            return self._reset()        
-        
-        event=DecisionMadeEvent(self.decisionMaking.time,self.decisionMaking.tool,self.decisionMaking.queue[action.getIndex()],self.decisionMaking.queue)
-        self.sim.insertEventOnTop(event)
 
-        self.sim.resume()
-        
-        self.state=self.network.getState()
-        reward=1/self.simResult.getSummary().getAvgCT()
-        
-        if self.sim.getState()==3:  
-            #return self._reset()      
-            return ts.termination(np.array([self.state], dtype=np.int32), reward)
-        else:
-            return ts.transition(
-              np.array([self.state], dtype=np.int32), reward=0.0, discount=1.0)
+
             
     def collectData(self,policy): 
         self.eventListeners=[] 
         trainDataCollector=TrainDataCollectors(self) 
         self.eventListeners.append(trainDataCollector)
 
-        self.start(rule=AgentRule(policy))
+        self.start(training=False,rule=AgentRule(policy))
         
         print(self.simResult.getSummaryStr())
         trainDataset=TrainDataset(trainDataCollector)
         
         while len(trainDataset.rawData)==0:
             self.start(rule=AgentRule(policy))
-            trainDataset=TrainDataset(trainDataCollector)            
+            trainDataset=TrainDataset(trainDataCollector)   
+            
+        del  self.eventListeners[0]        
         
         return trainDataset
+        
     
     def getStateFromModel(self,model,tool,queue,time):
         return State([time,len(queue)])
     
-
     
     def getActionFromJob(self,job,time): 
         return Action([job.getProcessTime(),time-job.getReleaseTime()])

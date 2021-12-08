@@ -102,3 +102,5 @@ class Simulator(object):
     def resume(self):   
         self.state=1
         self.run()  
+    def getState(self):
+        return self.state

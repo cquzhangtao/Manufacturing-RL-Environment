@@ -4,8 +4,6 @@ Created on Dec 1, 2021
 @author: cquzh
 '''
 from com.tao.py.rl.data.TrainDataItem import TrainDataItem
-from com.tao.py.rl.kernel.State import State
-from com.tao.py.rl.kernel.Action import Action
 from com.tao.py.sim.kernel.SimEventListener import SimEventListener
 from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
 
@@ -33,28 +31,15 @@ class TrainDataCollector(SimEventListener):
             
         
     def onDecisionMade(self,event,job,tool,queue,time):
-        state=self.getStateFromModel(job.getModel(), tool,queue,time)
+        state=self.environment.getStateFromModel(job.getModel(), tool,queue,time)
         if self.preState!=None:            
-            item=TrainDataItem(self.preState,self.preAction,self.preReward,state,self.getActionSetFromQueue(queue,time))
+            item=TrainDataItem(self.preState,self.preAction,self.preReward,state,self.environment.getActionSetFromQueue(queue,time))
             self.dataset.append(item)
         
         self.preState=state
-        self.preAction=self.getActionFromJob(job,time)        
-        self.preReward=self.getReward(event.getScenario().getIndex(),event.getReplication(),job.getModel(),tool,queue,job,time)
-            
-    
-    def getStateFromModel(self,model,tool,queue,time):
-        return self.environment.getStateFromModel(model,tool,queue,time)
-    
-    def getActionFromJob(self,job,time): 
-        return self.environment.getActionFromJob(job,time)
-       
-    def getActionSetFromQueue(self,queue,time):  
-        return self.environment.getActionSetFromQueue(queue,time)
-    
-    def getReward(self,scenario,replication,model,tool,queue,job,time):        
-        return self.environment.getReward(scenario,replication,model,tool,queue,job,time)
-    
+        self.preAction=self.environment.getActionFromJob(job,time)        
+        self.preReward=self.environment.getReward(event.getScenario().getIndex(),event.getReplication(),job.getModel(),tool,queue,job,time)
+                
     def getDataset(self):
         return self.dataset
     

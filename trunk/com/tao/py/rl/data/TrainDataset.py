@@ -38,7 +38,8 @@ class TrainDataset(object):
     def getSize(self):
         return len(self.rawData)
     
-  
+
+        
     def calNextMaxReward(self,agent,start,end):
         nextMaxReward=[]
 
@@ -54,11 +55,26 @@ class TrainDataset(object):
             
         return nextMaxReward
     
+    def calNextMaxRewardForOneStep(self,agent,state,actions):
+
+        inputData=[]                   
+        for action in actions:
+            inputData.append(state.getData()+action.getData())
+        qvalue=self.calQValueFromInput(agent,numpy.vstack(inputData))
+        nextMaxReward=max(qvalue)
+            
+        return nextMaxReward
+    
     def getOutputTarget(self,agent,start,end):
         nextMaxReward=self.calNextMaxReward(agent,start,end)
         qvalue=numpy.vstack(self.reward[start:end])+self.discount*numpy.vstack(nextMaxReward)
         #actQvalue=self.getActualOutput(agent)
         #qvalue=self.normalizeTargetOutput(qvalue)
+        return qvalue
+    
+    def getOutputTargetForOneStep(self,agent,reward,newState,newActions):
+        nextMaxReward=self.calNextMaxRewardForOneStep(agent,newState,newActions)
+        qvalue=numpy.vstack(reward+self.discount*numpy.vstack(nextMaxReward))
         return qvalue
     
     def normalizeTargetOutput(self,target):
@@ -97,6 +113,9 @@ class TrainDataset(object):
         #datalist=[(row-self.mean)/self.std for row in listData ] 
         datalist=[row/self.max for row in listData ] 
         return numpy.vstack(datalist) 
+    
+    def normalizeOneStep(self,state,action):
+        return self.normalize([state.getData()+action.getData()])
     
     def getNormalizedInput(self,start,end):  
         return self.normalizedInput[start:end]  
