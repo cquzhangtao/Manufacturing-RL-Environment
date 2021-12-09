@@ -32,7 +32,7 @@ class TrainDataCollectors(SimEventListener):
         if isinstance(event, DecisionMadeEvent):
             scenario=event.getScenario().getIndex()
             rep=event.getReplication()
-            self.extendArray(self.collectors, scenario, rep)
+            self.extend2DArray(self.collectors, scenario, rep)
             
             if self.collectors[scenario][rep]==None:
                 self.collectors[scenario][rep]=TrainDataCollector(self.environment)

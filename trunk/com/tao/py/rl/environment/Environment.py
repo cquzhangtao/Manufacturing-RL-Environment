@@ -15,6 +15,7 @@ from com.tao.py.rl.data.TrainDataset import TrainDataset
 from com.tao.py.rl.kernel.State import State
 from com.tao.py.rl.kernel.Action import Action
 from com.tao.py.manu.rule.Rule import AgentRule, FIFORule
+from pickle import NONE
 
 
 class SimEnvironment(PyEnvironment):
@@ -58,7 +59,7 @@ class SimEnvironment(PyEnvironment):
 
         self.start(training=False,rule=AgentRule(policy))
         
-        print(self.simResult.getSummaryStr())
+        print(self.simResult.getTotalSummary().toString())
         trainDataset=TrainDataset(trainDataCollector)
         
         while len(trainDataset.rawData)==0:
@@ -88,7 +89,15 @@ class SimEnvironment(PyEnvironment):
         return actions
     
     def getReward(self,scenario,replication,model,tool,queue,job,time):        
-        return 1/self.simResult.getDataset(scenario,replication).getAvgCT()
+        return 1/self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
              
-            
-            
+    def observation_spec(self) :
+        return None
+
+    def action_spec(self) :
+        return None       
+     
+    def _reset(self):   
+        return None
+    def _step(self): 
+        return None   

@@ -17,12 +17,15 @@ class SimEventListener(object):
     def onEventTriggered(self,event): 
         pass 
     
-    def extendArray(self,array,d1,d2):  
+    def extend2DArray(self,array,d1,d2):  
         i= len(array)
         while i<=d1:
             i+=1
             array.append([])
-        i=len(array[d1] )  
-        while i<=d2:
+        self.extend1DArray(array[d1],d2 )  
+    
+    def extend1DArray(self,array,d1):
+        i= len(array)
+        while i<=d1:
             i+=1
-            array[d1].append(None)        
+            array.append(None)        
