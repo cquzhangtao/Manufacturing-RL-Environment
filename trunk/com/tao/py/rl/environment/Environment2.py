@@ -3,18 +3,11 @@ Created on Dec 4, 2021
 
 @author: Shufang
 '''
-from tf_agents.environments.py_environment import PyEnvironment
-from tf_agents.trajectories import time_step as ts
-import numpy as np
-from com.tao.py.sim.kernel.Simulator import Simulator
+
 from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
 from com.tao.py.rl.environment.DecisionEventListener import DecisionEventListener
-from com.tao.py.manu.stat.SimDataCollector import SimDataCollector
-from com.tao.py.rl.data.TrainDataCollectors import TrainDataCollectors
-from com.tao.py.rl.data.TrainDataset import TrainDataset
-from com.tao.py.rl.kernel.State import State
-from com.tao.py.rl.kernel.Action import Action
-from com.tao.py.manu.rule.Rule import AgentRule, FIFORule
+
+from com.tao.py.manu.rule.Rule import AgentRule
 from com.tao.py.rl.environment.Environment0 import SimEnvironment0
 from com.tao.py.rl.data.TrainDataItem import TrainDataItem
 
@@ -25,8 +18,11 @@ class SimEnvironment2(SimEnvironment0):
         super().__init__(scenario)
         self.step=0
     
+    def clear(self):
+        self.step=0
+        super().clear()
+    
     def _reset(self):
-        self.rep+=1
         self.start()
         #return ts.restart(np.array([self.state], dtype=np.float32))
         
@@ -57,6 +53,7 @@ class SimEnvironment2(SimEnvironment0):
         
         if self.sim.getState()==3: 
             print(self.simResult.getTotalSummary().toString())
+            self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
             self._reset()    
         
         # if self.sim.getState()==3:  

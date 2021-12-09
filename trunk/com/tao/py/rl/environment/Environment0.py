@@ -15,7 +15,8 @@ from com.tao.py.rl.data.TrainDataset import TrainDataset
 from com.tao.py.rl.kernel.State import State
 from com.tao.py.rl.kernel.Action import Action
 from com.tao.py.manu.rule.Rule import AgentRule, FIFORule
-from pickle import NONE
+import matplotlib.pyplot as plt
+
 
 
 class SimEnvironment0(PyEnvironment):
@@ -23,14 +24,22 @@ class SimEnvironment0(PyEnvironment):
     def __init__(self,scenario):
         self.scenario=scenario
         self.state=None
-        self.rep=1
+        self.rep=0
         self.eventListeners=[]
         self.simResult=None
-
+        self.kpi=[]
+    
+    def clear(self):
+        self.rep=0        
+        self.kpi=[]    
+        
+    def getSimEventListeners(self):
+        return []
     
     def start(self,training=False,rule=FIFORule()):
         self.simResult=SimDataCollector()
         self.eventListeners.append(self.simResult)
+        self.eventListeners.extend(self.getSimEventListeners())
         
         self.model=self.scenario.createModel()       
         self.model.setReplication(self.rep) 
@@ -48,6 +57,7 @@ class SimEnvironment0(PyEnvironment):
             simEntity.training=training   
         
         self.sim.start(self.model)
+        self.rep+=1
     
 
 
@@ -60,6 +70,7 @@ class SimEnvironment0(PyEnvironment):
         self.start(training=False,rule=AgentRule(policy))
         
         print(self.simResult.getTotalSummary().toString())
+        self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
         trainDataset=TrainDataset(trainDataCollector)
         
         while len(trainDataset.rawData)==0:
@@ -88,8 +99,9 @@ class SimEnvironment0(PyEnvironment):
             
         return actions
     
-    def getReward(self,scenario,replication,model,tool,queue,job,time):        
-        return 1/self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
+    def getReward(self,scenario,replication,model,tool,queue,job,time): 
+        return 10-time+job.getReleaseTime()       
+        #return 1/self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
              
     def observation_spec(self) :
         return None
@@ -100,4 +112,9 @@ class SimEnvironment0(PyEnvironment):
     def _reset(self):   
         return None
     def _step(self): 
-        return None   
+        return None  
+    
+    def drawKPICurve(self): 
+        _, ax1 = plt.subplots()
+        ax1.plot(self.kpi)
+        plt.show()
