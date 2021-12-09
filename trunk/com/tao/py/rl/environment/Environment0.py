@@ -18,7 +18,7 @@ from com.tao.py.manu.rule.Rule import AgentRule, FIFORule
 from pickle import NONE
 
 
-class SimEnvironment(PyEnvironment):
+class SimEnvironment0(PyEnvironment):
 
     def __init__(self,scenario):
         self.scenario=scenario

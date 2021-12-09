@@ -72,9 +72,15 @@ class TrainDataset(object):
         #qvalue=self.normalizeTargetOutput(qvalue)
         return qvalue
     
-    def getOutputTargetForOneStep(self,agent,reward,newState,newActions):
+    def getOutputTargetForOneStep(self,agent,reward,newState,newActions,power=1):
         nextMaxReward=self.calNextMaxRewardForOneStep(agent,newState,newActions)
-        qvalue=numpy.vstack(reward+self.discount*numpy.vstack(nextMaxReward))
+        qvalue=numpy.vstack(reward+(self.discount**power)*numpy.vstack(nextMaxReward))
+        return qvalue
+    
+    def getOutputTargetForOneStepSaras(self,agent,reward,newState,newAction,power=1):
+        nextReward=agent.calQValue(newState.getData(),newAction.getData())
+        
+        qvalue=numpy.vstack(reward+(self.discount**power)*numpy.vstack(nextReward))
         return qvalue
     
     def normalizeTargetOutput(self,target):

@@ -15,14 +15,15 @@ from com.tao.py.rl.data.TrainDataset import TrainDataset
 from com.tao.py.rl.kernel.State import State
 from com.tao.py.rl.kernel.Action import Action
 from com.tao.py.manu.rule.Rule import AgentRule, FIFORule
-from com.tao.py.rl.environment.Environment import SimEnvironment
+from com.tao.py.rl.environment.Environment0 import SimEnvironment0
 from com.tao.py.rl.data.TrainDataItem import TrainDataItem
 
 
-class SimEnvironment2(SimEnvironment):
+class SimEnvironment2(SimEnvironment0):
 
     def __init__(self,scenario):
         super().__init__(scenario)
+        self.step=0
     
     def _reset(self):
         self.rep+=1
@@ -45,7 +46,7 @@ class SimEnvironment2(SimEnvironment):
     
     
     def _step(self, actionIdx):
-    
+        self.step+=1
         event=DecisionMadeEvent(self.time,self.tool,self.queue[actionIdx],self.queue)
         self.tool.addEventOnTop(event)
 
