@@ -9,58 +9,38 @@ import numpy as np
 from tf_agents.specs import array_spec
 
 
-from com.tao.py.rl.environment.Environment3 import SimEnvironment3
-from com.tao.py.rl.kernel.Action import Action
-from com.tao.py.rl.kernel.State import State
+from com.tao.py.rl.environment.Environment4 import SimEnvironment4
 
 
 
-class SimEnvironment5(SimEnvironment3,PyEnvironment):
+
+
+class SimEnvironment5(SimEnvironment4,PyEnvironment):
 
     def __init__(self,scenario):
         super().__init__(scenario)
-        self.init(100)
+
         envSpec=self.environmentSpec
-        self.actionNum=0
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(envSpec.stateFeatureNum,), dtype=np.float32, minimum=envSpec.minState, maximum=envSpec.maxState,name='observation')
         
-                
-        
-        counter=envSpec.countAction
-        
-          
-        print(counter)   
-    
+        self._action_spec = array_spec.BoundedArraySpec(
+            shape=(), dtype=np.int32, minimum=0, maximum=self.actionNum,name='action')
+     
     
     def observation_spec(self) :
         return self._observation_spec
 
     def action_spec(self) :
-        return None  
+        return self._action_spec  
     
-    def getActionIndex(self,action):
-        pass     
      
     def _reset(self): 
         self.start()  
-        return ts.restart(np.array([self.state.getData()], dtype=np.float32))
+        return ts.restart(np.array(self.state.getData(), dtype=np.float32))
     
     def _step(self,actionIdx): 
         super().takeAction(actionIdx)   
         return ts.transition(
-          np.array([self.state.getData()], dtype=np.float32), reward=self.reward, discount=1.0) 
+          np.array(self.state.getData(), dtype=np.float32), reward=self.reward, discount=1.0) 
     
-    
-    def getActionFromJob(self,job,time): 
-        action= super().getActionFromJob(job, time)
-        idx=self.getActionIndex(action)
-        return Action([idx])
-    
-       
-    def getActionSetFromQueue(self,queue,time):  
-        actions=[]
-        for job in queue:
-            actions.append(self.getActionFromJob(job,time))  
-            
-        return actions

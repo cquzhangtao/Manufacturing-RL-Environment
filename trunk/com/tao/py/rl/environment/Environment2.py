@@ -15,6 +15,7 @@ from com.tao.py.rl.data.TrainDataItem import TrainDataItem
 class SimEnvironment2(SimEnvironment0):
 
     def __init__(self,scenario):
+        self.policy=None
         self.stepCounter=0
         super().__init__(scenario)
 
@@ -27,7 +28,7 @@ class SimEnvironment2(SimEnvironment0):
     def start(self,training=True,rule=None):
         self.decisionMaking=DecisionEventListener()
         self.eventListeners.append(self.decisionMaking)
-        if rule==None:
+        if rule==None and self.policy!=None:
             rule=AgentRule(self.policy)
         super().start(training=training,rule=rule)
         self.updateCurrentState()
