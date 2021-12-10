@@ -22,6 +22,8 @@ class TrainDataset(object):
         if len(self.rawData)==0:
             return;
 
+
+        
         self.getDataSpec()
         self.calPreProcParameters()
         
@@ -65,6 +67,13 @@ class TrainDataset(object):
             
         return nextMaxReward
     
+    def calNextMaxRewardForOneStepState(self,agent,state):
+        state=self.normalizeState([state.getData()])
+        qvalues=agent.calQValue(state)
+        nextMaxReward=max(qvalues)
+            
+        return nextMaxReward
+    
     def getOutputTarget(self,agent,start,end):
         nextMaxReward=self.calNextMaxReward(agent,start,end)
         qvalue=numpy.vstack(self.reward[start:end])+self.discount*numpy.vstack(nextMaxReward)
@@ -74,6 +83,11 @@ class TrainDataset(object):
     
     def getOutputTargetForOneStep(self,agent,reward,newState,newActions,power=1):
         nextMaxReward=self.calNextMaxRewardForOneStep(agent,newState,newActions)
+        qvalue=numpy.vstack(reward+(self.discount**power)*numpy.vstack(nextMaxReward))
+        return qvalue
+    
+    def getOutputTargetForOneStepState(self,agent,reward,newState,power=1):
+        nextMaxReward=self.calNextMaxRewardForOneStepState(agent,newState)
         qvalue=numpy.vstack(reward+(self.discount**power)*numpy.vstack(nextMaxReward))
         return qvalue
     
@@ -99,7 +113,10 @@ class TrainDataset(object):
         
         
     def getDataSpec(self): 
-        self.stateFeatureNum,self.actionFeatureNum=self.dataCollector.getEnvironmentSpec()       
+        sample=self.dataCollector.getDataset()[0][0]
+        #self.stateFeatureNum,self.actionFeatureNum=self.dataCollector.getEnvironmentSpec()    
+        self.stateFeatureNum=len(sample.getState().getData())
+        self.actionFeatureNum=len(sample.getAction().getData()) 
         self.stateIdx=0
         self.actionIdx=self.stateIdx+self.stateFeatureNum
         self.rewardIdx=self.actionIdx+self.actionFeatureNum
@@ -120,8 +137,16 @@ class TrainDataset(object):
         datalist=[row/self.max for row in listData ] 
         return numpy.vstack(datalist) 
     
+    def normalizeState(self,listData):
+        #datalist=[(row-self.mean)/self.std for row in listData ] 
+        datalist=[row/self.maxState for row in listData ] 
+        return numpy.vstack(datalist) 
+    
     def normalizeOneStep(self,state,action):
         return self.normalize([state.getData()+action.getData()])
+    
+    def normalizeOneStepState(self,state):
+        return self.normalizeState([state.getData()])
     
     def getNormalizedInput(self,start,end):  
         return self.normalizedInput[start:end]  
@@ -137,25 +162,30 @@ class TrainDataset(object):
         if len(allStateData)==0 or len(allActionData)==0:
             a=1
         
-        varState=numpy.var(allStateData,axis=0)
-        varAction=numpy.var(allActionData,axis=0)
-        self.var=numpy.concatenate((varState,varAction))
+        self.varState=numpy.var(allStateData,axis=0)
+        self.varAction=numpy.var(allActionData,axis=0)
+        self.var=numpy.concatenate((self.varState,self.varAction))
         
-        meanState=numpy.mean(allStateData,axis=0)
-        meanAction=numpy.mean(allActionData,axis=0)
-        self. mean=numpy.concatenate((meanState,meanAction))
+        self.meanState=numpy.mean(allStateData,axis=0)
+        self.meanAction=numpy.mean(allActionData,axis=0)
+        self.mean=numpy.concatenate((self.meanState,self.meanAction))
         
-        minState=numpy.min(allStateData,axis=0)
-        minAction=numpy.min(allActionData,axis=0)
-        self. min=numpy.concatenate((minState,minAction))
+        self.minState=numpy.min(allStateData,axis=0)
+        self.minAction=numpy.min(allActionData,axis=0)
+        self.min=numpy.concatenate((self.minState,self.minAction))
         
-        maxState=numpy.max(allStateData,axis=0)
-        maxAction=numpy.max(allActionData,axis=0)
-        self. max=numpy.concatenate((maxState,maxAction))
+        self.maxState=numpy.max(allStateData,axis=0)
+        self.maxAction=numpy.max(allActionData,axis=0)
+        self. max=numpy.concatenate((self.maxState,self.maxAction))
         
-        stdState=numpy.std(allStateData,axis=0)
-        stdAction=numpy.std(allActionData,axis=0)
-        self.std=numpy.concatenate((stdState,stdAction))
+        self.stdState=numpy.std(allStateData,axis=0)
+        self.stdAction=numpy.std(allActionData,axis=0)
+        self.std=numpy.concatenate((self.stdState,self.stdAction))
+        
+        invertState=[list(x) for x  in zip(*allStateData)]
+        invertAction=[list(x) for x  in zip(*allActionData)]
+        self.countState=[len(set(row)) for row in invertState]
+        self.countAction=[len(set(row)) for row in invertAction]
      
     def calTargetQValue(self,agent,reward,nextState,nextActions):
         qvalues=([self.calQValue(agent,nextState,nextActions[col:col+self.actionFeatureNum]) for col in range(0,len(nextActions),self.actionFeatureNum) ])

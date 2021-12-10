@@ -4,7 +4,7 @@ Created on Dec 6, 2021
 @author: Shufang
 '''
 import random
-class AgentPolicy(object):
+class AgentPolicy1(object):
     '''
     classdocs
     '''
@@ -18,21 +18,23 @@ class AgentPolicy(object):
         self.epsilon=epsilon
         
     def getAction(self,state,actions):
+        actionIdices=[feature for action in actions for feature in action.getData() ]
         prob=random.random()
         if prob<self.epsilon:
-            idx=random.randint(0, len(actions)-1)
-            return idx,idx
-        
-        
+            idx=random.randint(0, len(actionIdices)-1)
+            return idx,actionIdices[idx]
+                
         maxQ=float('-inf')
         maxIdx=0
-        idx=0
-        for action in actions:
-
-            qvalue=self.agent.calQValue(state.getData(),action.getData()) 
+        idx=-1
+        qvalues=self.agent.calQValue(state.getData()) 
+        for qvalue in qvalues[0]:
+            idx+=1
+            if idx not in  actionIdices:
+                continue
             if(qvalue>maxQ):
                 maxQ=qvalue
                 maxIdx=idx
-            idx+=1
+            
      
-        return maxIdx,maxIdx
+        return actionIdices.index(maxIdx),maxIdx

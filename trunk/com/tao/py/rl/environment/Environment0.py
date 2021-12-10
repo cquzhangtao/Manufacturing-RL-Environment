@@ -3,9 +3,6 @@ Created on Dec 4, 2021
 
 @author: Shufang
 '''
-from tf_agents.environments.py_environment import PyEnvironment
-from tf_agents.trajectories import time_step as ts
-import numpy as np
 from com.tao.py.sim.kernel.Simulator import Simulator
 from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
 from com.tao.py.rl.environment.DecisionEventListener import DecisionEventListener
@@ -14,12 +11,12 @@ from com.tao.py.rl.data.TrainDataCollectors import TrainDataCollectors
 from com.tao.py.rl.data.TrainDataset import TrainDataset
 from com.tao.py.rl.kernel.State import State
 from com.tao.py.rl.kernel.Action import Action
-from com.tao.py.manu.rule.Rule import AgentRule, FIFORule
+from com.tao.py.manu.rule.Rule import AgentRule, FIFORule, RandomRule
 import matplotlib.pyplot as plt
 
 
 
-class SimEnvironment0(PyEnvironment):
+class SimEnvironment0(object):
 
     def __init__(self,scenario):
         self.scenario=scenario
@@ -28,6 +25,9 @@ class SimEnvironment0(PyEnvironment):
         self.eventListeners=[]
         self.simResult=None
         self.kpi=[]
+        self.environmentSpec=None
+        self.initializing=False;
+        self.init()
     
     def clear(self):
         self.rep=0        
@@ -62,24 +62,35 @@ class SimEnvironment0(PyEnvironment):
 
 
             
-    def collectData(self,policy): 
+    def collectData(self,policy,rule=None,repNum=1): 
         self.eventListeners=[] 
         trainDataCollector=TrainDataCollectors(self) 
         self.eventListeners.append(trainDataCollector)
 
-        self.start(training=False,rule=AgentRule(policy))
+        if rule==None:
+            rule=AgentRule(policy)
+        
+        for _ in range(repNum):
+            self.start(training=False,rule=rule)
         
         print(self.simResult.getTotalSummary().toString())
         self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
         trainDataset=TrainDataset(trainDataCollector)
         
         while len(trainDataset.rawData)==0:
-            self.start(rule=AgentRule(policy))
+            for _ in range(repNum):
+                self.start(training=False,rule=rule)
             trainDataset=TrainDataset(trainDataCollector)   
             
         del  self.eventListeners[0]        
         
         return trainDataset
+    
+    def init(self,repNum=1):
+        self.initializing=True
+        self.environmentSpec=self.collectData(None, rule=RandomRule(),repNum=repNum)
+        self.clear()
+        self.initializing=False
         
     
     def getStateFromModel(self,model,tool,queue,time):
@@ -89,8 +100,6 @@ class SimEnvironment0(PyEnvironment):
     def getActionFromJob(self,job,time): 
         return Action([job.getProcessTime(),time-job.getReleaseTime()])
     
-    def getSpec(self):
-        return 2,2
        
     def getActionSetFromQueue(self,queue,time):  
         actions=[]
@@ -103,16 +112,7 @@ class SimEnvironment0(PyEnvironment):
         return 10-time+job.getReleaseTime()       
         #return 1/self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
              
-    def observation_spec(self) :
-        return None
 
-    def action_spec(self) :
-        return None       
-     
-    def _reset(self):   
-        return None
-    def _step(self): 
-        return None  
     
     def drawKPICurve(self): 
         _, ax1 = plt.subplots()

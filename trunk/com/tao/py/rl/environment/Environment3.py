@@ -14,9 +14,10 @@ from com.tao.py.manu.event.JobDepartureEvent import JobDepartureEvent
 class SimEnvironment3(SimEnvironment2,SimEventListener):
 
     def __init__(self,scenario):
-        super().__init__(scenario)
         self.jobs=[]
         self.steps=[]
+        super().__init__(scenario)
+
     
     def clear(self):
         self.jobs=[]
@@ -29,10 +30,10 @@ class SimEnvironment3(SimEnvironment2,SimEventListener):
     def onEventTriggered(self,event): 
         if isinstance(event, JobDepartureEvent):
             self.jobs.append(event.getJob())
-            self.steps.append(self.step)
+            self.steps.append(self.stepCounter)
     
     def getRewardInNStep(self, n): 
-        return self.getRewardBetweenStep(self.step-n, self.step)
+        return self.getRewardBetweenStep(self.stepCounter-n, self.stepCounter)
                
     def getRewardBetweenStep(self, start,end):
         

@@ -50,5 +50,3 @@ class TrainDataCollectors(SimEventListener):
         data=[]
         data.extend([repData.flatten() for sceData in self.dataset for repData in sceData])
         return data
-    def getEnvironmentSpec(self):
-        return self.environment.getSpec()

@@ -15,22 +15,14 @@ from com.tao.py.rl.data.TrainDataItem import TrainDataItem
 class SimEnvironment2(SimEnvironment0):
 
     def __init__(self,scenario):
+        self.stepCounter=0
         super().__init__(scenario)
-        self.step=0
+
     
     def clear(self):
-        self.step=0
+        self.stepCounter=0
         super().clear()
     
-    def _reset(self):
-        self.start()
-        #return ts.restart(np.array([self.state], dtype=np.float32))
-        
-    def observation_spec(self) :
-        return None
-
-    def action_spec(self) :
-        return None
     
     def start(self,training=True,rule=None):
         self.decisionMaking=DecisionEventListener()
@@ -40,10 +32,13 @@ class SimEnvironment2(SimEnvironment0):
         super().start(training=training,rule=rule)
         self.updateCurrentState()
     
+    def getJobByIndex(self,actionIdx):
+        return self.queue[actionIdx]
     
-    def _step(self, actionIdx):
-        self.step+=1
-        event=DecisionMadeEvent(self.time,self.tool,self.queue[actionIdx],self.queue)
+    def takeAction(self, actionIdx):
+        self.stepCounter+=1
+        job=self.getJobByIndex(actionIdx)
+        event=DecisionMadeEvent(self.time,self.tool,job,self.queue)
         self.tool.addEventOnTop(event)
 
         self.sim.resume()
@@ -54,7 +49,7 @@ class SimEnvironment2(SimEnvironment0):
         if self.sim.getState()==3: 
             print(self.simResult.getTotalSummary().toString())
             self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
-            self._reset()    
+            self.start()    
         
         # if self.sim.getState()==3:  
         #     #return self._reset()      
@@ -66,9 +61,10 @@ class SimEnvironment2(SimEnvironment0):
     
     def collectOneStepData(self): 
 
-        actionIdx=self.policy.getAction(self.state,self.actions)
-        trainData=TrainDataItem(self.state,self.actions[actionIdx],0,None,None)
-        self._step(actionIdx)
+        queueIdx,actionIdx=self.policy.getAction(self.state,self.actions)
+        self.action=actionIdx
+        trainData=TrainDataItem(self.state,self.actions[queueIdx],0,None,None)
+        self.takeAction(actionIdx)
         trainData.reward=self.reward
         
         trainData.nextState=self.state
