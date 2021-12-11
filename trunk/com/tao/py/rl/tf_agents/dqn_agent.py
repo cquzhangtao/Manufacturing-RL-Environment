@@ -460,8 +460,8 @@ class DqnAgent(tf_agent.TFAgent):
       ValueError:
         if the number of actions is greater than 1.
     """
-    transition = self._as_transition(experience)
-    time_steps, policy_steps, next_time_steps = transition
+    #transition = self._as_transition(experience)
+    time_steps, policy_steps, next_time_steps = experience
     actions = policy_steps.action
     # TODO(b/195943557) remove td_errors_loss_fn input to _loss
     self._td_errors_loss_fn = td_errors_loss_fn or self._td_errors_loss_fn

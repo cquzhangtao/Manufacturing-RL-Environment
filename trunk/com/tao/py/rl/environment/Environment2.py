@@ -36,6 +36,9 @@ class SimEnvironment2(SimEnvironment0):
     def getJobByIndex(self,actionIdx):
         return self.queue[actionIdx]
     
+    def restart(self):
+        self.start()
+    
     def takeAction(self, actionIdx):
         self.stepCounter+=1
         job=self.getJobByIndex(actionIdx)
@@ -51,7 +54,9 @@ class SimEnvironment2(SimEnvironment0):
         if self.sim.getState()==3: 
             print(self.simResult.getTotalSummary().toString())
             self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
-            self.start()    
+            self.reset()
+            return 0
+        return 1    
         
         # if self.sim.getState()==3:  
         #     #return self._reset()      

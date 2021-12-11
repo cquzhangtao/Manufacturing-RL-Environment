@@ -24,9 +24,8 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         envSpec=self.environmentSpec
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(envSpec.stateFeatureNum+self.actionNum,), dtype=np.float32, minimum=np.append(envSpec.minState,[0]*self.actionNum), maximum=np.append(envSpec.maxState,[1]*self.actionNum),name='observation')
-        #self._observation_spec = array_spec.BoundedArraySpec(
-        #    shape=(envSpec.stateFeatureNum,), dtype=np.float32, minimum=envSpec.minState, maximum=envSpec.maxState,name='observation')
-        
+        self._observation_spec_no_mask = array_spec.BoundedArraySpec(
+            shape=(envSpec.stateFeatureNum,), dtype=np.float32, minimum=envSpec.minState, maximum=envSpec.maxState,name='observation')
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=self.actionNum-1,name='action')
      
@@ -38,17 +37,23 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         return self._action_spec  
     @property
     def batched(self) -> bool:
-        return False
+        return True
     @property
     def batch_size(self):
-        return None
+        return 1
+    
+    def restart(self):
+        pass
       
     def _reset(self): 
         self.start()  
         return ts.restart(np.array(self.state.getData()+self.getMask(), dtype=np.float32))
     
     def _step(self,actionIdx): 
-        super().takeAction(actionIdx) 
+        simstate=super().takeAction(actionIdx) 
         observ=np.array(self.state.getData()+self.getMask(), dtype=np.float32)  
+        if simstate==0:
+            return ts.termination(observ, reward=self.reward)
+
         return ts.transition(observ, reward=self.reward, discount=1.0) 
     
