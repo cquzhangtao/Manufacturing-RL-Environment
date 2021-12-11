@@ -113,7 +113,7 @@ def train_eval(
     time_acc = 0
 
     for itera in range(num_iterations):
-        print("iteration"+str(itera))
+        #print("iteration"+str(itera))
         start_time = time.time()
         
         action_step = collect_policy.action(time_step, policy_state)
