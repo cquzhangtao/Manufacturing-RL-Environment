@@ -17,10 +17,10 @@ class SimEnvironment4(SimEnvironment3):
         super().__init__(scenario)
         self.init(10)
         self.actionFeatureDiscretSize=10
-        self.featureSplitSize,self.actionNum=self.getActionNum()
+        self.featureSplitSize,self.actionNum=self.calActionNum()
         self.allactions=list(itertools.product(* self.featureSplitSize))
     
-    def getActionNum(self):
+    def calActionNum(self):
         envSpec=self.environmentSpec
         actionFeatureNum=envSpec.actionFeatureNum
         
@@ -43,6 +43,18 @@ class SimEnvironment4(SimEnvironment3):
         actionIdices=[feature for action in self.actions for feature in action.getData()]
         queueIdx=actionIdices.index(actionIdx)
         return self.queue[queueIdx]
+    
+    def getMask(self):
+        actionIdices=[feature for action in self.actions for feature in action.getData()]
+        mask=[]
+        for i in range(self.actionNum):
+            if i in actionIdices:
+                mask.append(1)
+            else:
+                mask.append(0)
+        
+        return mask
+            
     
     def getActionIndex(self,action):
         envSpec=self.environmentSpec

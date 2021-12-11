@@ -45,6 +45,7 @@ class SimEnvironment2(SimEnvironment0):
         self.sim.resume()
         
         self.updateCurrentState()
+        print(self.stepCounter)
         self.reward=1/self.simResult.getTotalSummary().getAvgCT()
         
         if self.sim.getState()==3: 

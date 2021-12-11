@@ -19,8 +19,9 @@ from absl import logging
 import gin
 from six.moves import range
 import tensorflow as tf  # pylint: disable=g-explicit-tensorflow-version-import
+import numpy as np
 
-from tf_agents.agents.dqn import dqn_agent
+from com.tao.py.rl.tf_agents import dqn_agent
 from tf_agents.drivers import dynamic_step_driver
 from tf_agents.environments import suite_gym
 from tf_agents.environments import tf_py_environment
@@ -36,6 +37,12 @@ from com.tao.py.rl.environment.Environment5 import SimEnvironment5
 from com.tao.py.sim.kernel.SimConfig import SimConfig
 from com.tao.py.sim.experiment.Scenario import Scenario
 from com.tao.py.manu import ModelFactory
+from tensorflow.python.framework.tensor_spec import BoundedTensorSpec
+
+from keras.layers import InputLayer
+import com.tao.py.utilities.Log as Log
+
+Log.addFilter("INFO")
 
 flags.DEFINE_string('root_dir', os.getenv('TEST_UNDECLARED_OUTPUTS_DIR'),
                     'Root directory for writing logs/summaries/checkpoints.')
@@ -49,6 +56,8 @@ FLAGS = flags.FLAGS
 KERAS_LSTM_FUSED = 2
 def createModel():
     return ModelFactory.create1M2PModel()
+
+
 
 @gin.configurable
 def train_eval(
@@ -113,8 +122,18 @@ def train_eval(
     simConfig=SimConfig(1,100);
 
     scenario=Scenario(1,"S1",simConfig,createModel)
-    tf_env = tf_py_environment.TFPyEnvironment(SimEnvironment5(scenario))
+    env=SimEnvironment5(scenario)
+    tf_env = tf_py_environment.TFPyEnvironment(env)
     eval_tf_env = tf_py_environment.TFPyEnvironment(SimEnvironment5(scenario))
+    
+    
+    def observation_and_action_constrain_splitter(observation):
+        if isinstance(observation,BoundedTensorSpec):
+            return observation,None 
+        observ=observation
+        observation=observ[0:env.environmentSpec.stateFeatureNum]
+        action_mask=observ[env.environmentSpec.stateFeatureNum:]
+        return observation,action_mask
 
     if train_sequence_length != 1 and n_step_update != 1:
       raise NotImplementedError(
@@ -131,8 +150,9 @@ def train_eval(
           output_fc_layer_params,
           num_actions)
     else:
-      q_net = create_feedforward_network(fc_layer_params, num_actions)
+      q_net = create_feedforward_network(fc_layer_params, num_actions,env)
       train_sequence_length = n_step_update
+
 
     # TODO(b/127301657): Decay epsilon based on global step, cf. cl/188907839
     tf_agent = dqn_agent.DqnAgent(
@@ -150,7 +170,8 @@ def train_eval(
         gradient_clipping=gradient_clipping,
         debug_summaries=debug_summaries,
         summarize_grads_and_vars=summarize_grads_and_vars,
-        train_step_counter=global_step)
+        train_step_counter=global_step,
+        observation_and_action_constraint_splitter=observation_and_action_constrain_splitter)
     tf_agent.initialize()
 
     train_metrics = [
@@ -197,7 +218,7 @@ def train_eval(
       tf_agent.train = common.function(tf_agent.train)
 
     initial_collect_policy = random_tf_policy.RandomTFPolicy(
-        tf_env.time_step_spec(), tf_env.action_spec())
+        tf_env.time_step_spec(), tf_env.action_spec(),observation_and_action_constraint_splitter=observation_and_action_constrain_splitter)
 
     # Collect initial replay data.
     logging.info(
@@ -309,10 +330,13 @@ fused_lstm_cell = functools.partial(
     tf.keras.layers.LSTMCell, implementation=KERAS_LSTM_FUSED)
 
 
-def create_feedforward_network(fc_layer_units, num_actions):
-  return sequential.Sequential(
-      [dense(num_units) for num_units in fc_layer_units]
+def create_feedforward_network(fc_layer_units, num_actions,env):
+  net= sequential.Sequential([InputLayer((env.environmentSpec.actionFeatureNum,))]+
+      [dense(10) ,dense(10)]
       + [logits(num_actions)])
+  net.build((env.environmentSpec.actionFeatureNum,))
+  print(net.summary())
+  return net
 
 
 def create_recurrent_network(

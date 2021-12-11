@@ -1,2 +1,3 @@
 eclipse.preferences.version=1
+encoding//com/tao/py/rl/tf_agents/dqn_agent.py=utf-8
 encoding//com/tao/py/rl/tf_agents/train_eval.py=utf-8
