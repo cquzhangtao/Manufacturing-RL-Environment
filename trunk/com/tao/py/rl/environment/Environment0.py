@@ -98,7 +98,7 @@ class SimEnvironment0(object):
     
     
     def getActionFromJob(self,job,time): 
-        return Action([job.getProcessTime(),time-job.getReleaseTime()])
+        return Action([time,job.getProcessTime()])#,time-job.getReleaseTime()]#)
     
        
     def getActionSetFromQueue(self,queue,time):  
@@ -111,10 +111,15 @@ class SimEnvironment0(object):
     def getReward(self,scenario,replication,model,tool,queue,job,time): 
         #return 10-time+job.getReleaseTime()       
         return 5-self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
+        #return 1/len(queue)
+    
              
 
     
     def drawKPICurve(self): 
         _, ax1 = plt.subplots()
         ax1.plot(self.kpi)
+        plt.title("Avg CT over replications")
+        plt.xlabel("Replication")
+        plt.ylabel("Avg CT")
         plt.show()

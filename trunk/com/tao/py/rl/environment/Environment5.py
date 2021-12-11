@@ -55,5 +55,5 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         if simstate==0:
             return ts.termination(observ, reward=self.reward)
 
-        return ts.transition(observ, reward=self.reward, discount=1.0) 
+        return ts.transition(observ, reward=self.reward, discount=0.5) 
     

@@ -41,6 +41,8 @@ class SimEnvironment4(SimEnvironment3):
     
     def getJobByIndex(self,actionIdx):
         actionIdices=[feature for action in self.actions for feature in action.getData()]
+        if actionIdx not in actionIdices:
+            a=0
         queueIdx=actionIdices.index(actionIdx)
         return self.queue[queueIdx]
     

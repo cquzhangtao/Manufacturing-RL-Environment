@@ -12,7 +12,7 @@ from absl import app
 import gin
 from six.moves import range
 import tensorflow as tf  # pylint: disable=g-explicit-tensorflow-version-import
-
+from tf_agents.trajectories import time_step as ts
 from com.tao.py.rl.tf_agents import dqn_agent
 from tf_agents.environments import tf_py_environment
 from tf_agents.environments.examples import masked_cartpole  # pylint: disable=unused-import
@@ -40,7 +40,7 @@ def createModel():
 
 @gin.configurable
 def train_eval(
-    num_iterations=100000,
+    num_iterations=4000,
     epsilon_greedy=0.1,
     target_update_tau=0.05,
     target_update_period=5,
@@ -116,15 +116,27 @@ def train_eval(
         #print("iteration"+str(itera))
         start_time = time.time()
         
-        action_step = collect_policy.action(time_step, policy_state)
-        
+        action_step = collect_policy.action(time_step, policy_state)        
         next_time_step = tf_env.step(action_step.action)
+        
+        if next_time_step.step_type==ts.StepType.LAST:
+            time_step = tf_env._reset()
+            action_step = collect_policy.action(time_step, policy_state)        
+            next_time_step = tf_env.step(action_step.action)
+        
         experience=(time_step, action_step, next_time_step) 
+        
         policy_state = action_step.state
         time_step=next_time_step
+
+        
+
+
         train_loss =  tf_agent.train(experience)
         time_acc += time.time() - start_time
      
+    env.drawKPICurve()
+    
     return train_loss
 
 
