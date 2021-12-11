@@ -130,7 +130,7 @@ def train_eval(
     def observation_and_action_constrain_splitter(observation):
         if isinstance(observation,BoundedTensorSpec):
             return observation,None 
-        observ=observation
+        observ=observation[0]
         observation=observ[0:env.environmentSpec.stateFeatureNum]
         action_mask=observ[env.environmentSpec.stateFeatureNum:]
         return observation,action_mask
@@ -331,7 +331,7 @@ fused_lstm_cell = functools.partial(
 
 
 def create_feedforward_network(fc_layer_units, num_actions,env):
-  net= sequential.Sequential([InputLayer(input_shape=(env.environmentSpec.actionFeatureNum,),batch_size=1)]+
+  net= sequential.Sequential([InputLayer(input_shape=(env.environmentSpec.actionFeatureNum,))]+
       [dense(10) ,dense(10)]
       + [logits(num_actions)])
   net.build((env.environmentSpec.actionFeatureNum,))

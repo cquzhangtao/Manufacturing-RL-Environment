@@ -41,7 +41,7 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         return False
     @property
     def batch_size(self):
-        return 1
+        return None
       
     def _reset(self): 
         self.start()  
