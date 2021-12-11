@@ -4,8 +4,6 @@ Created on Dec 4, 2021
 @author: Shufang
 '''
 from com.tao.py.sim.kernel.Simulator import Simulator
-from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
-from com.tao.py.rl.environment.DecisionEventListener import DecisionEventListener
 from com.tao.py.manu.stat.SimDataCollector import SimDataCollector
 from com.tao.py.rl.data.TrainDataCollectors import TrainDataCollectors
 from com.tao.py.rl.data.TrainDataset import TrainDataset
@@ -25,13 +23,15 @@ class SimEnvironment0(object):
         self.eventListeners=[]
         self.simResult=None
         self.kpi=[]
+        self.rewards=[]
         self.environmentSpec=None
         self.initializing=False;
         self.init()
     
     def clear(self):
         self.rep=0        
-        self.kpi=[]    
+        self.kpi=[] 
+        self.rewards=[]   
         
     def getSimEventListeners(self):
         return []
@@ -55,7 +55,7 @@ class SimEnvironment0(object):
             simEntity.setReplication(self.rep) 
             simEntity.setScenario(self.scenario)
             simEntity.training=training   
-        
+        self.rewards.append(0)
         self.sim.start(self.model)
         self.rep+=1
     
@@ -73,8 +73,8 @@ class SimEnvironment0(object):
         for _ in range(repNum):
             self.start(training=False,rule=rule)
         
-        print(self.simResult.getTotalSummary().toString())
-        self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
+
+
         trainDataset=TrainDataset(trainDataCollector)
         
         while len(trainDataset.rawData)==0:
@@ -82,7 +82,12 @@ class SimEnvironment0(object):
                 self.start(training=False,rule=rule)
             trainDataset=TrainDataset(trainDataCollector)   
             
-        del  self.eventListeners[0]        
+        del  self.eventListeners[0]  
+        
+        self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
+        totalReward=sum([j for sub in trainDataset.reward for j in sub])
+        print(self.simResult.getTotalSummary().toString()+"Total Reward:"+str(totalReward))
+        self.rewards.append(totalReward)    
         
         return trainDataset
     
@@ -113,7 +118,8 @@ class SimEnvironment0(object):
         return 5-self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
         #return 1/len(queue)
     
-             
+    def getRewardForStepByStep(self): 
+        return self.getReward(self.scenario.getIndex(), self.rep-1, self.model, self.tool, self.queue, self.job, self.time)        
 
     
     def drawKPICurve(self): 
@@ -122,4 +128,6 @@ class SimEnvironment0(object):
         plt.title("Avg CT over replications")
         plt.xlabel("Replication")
         plt.ylabel("Avg CT")
+        _, ax2 = plt.subplots()
+        ax2.plot(self.rewards)
         plt.show()

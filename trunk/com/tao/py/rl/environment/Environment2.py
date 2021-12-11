@@ -40,24 +40,23 @@ class SimEnvironment2(SimEnvironment0):
         self.start()
     
     def takeAction(self, actionIdx):
-        if len(self.queue)==0:
-            a=0
+
         self.stepCounter+=1
-        job=self.getJobByIndex(actionIdx)
-        event=DecisionMadeEvent(self.time,self.tool,job,self.queue)
+        self.job=self.getJobByIndex(actionIdx)
+        event=DecisionMadeEvent(self.time,self.tool,self.job,self.queue)
         self.tool.addEventOnTop(event)
 
         self.sim.resume()
-        
-        if len(self.queue)==0:
-            a=0
+
         self.updateCurrentState()
         #print(self.rep)
-        self.reward=1/self.simResult.getTotalSummary().getAvgCT()
+        self.reward=self.getRewardForStepByStep()
+        self.rewards[self.rep-1]+=self.reward
         
         if self.sim.getState()==3: 
-            print(self.simResult.getTotalSummary().toString())
+            print(self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.rewards[self.rep-1]))
             self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
+            
             self.restart()
             return 0
         return 1    
