@@ -32,6 +32,7 @@ class SimEnvironment2(SimEnvironment0):
             rule=AgentRule(self.policy)
         super().start(training=training,rule=rule)
         self.updateCurrentState()
+        self.rewards.append(0) 
     
     def getJobByIndex(self,actionIdx):
         return self.queue[actionIdx]

@@ -5,7 +5,6 @@ Created on Dec 8, 2021
 '''
 from tensorflow.python.keras import Model
 from tensorflow.python.keras.layers import Dense
-from tensorflow.python.keras.layers import InputLayer
 import tensorflow as tf
 
 class Network(Model):
