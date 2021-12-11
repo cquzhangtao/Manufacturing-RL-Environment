@@ -331,7 +331,7 @@ fused_lstm_cell = functools.partial(
 
 
 def create_feedforward_network(fc_layer_units, num_actions,env):
-  net= sequential.Sequential([InputLayer((env.environmentSpec.actionFeatureNum,))]+
+  net= sequential.Sequential([InputLayer(input_shape=(env.environmentSpec.actionFeatureNum,),batch_size=1)]+
       [dense(10) ,dense(10)]
       + [logits(num_actions)])
   net.build((env.environmentSpec.actionFeatureNum,))

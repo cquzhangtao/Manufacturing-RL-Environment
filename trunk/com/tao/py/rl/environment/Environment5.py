@@ -28,7 +28,7 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         #    shape=(envSpec.stateFeatureNum,), dtype=np.float32, minimum=envSpec.minState, maximum=envSpec.maxState,name='observation')
         
         self._action_spec = array_spec.BoundedArraySpec(
-            shape=(), dtype=np.int32, minimum=0, maximum=self.actionNum,name='action')
+            shape=(), dtype=np.int32, minimum=0, maximum=self.actionNum-1,name='action')
      
     
     def observation_spec(self) :
@@ -38,7 +38,7 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         return self._action_spec  
     @property
     def batched(self) -> bool:
-        return True
+        return False
     @property
     def batch_size(self):
         return 1
