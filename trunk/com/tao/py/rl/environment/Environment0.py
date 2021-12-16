@@ -103,7 +103,7 @@ class SimEnvironment0(object):
     
     
     def getActionFromJob(self,job,time): 
-        return Action([job.getProcessTime()])#,time-job.getReleaseTime()]#)
+        return Action([job.getProcessTime(),time-job.getReleaseTime()])
     
        
     def getActionSetFromQueue(self,queue,time):  
@@ -115,9 +115,9 @@ class SimEnvironment0(object):
     
     def getReward(self,scenario,replication,model,tool,queue,job,time): 
         #return 10-time+job.getReleaseTime()       
-        #return 5-self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
+        return 5-self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
         #return 1/len(queue)
-        return 10-job.getProcessTime()
+        #return 10-job.getProcessTime()
     
     def getRewardForStepByStep(self): 
         return self.getReward(self.scenario.getIndex(), self.rep-1, self.model, self.tool, self.queue, self.job, self.time)        

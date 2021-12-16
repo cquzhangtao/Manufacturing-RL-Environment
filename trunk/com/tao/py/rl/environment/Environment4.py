@@ -46,6 +46,9 @@ class SimEnvironment4(SimEnvironment3):
         queueIdx=self.actionIdices.index(actionIdx)
         return self.queue[queueIdx]
     
+    def getQueueIdx(self,actionIdx):
+        return self.actionIdices.index(actionIdx)
+    
     def updateCurrentState(self):
         super().updateCurrentState()
         self.actionIdices=[feature for action in self.actions for feature in action.getData()]

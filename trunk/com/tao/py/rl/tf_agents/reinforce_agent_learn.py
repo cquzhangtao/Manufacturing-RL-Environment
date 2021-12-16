@@ -12,7 +12,6 @@ import tensorflow as tf  # pylint: disable=g-explicit-tensorflow-version-import
 
 from com.tao.py.rl.tf_agents.reinforce_agent import ReinforceAgent
 from tf_agents.drivers import dynamic_episode_driver
-from tf_agents.environments import suite_gym
 from tf_agents.environments import tf_py_environment
 from tf_agents.eval import metric_utils
 from tf_agents.metrics import tf_metrics
@@ -29,7 +28,7 @@ flags.DEFINE_integer('num_iterations', 500,
                      'Total number train/eval iterations to perform.')
 FLAGS = flags.FLAGS
 
-from tensorflow.python.framework.tensor_spec import BoundedTensorSpec
+from tensorflow.python.ops.summary_ops_v2 import create_file_writer as create_file_writer,record_if as record_if
 
 
 
@@ -66,18 +65,18 @@ def train_eval(
   train_dir = os.path.join(root_dir, 'train')
   eval_dir = os.path.join(root_dir, 'eval')
 
-  train_summary_writer = tf.compat.v2.summary.create_file_writer(
+  train_summary_writer = create_file_writer(
       train_dir, flush_millis=summaries_flush_secs * 1000)
   train_summary_writer.set_as_default()
 
-  eval_summary_writer = tf.compat.v2.summary.create_file_writer(
+  eval_summary_writer =create_file_writer(
       eval_dir, flush_millis=summaries_flush_secs * 1000)
   eval_metrics = [
     tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
     tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
   ]
 
-  with tf.compat.v2.summary.record_if(
+  with record_if(
       lambda: tf.math.equal(global_step % summary_interval, 0)):
     #tf_env = tf_py_environment.TFPyEnvironment(suite_gym.load(env_name))
     #eval_tf_env = tf_py_environment.TFPyEnvironment(suite_gym.load(env_name))

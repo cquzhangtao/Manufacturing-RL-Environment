@@ -37,13 +37,21 @@ class SimEnvironment2(SimEnvironment0):
     def getJobByIndex(self,actionIdx):
         return self.queue[actionIdx]
     
+    def getQueueIdx(self,actionIdx):
+        return actionIdx
+    
     def restart(self):
         self.start()
     
     def takeAction(self, actionIdx):
 
         self.stepCounter+=1
-        self.job=self.getJobByIndex(actionIdx)
+        
+        queueIdx=self.getQueueIdx(actionIdx)
+        self.job=self.queue[queueIdx]
+        
+        trainData=TrainDataItem(self.state,self.actions[queueIdx],0,None,None)
+        
         event=DecisionMadeEvent(self.time,self.tool,self.job,self.queue)
         self.tool.addEventOnTop(event)
 
@@ -54,20 +62,20 @@ class SimEnvironment2(SimEnvironment0):
         self.reward=self.getRewardForStepByStep()
         self.rewards[self.rep-1]+=self.reward
         
+        trainData.reward=self.reward        
+        trainData.nextState=self.state
+        trainData.nextActions=self.actions        
+        #print(trainData)
+        
+        
+        
         if self.sim.getState()==3: 
             print(self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.rewards[self.rep-1]))
-            self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
-            
+            self.kpi.append(self.simResult.getTotalSummary().getAvgCT())            
             self.restart()
             return 0
         return 1    
         
-        # if self.sim.getState()==3:  
-        #     #return self._reset()      
-        #     return ts.termination(np.array([self.state], dtype=np.float32), self.reward)
-        # else:
-        #     return ts.transition(
-        #       np.array([self.state], dtype=np.float32), reward=self.reward, discount=1.0)
     
     
     def collectOneStepData(self): 
@@ -90,6 +98,8 @@ class SimEnvironment2(SimEnvironment0):
         self.time=self.decisionMaking.time
         self.state=self.getStateFromModel(self.model,self.tool,self.queue,self.time)
         self.actions=self.getActionSetFromQueue(self.queue,self.time)
+
+        
              
             
             
