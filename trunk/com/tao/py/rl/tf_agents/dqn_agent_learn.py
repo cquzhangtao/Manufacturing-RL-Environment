@@ -108,9 +108,9 @@ def train_eval(
     gamma=0.99,
     reward_scale_factor=1.0,
     gradient_clipping=None,
-    use_tf_functions=True,
+    use_tf_functions=False,
     # Params for eval
-    num_eval_episodes=10,
+    num_eval_episodes=1,
     eval_interval=1000,
     # Params for checkpoints
     train_checkpoint_interval=10000,
@@ -137,8 +137,8 @@ def train_eval(
     eval_summary_writer = create_file_writer(
         eval_dir, flush_millis=summaries_flush_secs * 1000)
     eval_metrics = [
-        #tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
-        #tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes)
+        tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
+        tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes)
     ]
     
     global_step = tf.compat.v1.train.get_or_create_global_step()
@@ -246,18 +246,19 @@ def train_eval(
             num_steps=initial_collect_steps).run()
         print("replay buffer is initialized.")
     
-        # results = metric_utils.eager_compute(
-        #     eval_metrics,
-        #     eval_tf_env,
-        #     eval_policy,
-        #     num_episodes=num_eval_episodes,
-        #     train_step=global_step,
-        #     summary_writer=eval_summary_writer,
-        #     summary_prefix='Metrics',
-        # )
-        # if eval_metrics_callback is not None:
-        #     eval_metrics_callback(results, global_step.numpy())
-        # metric_utils.log_metrics(eval_metrics)
+        results = metric_utils.eager_compute(
+            eval_metrics,
+            eval_tf_env,
+            eval_policy,
+            num_episodes=num_eval_episodes,
+            train_step=global_step,
+            summary_writer=eval_summary_writer,
+            summary_prefix='Metrics',
+            use_function=False
+        )
+        if eval_metrics_callback is not None:
+            eval_metrics_callback(results, global_step.numpy())
+        metric_utils.log_metrics(eval_metrics)
     
         time_step = None
         policy_state = collect_policy.get_initial_state(tf_env.batch_size)
@@ -312,19 +313,19 @@ def train_eval(
             if global_step.numpy() % rb_checkpoint_interval == 0:
                 rb_checkpointer.save(global_step=global_step.numpy())
             
-            # if global_step.numpy() % eval_interval == 0:
-            #     results = metric_utils.eager_compute(
-            #       eval_metrics,
-            #       eval_tf_env,
-            #       eval_policy,
-            #       num_episodes=num_eval_episodes,
-            #       train_step=global_step,
-            #       summary_writer=eval_summary_writer,
-            #       summary_prefix='Metrics',
-            #       )
-            #     if eval_metrics_callback is not None:
-            #         eval_metrics_callback(results, global_step.numpy())
-            #     metric_utils.log_metrics(eval_metrics)
+            if global_step.numpy() % eval_interval == 0:
+                results = metric_utils.eager_compute(
+                  eval_metrics,
+                  eval_tf_env,
+                  eval_policy,
+                  num_episodes=num_eval_episodes,
+                  train_step=global_step,
+                  summary_writer=eval_summary_writer,
+                  summary_prefix='Metrics',
+                  )
+                if eval_metrics_callback is not None:
+                    eval_metrics_callback(results, global_step.numpy())
+                metric_utils.log_metrics(eval_metrics)
         
         env.drawKPICurve()
         return train_loss

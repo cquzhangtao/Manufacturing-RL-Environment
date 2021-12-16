@@ -42,19 +42,22 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
     def batch_size(self):
         return 0
     
-    # def restart(self):
-    #     pass
+    def restart(self):
+        pass
       
     def _reset(self): 
         self.start()  
         return ts.restart(np.array(self.state.getData()+self.getMask(), dtype=np.float32))
     
     def _step(self,actionIdx): 
-        simState=super().takeAction(actionIdx) 
-        observ=np.array(self.state.getData()+self.getMask(), dtype=np.float32)  
-
-        # if simState==0: 
-        #     return ts.termination(observ, reward=self.reward)
+        if self.sim.state==3:
+            return self._reset()
         
+        simState=super().takeAction(actionIdx) 
+        observ=np.array(self.state.getData()+self.getMask(), dtype=np.float32) 
+        if simState==0: 
+            return ts.termination(observ, reward=self.reward)
+         
+        observ=np.array(self.state.getData()+self.getMask(), dtype=np.float32)          
         return ts.transition(observ, reward=self.reward, discount=0.5) 
     

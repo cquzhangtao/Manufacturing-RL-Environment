@@ -37,13 +37,22 @@ def prepare():
         
         observ=observation
 
-        if len(observation.shape)>1:
+        if len(observation.shape)==2:
             observ=observation[0]
 
-        a=observ[0:env.environmentSpec.stateFeatureNum]
+            a=observ[0:env.environmentSpec.stateFeatureNum]
+    
+            observation=tf.expand_dims(a, axis=0)
+            action_mask=tf.expand_dims(observ[env.environmentSpec.stateFeatureNum:], axis=0)
+            return observation,action_mask
+        
+        if len(observation.shape)==3:
+            observ=observation[0]
 
-        observation=tf.expand_dims(a, axis=0)
-        action_mask=tf.expand_dims(observ[env.environmentSpec.stateFeatureNum:], axis=0)
-        return observation,action_mask
+            a=observ[:,0:env.environmentSpec.stateFeatureNum]
+    
+            observation=tf.expand_dims(a, axis=0)
+            action_mask=tf.expand_dims(observ[:,env.environmentSpec.stateFeatureNum:], axis=0)
+            return observation,action_mask
 
     return env,evalEnv,observation_and_action_constrain_splitter
