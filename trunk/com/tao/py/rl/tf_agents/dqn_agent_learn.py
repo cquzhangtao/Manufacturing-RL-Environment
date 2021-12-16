@@ -255,7 +255,7 @@ def train_eval(
             train_step=global_step,
             summary_writer=eval_summary_writer,
             summary_prefix='Metrics',
-            use_function=False
+            use_function=use_tf_functions
         )
         if eval_metrics_callback is not None:
             eval_metrics_callback(results, global_step.numpy())
@@ -323,6 +323,7 @@ def train_eval(
                   train_step=global_step,
                   summary_writer=eval_summary_writer,
                   summary_prefix='Metrics',
+                  use_function=use_tf_functions
                   )
                 if eval_metrics_callback is not None:
                     eval_metrics_callback(results, global_step.numpy())
