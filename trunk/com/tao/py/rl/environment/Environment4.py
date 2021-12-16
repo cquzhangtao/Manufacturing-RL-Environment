@@ -40,17 +40,21 @@ class SimEnvironment4(SimEnvironment3):
         return featureSplitSize,count
     
     def getJobByIndex(self,actionIdx):
-        actionIdices=[feature for action in self.actions for feature in action.getData()]
-        if actionIdx not in actionIdices:
+        #actionIdices=[feature for action in self.actions for feature in action.getData()]
+        if actionIdx not in self.actionIdices:
             a=0
-        queueIdx=actionIdices.index(actionIdx)
+        queueIdx=self.actionIdices.index(actionIdx)
         return self.queue[queueIdx]
     
+    def updateCurrentState(self):
+        super().updateCurrentState()
+        self.actionIdices=[feature for action in self.actions for feature in action.getData()]
+    
     def getMask(self):
-        actionIdices=[feature for action in self.actions for feature in action.getData()]
+        
         mask=[]
         for i in range(self.actionNum):
-            if i in actionIdices:
+            if i in self.actionIdices:
                 mask.append(1)
             else:
                 mask.append(0)

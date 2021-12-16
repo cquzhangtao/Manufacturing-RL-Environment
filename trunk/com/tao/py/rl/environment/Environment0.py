@@ -91,7 +91,7 @@ class SimEnvironment0(object):
         
         return trainDataset
     
-    def init(self,repNum=10):
+    def init(self,repNum=5):
         self.initializing=True
         self.environmentSpec=self.collectData(None, rule=RandomRule(),repNum=repNum)
         self.clear()
