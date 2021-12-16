@@ -21,29 +21,16 @@ from tf_agents.networks import value_network
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.utils import common
 
+from com.tao.py.rl.tf_agents.prepareEnv import prepare as prepareEnv
+
 flags.DEFINE_string('root_dir', os.getenv('TEST_UNDECLARED_OUTPUTS_DIR'),
                     'Root directory for writing logs/summaries/checkpoints.')
 flags.DEFINE_integer('num_iterations', 500,
                      'Total number train/eval iterations to perform.')
 FLAGS = flags.FLAGS
 
-from com.tao.py.rl.environment.Environment5 import SimEnvironment5
-from com.tao.py.sim.kernel.SimConfig import SimConfig
-from com.tao.py.sim.experiment.Scenario import Scenario
-from com.tao.py.manu import ModelFactory
 from tensorflow.python.framework.tensor_spec import BoundedTensorSpec
 
-import com.tao.py.utilities.Log as Log
-
-import tf_agents 
-import logging
-
-logging.disable(logging.WARNING)
-Log.addFilter("INFO")
-
-
-def createModel():
-    return ModelFactory.create1M2PModel()
 
 
 
@@ -86,41 +73,18 @@ def train_eval(
   eval_summary_writer = tf.compat.v2.summary.create_file_writer(
       eval_dir, flush_millis=summaries_flush_secs * 1000)
   eval_metrics = [
-      #tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
-      #tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
+    tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
+    tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
   ]
 
   with tf.compat.v2.summary.record_if(
       lambda: tf.math.equal(global_step % summary_interval, 0)):
     #tf_env = tf_py_environment.TFPyEnvironment(suite_gym.load(env_name))
     #eval_tf_env = tf_py_environment.TFPyEnvironment(suite_gym.load(env_name))
-    
-    simConfig=SimConfig(1,100);
-    
-    scenario=Scenario(1,"S1",simConfig,createModel)
-    env=SimEnvironment5(scenario)
-    eval_env=SimEnvironment5(scenario)
+    env, evalEvn, mask = prepareEnv()
     tf_env = tf_py_environment.TFPyEnvironment(env)
-    eval_tf_env = tf_py_environment.TFPyEnvironment(eval_env)
+    eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
     
-    def observation_and_action_constraint_splitter(observation):
-        if isinstance(observation,BoundedTensorSpec):
-            return tf_agents.specs.from_spec(env._observation_spec_no_mask),None 
-        
-        observ=observation
-
-        if len(observation.shape)>1:
-            observ=observation[0]
-
-        if len(observ.shape)==0:
-            a=1
-            a=2
-        
-        a=observ[0:env.environmentSpec.stateFeatureNum]
-
-        observation=tf.expand_dims(a, axis=0)
-        action_mask=tf.expand_dims(observ[env.environmentSpec.stateFeatureNum:], axis=0)
-        return observation,action_mask
 
     actor_net = actor_distribution_network.ActorDistributionNetwork(
         env._observation_spec_no_mask,
@@ -146,7 +110,7 @@ def train_eval(
         debug_summaries=debug_summaries,
         summarize_grads_and_vars=summarize_grads_and_vars,
         train_step_counter=global_step,
-        observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
+        observation_and_action_constraint_splitter=mask)
 
     replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
         tf_agent.collect_data_spec,
@@ -156,10 +120,10 @@ def train_eval(
     tf_agent.initialize()
 
     train_metrics = [
-        # tf_metrics.NumberOfEpisodes(),
-        # tf_metrics.EnvironmentSteps(),
-        # tf_metrics.AverageReturnMetric(),
-        # tf_metrics.AverageEpisodeLengthMetric(),
+        tf_metrics.NumberOfEpisodes(),
+        tf_metrics.EnvironmentSteps(),
+        tf_metrics.AverageReturnMetric(),
+        tf_metrics.AverageEpisodeLengthMetric(),
     ]
 
     eval_policy = tf_agent.policy
@@ -183,18 +147,18 @@ def train_eval(
       train_step = common.function(train_step)
 
     # Compute evaluation metrics.
-    # metrics = metric_utils.eager_compute(
-    #     eval_metrics,
-    #     eval_tf_env,
-    #     eval_policy,
-    #     num_episodes=num_eval_episodes,
-    #     train_step=global_step,
-    #     summary_writer=eval_summary_writer,
-    #     summary_prefix='Metrics',
-    # )
-    # TODO(b/126590894): Move this functionality into eager_compute_summaries
-    # if eval_metrics_callback is not None:
-    #   eval_metrics_callback(metrics, global_step.numpy())
+    metrics = metric_utils.eager_compute(
+        eval_metrics,
+        eval_tf_env,
+        eval_policy,
+        num_episodes=num_eval_episodes,
+        train_step=global_step,
+        summary_writer=eval_summary_writer,
+        summary_prefix='Metrics',
+    )
+    #TODO(b/126590894): Move this functionality into eager_compute_summaries
+    if eval_metrics_callback is not None:
+      eval_metrics_callback(metrics, global_step.numpy())
 
     time_step = None
     policy_state = collect_policy.get_initial_state(tf_env.batch_size)
@@ -222,24 +186,24 @@ def train_eval(
         timed_at_step = global_step_val
         time_acc = 0
 
-      # for train_metric in train_metrics:
-      #   train_metric.tf_summaries(
-      #       train_step=global_step, step_metrics=train_metrics[:2])
-      #
-      # if global_step_val % eval_interval == 0:
-      #   metrics = metric_utils.eager_compute(
-      #       eval_metrics,
-      #       eval_tf_env,
-      #       eval_policy,
-      #       num_episodes=num_eval_episodes,
-      #       train_step=global_step,
-      #       summary_writer=eval_summary_writer,
-      #       summary_prefix='Metrics',
-      #   )
-      #   # TODO(b/126590894): Move this functionality into
-      #   # eager_compute_summaries.
-      #   if eval_metrics_callback is not None:
-      #     eval_metrics_callback(metrics, global_step_val)
+    for train_metric in train_metrics:
+      train_metric.tf_summaries(
+          train_step=global_step, step_metrics=train_metrics[:2])
+      
+    if global_step_val % eval_interval == 0:
+      metrics = metric_utils.eager_compute(
+          eval_metrics,
+          eval_tf_env,
+          eval_policy,
+          num_episodes=num_eval_episodes,
+          train_step=global_step,
+          summary_writer=eval_summary_writer,
+          summary_prefix='Metrics',
+      )
+      # TODO(b/126590894): Move this functionality into
+      # eager_compute_summaries.
+      if eval_metrics_callback is not None:
+        eval_metrics_callback(metrics, global_step_val)
 
 
 def main(_):
