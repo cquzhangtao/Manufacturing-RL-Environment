@@ -72,6 +72,7 @@ flags.DEFINE_string('root_dir', os.getenv('TEST_UNDECLARED_OUTPUTS_DIR'),
                     'Root directory for writing logs/summaries/checkpoints.')
 flags.DEFINE_integer('num_iterations', 100000,
                      'Total number train/eval iterations to perform.')
+flags.DEFINE_boolean('graph_compute',True,"enable graph computation")
 flags.DEFINE_multi_string('gin_file', None, 'Paths to the gin-config files.')
 flags.DEFINE_multi_string('gin_param', None, 'Gin binding parameters.')
 
@@ -370,14 +371,13 @@ def create_recurrent_network(
 def main(_):
     logging.set_verbosity(logging.INFO)
     tf.compat.v1.enable_v2_behavior()
-    # tf.compat.v1.enable_eager_execution()
     gin.parse_config_files_and_bindings(FLAGS.gin_file, FLAGS.gin_param)
     
-    train_eval("D:\\python\\")
+    train_eval(FLAGS.root_dir, num_iterations=FLAGS.num_iterations,use_tf_functions=FLAGS.graph_compute)
 
 
 if __name__ == '__main__':
 
     # with tf.compat.v1.Session() as sess:
-    # flags.mark_flag_as_required('root_dir')
+    flags.mark_flag_as_required('root_dir')
     app.run(main)

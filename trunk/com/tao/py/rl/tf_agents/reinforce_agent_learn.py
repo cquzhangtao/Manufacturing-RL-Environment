@@ -213,9 +213,9 @@ def main(_):
         config=tf.compat.v1.ConfigProto(allow_soft_placement=True))
     tf.compat.v1.enable_v2_behavior()
     #logging.set_verbosity(logging.INFO)
-    train_eval("D:\\python\\", num_iterations=1000)
+    train_eval(FLAGS.root_dir, num_iterations=FLAGS.num_iterations)
 
 
 if __name__ == '__main__':
-    #flags.mark_flag_as_required('root_dir')
+    flags.mark_flag_as_required('root_dir')
     app.run(main)
