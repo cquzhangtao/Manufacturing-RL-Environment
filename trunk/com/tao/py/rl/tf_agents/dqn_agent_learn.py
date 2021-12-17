@@ -122,7 +122,7 @@ def train_eval(
     rb_checkpoint_interval=20000,
     # Params for summaries and logging
     log_interval=1000,
-    summary_interval=1000,
+    summary_interval=10,
     summaries_flush_secs=10,
     debug_summaries=True,
     summarize_grads_and_vars=False,
