@@ -121,7 +121,7 @@ def train_eval(
     log_interval=1000,
     summary_interval=1000,
     summaries_flush_secs=10,
-    debug_summaries=False,
+    debug_summaries=True,
     summarize_grads_and_vars=False,
     eval_metrics_callback=None):
     
@@ -370,7 +370,7 @@ def create_recurrent_network(
 
 
 def main(_):
-    logging.set_verbosity(logging.INFO)
+    #logging.set_verbosity(logging.INFO)
     tf.compat.v1.enable_v2_behavior()
     gin.parse_config_files_and_bindings(FLAGS.gin_file, FLAGS.gin_param)
     
