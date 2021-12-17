@@ -79,6 +79,7 @@ flags.DEFINE_multi_string('gin_param', None, 'Gin binding parameters.')
 FLAGS = flags.FLAGS
 
 KERAS_LSTM_FUSED = 2
+import datetime
 
 
 @gin.configurable
@@ -128,8 +129,9 @@ def train_eval(
     
     """A simple train and eval for DQN."""
     root_dir = os.path.expanduser(root_dir)
-    train_dir = os.path.join(root_dir, 'train')
-    eval_dir = os.path.join(root_dir, 'eval')
+    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    train_dir = os.path.join(root_dir, current_time,'train')
+    eval_dir = os.path.join(root_dir, current_time,'eval')
     
     train_summary_writer = create_file_writer(
         train_dir, flush_millis=summaries_flush_secs * 1000)

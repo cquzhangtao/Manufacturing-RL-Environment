@@ -31,7 +31,7 @@ flags.DEFINE_boolean('graph_compute',True,"enable graph computation")
 FLAGS = flags.FLAGS
 
 from tensorflow.python.ops.summary_ops_v2 import create_file_writer as create_file_writer,record_if as record_if
-
+import datetime
 
 
 
@@ -64,8 +64,9 @@ def train_eval(
 
     """A simple train and eval for Reinforce."""
     root_dir = os.path.expanduser(root_dir)
-    train_dir = os.path.join(root_dir, 'train')
-    eval_dir = os.path.join(root_dir, 'eval')
+    current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    train_dir = os.path.join(root_dir, current_time,'train')
+    eval_dir = os.path.join(root_dir, current_time,'eval')
     
     train_summary_writer = create_file_writer(
         train_dir, flush_millis=summaries_flush_secs * 1000)
@@ -154,6 +155,7 @@ def train_eval(
             train_step=global_step,
             summary_writer=eval_summary_writer,
             summary_prefix='Metrics',
+            use_function=use_tf_functions
         )
         #TODO(b/126590894): Move this functionality into eager_compute_summaries
         if eval_metrics_callback is not None:
@@ -200,6 +202,7 @@ def train_eval(
                   train_step=global_step,
                   summary_writer=eval_summary_writer,
                   summary_prefix='Metrics',
+                  use_function=use_tf_functions
                 )
                 # TODO(b/126590894): Move this functionality into
                 # eager_compute_summaries.
