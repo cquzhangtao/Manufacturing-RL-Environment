@@ -26,6 +26,8 @@ flags.DEFINE_string('root_dir', os.getenv('TEST_UNDECLARED_OUTPUTS_DIR'),
                     'Root directory for writing logs/summaries/checkpoints.')
 flags.DEFINE_integer('num_iterations', 500,
                      'Total number train/eval iterations to perform.')
+flags.DEFINE_boolean('graph_compute',True,"enable graph computation")
+
 FLAGS = flags.FLAGS
 
 from tensorflow.python.ops.summary_ops_v2 import create_file_writer as create_file_writer,record_if as record_if
@@ -213,7 +215,7 @@ def main(_):
         config=tf.compat.v1.ConfigProto(allow_soft_placement=True))
     tf.compat.v1.enable_v2_behavior()
     #logging.set_verbosity(logging.INFO)
-    train_eval(FLAGS.root_dir, num_iterations=FLAGS.num_iterations)
+    train_eval(FLAGS.root_dir, num_iterations=FLAGS.num_iterations,use_tf_functions=FLAGS.graph_compute)
 
 
 if __name__ == '__main__':
