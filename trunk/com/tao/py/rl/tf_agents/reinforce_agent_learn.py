@@ -37,7 +37,6 @@ from tensorflow.python.ops.summary_ops_v2 import create_file_writer as create_fi
 
 def train_eval(
     root_dir,
-    env_name='CartPole-v0',
     num_iterations=1000,
     actor_fc_layers=(100,),
     value_net_fc_layers=(100,),
@@ -81,8 +80,6 @@ def train_eval(
 
     with record_if(
       lambda: tf.math.equal(global_step % summary_interval, 0)):
-        #tf_env = tf_py_environment.TFPyEnvironment(suite_gym.load(env_name))
-        #eval_tf_env = tf_py_environment.TFPyEnvironment(suite_gym.load(env_name))
         env, evalEvn, mask = prepareEnv()
         tf_env = tf_py_environment.TFPyEnvironment(env)
         eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
