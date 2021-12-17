@@ -32,6 +32,7 @@ FLAGS = flags.FLAGS
 
 from tensorflow.python.ops.summary_ops_v2 import create_file_writer as create_file_writer,record_if as record_if
 import datetime
+from com.tao.py.rl.tf_agents.mmetrics import KPIsInEpisode
 
 
 
@@ -43,7 +44,7 @@ def train_eval(
     use_value_network=False,
     use_tf_functions=False,
     # Params for collect
-    collect_episodes_per_iteration=2,
+    collect_episodes_per_iteration=1,
     replay_buffer_capacity=2000,
     # Params for train
     learning_rate=1e-3,
@@ -124,6 +125,7 @@ def train_eval(
             tf_metrics.EnvironmentSteps(),
             tf_metrics.AverageReturnMetric(),
             tf_metrics.AverageEpisodeLengthMetric(),
+            KPIsInEpisode(env)
         ]
     
         eval_policy = tf_agent.policy
