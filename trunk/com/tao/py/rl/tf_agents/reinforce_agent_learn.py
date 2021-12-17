@@ -54,10 +54,10 @@ def train_eval(
     value_estimation_loss_coef=0.2,
     # Params for eval
     num_eval_episodes=1,
-    eval_interval=100,
+    eval_interval=1,
     # Params for checkpoints, summaries, and logging
     log_interval=100,
-    summary_interval=100,
+    summary_interval=1,
     summaries_flush_secs=1,
     debug_summaries=True,
     summarize_grads_and_vars=False,
@@ -75,16 +75,20 @@ def train_eval(
     
     eval_summary_writer =create_file_writer(
         eval_dir, flush_millis=summaries_flush_secs * 1000)
-    eval_metrics = [
-      tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
-      tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
-    ]
+
 
     with record_if(
       lambda: tf.math.equal(global_step % summary_interval, 0)):
         env, evalEvn, mask = prepareEnv()
         tf_env = tf_py_environment.TFPyEnvironment(env)
         eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
+        
+        eval_metrics = [
+          tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
+          tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
+          KPIsInEpisode(evalEvn,kpiName="CT"),
+          KPIsInEpisode(evalEvn,kpiName="Reward")
+        ]
         
     
         actor_net = actor_distribution_network.ActorDistributionNetwork(
@@ -125,7 +129,8 @@ def train_eval(
             tf_metrics.EnvironmentSteps(),
             tf_metrics.AverageReturnMetric(),
             tf_metrics.AverageEpisodeLengthMetric(),
-            KPIsInEpisode(env)
+            KPIsInEpisode(env,kpiName="CT"),
+            KPIsInEpisode(env,kpiName="Reward")
         ]
     
         eval_policy = tf_agent.policy

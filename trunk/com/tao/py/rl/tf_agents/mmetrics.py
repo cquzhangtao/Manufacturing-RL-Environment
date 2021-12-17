@@ -13,17 +13,24 @@ from tf_agents.utils import common
 
 class KPIsInEpisode(tf_metric.TFStepMetric):
     
-    def __init__(self, environment,name='KPIsInEpisode', prefix='Metrics', dtype=tf.float32):
+    def __init__(self, environment,name='KPIsOverEpisode',kpiName="CT", prefix='Metrics', dtype=tf.float32):
+        name+="_"+kpiName
         super(KPIsInEpisode, self).__init__(name=name, prefix=prefix)
         self.dtype = dtype
         self.episodeIdx=0
+        self.kpiName=kpiName
 
-        self.kpis_episodes = []
+        self.kpis_episodes = 0
         self.env=environment
     
-    def call(self, trajectory):
+    def __call__(self, trajectory):
         def append():
-            self.kpis_episodes.append([self.env.kpi[self.episodeIdx],self.env.rewards[self.episodeIdx]])   
+            if self.kpiName=="CT":
+                self.kpis_episodes=self.env.kpi[self.episodeIdx]
+            elif self.kpiName=="Reward":
+                self.kpis_episodes=self.env.rewards[self.episodeIdx]
+            else:
+                self.kpis_episodes=0
             self.episodeIdx+=1
         def donothing():
             pass
@@ -36,4 +43,4 @@ class KPIsInEpisode(tf_metric.TFStepMetric):
     
     @common.function
     def reset(self):
-        self.kpis_episodes=[]
+        self.kpis_episodes=0
