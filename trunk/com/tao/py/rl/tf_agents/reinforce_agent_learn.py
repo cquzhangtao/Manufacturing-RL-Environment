@@ -188,24 +188,24 @@ def train_eval(
                 timed_at_step = global_step_val
                 time_acc = 0
     
-        for train_metric in train_metrics:
-            train_metric.tf_summaries(
-              train_step=global_step, step_metrics=train_metrics[:2])
-          
-        if global_step_val % eval_interval == 0:
-            metrics = metric_utils.eager_compute(
-              eval_metrics,
-              eval_tf_env,
-              eval_policy,
-              num_episodes=num_eval_episodes,
-              train_step=global_step,
-              summary_writer=eval_summary_writer,
-              summary_prefix='Metrics',
-            )
-            # TODO(b/126590894): Move this functionality into
-            # eager_compute_summaries.
-            if eval_metrics_callback is not None:
-                eval_metrics_callback(metrics, global_step_val)
+            for train_metric in train_metrics:
+                train_metric.tf_summaries(
+                  train_step=global_step, step_metrics=train_metrics[:2])
+              
+            if global_step_val % eval_interval == 0:
+                metrics = metric_utils.eager_compute(
+                  eval_metrics,
+                  eval_tf_env,
+                  eval_policy,
+                  num_episodes=num_eval_episodes,
+                  train_step=global_step,
+                  summary_writer=eval_summary_writer,
+                  summary_prefix='Metrics',
+                )
+                # TODO(b/126590894): Move this functionality into
+                # eager_compute_summaries.
+                if eval_metrics_callback is not None:
+                    eval_metrics_callback(metrics, global_step_val)
 
 
 def main(_):
