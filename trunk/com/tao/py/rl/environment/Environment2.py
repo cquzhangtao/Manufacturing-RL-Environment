@@ -17,11 +17,13 @@ class SimEnvironment2(SimEnvironment0):
     def __init__(self,scenario):
         self.policy=None
         self.stepCounter=0
+        self.envState=0
         super().__init__(scenario)
 
     
     def clear(self):
         self.stepCounter=0
+        self.envState=0
         super().clear()
     
     
@@ -33,6 +35,7 @@ class SimEnvironment2(SimEnvironment0):
         super().start(training=training,rule=rule)
         self.updateCurrentState()
         self.rewards.append(0) 
+        self.envState=1
     
     def getJobByIndex(self,actionIdx):
         return self.queue[actionIdx]
@@ -70,13 +73,13 @@ class SimEnvironment2(SimEnvironment0):
         
         
         if self.sim.getState()==3: 
-            print(self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.rewards[self.rep-1]))
-            self.kpi.append(self.simResult.getTotalSummary().getAvgCT())            
+            print(str(self.rep)+" "+self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.rewards[self.rep-1]))
+            self.kpi.append(self.simResult.getTotalSummary().getAvgCT())  
+            self.envState=2          
             self.restart()
-            return 0
-        return 1    
-        
-    
+
+    def finishedEpisode(self):
+        return  self.envState==2 
     
     def collectOneStepData(self): 
 

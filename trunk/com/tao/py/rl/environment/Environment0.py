@@ -114,8 +114,8 @@ class SimEnvironment0(object):
         return actions
     
     def getReward(self,scenario,replication,model,tool,queue,job,time): 
-        return 10-time+job.getReleaseTime()       
-        #return 5-self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
+        #return 10-time+job.getReleaseTime()       
+        return self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
         #return 1/len(queue)
         #return 10-job.getProcessTime()
     

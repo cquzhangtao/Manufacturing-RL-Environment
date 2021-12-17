@@ -86,8 +86,8 @@ def train_eval(
         eval_metrics = [
           tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
           tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
-          KPIsInEpisode(evalEvn,kpiName="CT"),
-          KPIsInEpisode(evalEvn,kpiName="Reward")
+          KPIsInEpisode(kpiName="CT"),
+          KPIsInEpisode(kpiName="Reward")
         ]
         
     
@@ -129,8 +129,8 @@ def train_eval(
             tf_metrics.EnvironmentSteps(),
             tf_metrics.AverageReturnMetric(),
             tf_metrics.AverageEpisodeLengthMetric(),
-            KPIsInEpisode(env,kpiName="CT"),
-            KPIsInEpisode(env,kpiName="Reward")
+            KPIsInEpisode(kpiName="CT"),
+            KPIsInEpisode(kpiName="Reward")
         ]
     
         eval_policy = tf_agent.policy
@@ -215,6 +215,9 @@ def train_eval(
                 # eager_compute_summaries.
                 if eval_metrics_callback is not None:
                     eval_metrics_callback(metrics, global_step_val)
+    
+    train_summary_writer.close()
+    eval_summary_writer.close()
 
 
 def main(_):

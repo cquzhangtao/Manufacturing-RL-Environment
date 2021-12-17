@@ -36,6 +36,8 @@ def prepare():
             return tf_agents.specs.from_spec(env._observation_spec_no_mask),None 
         
         observ=observation
+        
+        kpiStartIdx=env.environmentSpec.stateFeatureNum+env.actionNum
 
         if len(observation.shape)==2:
             observ=observation[0]
@@ -43,7 +45,7 @@ def prepare():
             a=observ[0:env.environmentSpec.stateFeatureNum]
     
             observation=tf.expand_dims(a, axis=0)
-            action_mask=tf.expand_dims(observ[env.environmentSpec.stateFeatureNum:], axis=0)
+            action_mask=tf.expand_dims(observ[env.environmentSpec.stateFeatureNum:kpiStartIdx], axis=0)
             return observation,action_mask
         
         if len(observation.shape)==3:
@@ -52,7 +54,7 @@ def prepare():
             a=observ[:,0:env.environmentSpec.stateFeatureNum]
     
             observation=tf.expand_dims(a, axis=0)
-            action_mask=tf.expand_dims(observ[:,env.environmentSpec.stateFeatureNum:], axis=0)
+            action_mask=tf.expand_dims(observ[:,env.environmentSpec.stateFeatureNum:kpiStartIdx], axis=0)
             return observation,action_mask
 
     return env,evalEnv,observation_and_action_constrain_splitter

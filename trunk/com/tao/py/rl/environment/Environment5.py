@@ -22,8 +22,9 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         super().__init__(scenario)
 
         envSpec=self.environmentSpec
+        self.kpiNum=2
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(envSpec.stateFeatureNum+self.actionNum,), dtype=np.float32, minimum=np.append(envSpec.minState,[0]*self.actionNum), maximum=np.append(envSpec.maxState,[1]*self.actionNum),name='observation')
+            shape=(envSpec.stateFeatureNum+self.actionNum+self.kpiNum,), dtype=np.float32, minimum=np.append(envSpec.minState,[0]*(self.actionNum+self.kpiNum)), maximum=np.append(envSpec.maxState,[1]*(self.actionNum+self.kpiNum)),name='observation')
         self._observation_spec_no_mask = array_spec.BoundedArraySpec(
             shape=(envSpec.stateFeatureNum,), dtype=np.float32, minimum=envSpec.minState, maximum=envSpec.maxState,name='observation')
         self._action_spec = array_spec.BoundedArraySpec(
@@ -44,20 +45,30 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
     
     def restart(self):
         pass
+    
+    def getObservation(self):
+        kpi=[]
+        if self.finishedEpisode():
+            kpi=[self.kpi[len(self.kpi)-1],self.rewards[len(self.rewards)-1]]
+        else:
+            kpi=[0,0]
+            
+            
+        
+        return np.array(self.state.getData()+self.getMask()+kpi, dtype=np.float32)
       
     def _reset(self): 
         self.start()  
-        return ts.restart(np.array(self.state.getData()+self.getMask(), dtype=np.float32))
+        return ts.restart(self.getObservation())
     
     def _step(self,actionIdx): 
-        if self.sim.state==3:
+        if self.finishedEpisode():
             return self._reset()
         
-        simState=super().takeAction(actionIdx) 
-        observ=np.array(self.state.getData()+self.getMask(), dtype=np.float32) 
-        if simState==0: 
+        super().takeAction(actionIdx) 
+        observ=self.getObservation() 
+        if self.finishedEpisode() : 
             return ts.termination(observ, reward=self.reward)
          
-        observ=np.array(self.state.getData()+self.getMask(), dtype=np.float32)          
         return ts.transition(observ, reward=self.reward, discount=0.5) 
     
