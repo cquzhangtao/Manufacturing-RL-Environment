@@ -51,7 +51,10 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         if self.finishedEpisode():
             kpi=[self.kpi[len(self.kpi)-1],self.rewards[len(self.rewards)-1]]
         else:
-            kpi=[0,0]
+            if len(self.kpi)==0:
+                kpi=[0,0]
+            else:
+                kpi=[self.kpi[len(self.kpi)-1],self.rewards[len(self.rewards)-1]]
             
             
         

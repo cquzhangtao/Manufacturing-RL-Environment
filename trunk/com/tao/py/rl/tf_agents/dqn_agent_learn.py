@@ -13,6 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+
 # Lint as: python2, python3
 r"""Train and Eval DQN.
 
@@ -80,6 +81,7 @@ FLAGS = flags.FLAGS
 
 KERAS_LSTM_FUSED = 2
 import datetime
+from com.tao.py.rl.tf_agents.mmetrics import KPIsInEpisode
 
 
 @gin.configurable
@@ -141,7 +143,9 @@ def train_eval(
         eval_dir, flush_millis=summaries_flush_secs * 1000)
     eval_metrics = [
         tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
-        tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes)
+        tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
+        #KPIsInEpisode(kpiName="CT"),
+        #KPIsInEpisode(kpiName="Reward")
     ]
     
     global_step = tf.compat.v1.train.get_or_create_global_step()
@@ -195,6 +199,8 @@ def train_eval(
             tf_metrics.EnvironmentSteps(),
             tf_metrics.AverageReturnMetric(),
             tf_metrics.AverageEpisodeLengthMetric(),
+            #KPIsInEpisode(kpiName="CT"),
+            #KPIsInEpisode(kpiName="Reward")
         ]
     
         eval_policy = tf_agent.policy
@@ -292,6 +298,12 @@ def train_eval(
             for _ in range(train_steps_per_iteration):
                 train_loss = train_step()
             time_acc += time.time() - start_time
+            
+            if time_step.is_last():
+                tf.compat.v2.summary.scalar(
+                    name='CT', data=time_step.observation[0][-2], step=global_step)
+                tf.compat.v2.summary.scalar(
+                    name='Total reward', data=time_step.observation[0][-1], step=global_step)
             
             if global_step.numpy() % log_interval == 0:
                 logging.info('step = %d, loss = %f', global_step.numpy(),

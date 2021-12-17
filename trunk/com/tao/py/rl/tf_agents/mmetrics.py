@@ -9,7 +9,7 @@ import tensorflow as tf  # pylint: disable=g-explicit-tensorflow-version-import
 
 from tf_agents.metrics import tf_metric
 from tf_agents.utils import common
-from tf_agents.trajectories import time_step as ts
+
 
 
 class KPIsInEpisode(tf_metric.TFStepMetric):
