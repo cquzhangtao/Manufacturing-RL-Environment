@@ -299,11 +299,7 @@ def train_eval(
                 train_loss = train_step()
             time_acc += time.time() - start_time
             
-            if time_step.is_last():
-                tf.compat.v2.summary.scalar(
-                    name='CT', data=time_step.observation[0][-2], step=global_step)
-                tf.compat.v2.summary.scalar(
-                    name='Total reward', data=time_step.observation[0][-1], step=global_step)
+
             
             if global_step.numpy() % log_interval == 0:
                 logging.info('step = %d, loss = %f', global_step.numpy(),
@@ -318,6 +314,13 @@ def train_eval(
             for train_metric in train_metrics:
                 train_metric.tf_summaries(
                     train_step=global_step, step_metrics=train_metrics[:2])
+            
+            
+            if time_step.is_last():
+                tf.compat.v2.summary.scalar(
+                    name='KPIs/CT', data=time_step.observation[0][-2], step=train_metrics[0].result())
+                tf.compat.v2.summary.scalar(
+                    name='KPIs/Total reward', data=time_step.observation[0][-1], step=train_metrics[0].result())
             
             if global_step.numpy() % train_checkpoint_interval == 0:
                 train_checkpointer.save(global_step=global_step.numpy())
