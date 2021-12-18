@@ -199,8 +199,8 @@ def train_eval(
             tf_metrics.EnvironmentSteps(),
             tf_metrics.AverageReturnMetric(),
             tf_metrics.AverageEpisodeLengthMetric(),
-            #KPIsInEpisode(kpiName="CT"),
-            #KPIsInEpisode(kpiName="Reward")
+            KPIsInEpisode(kpiName="CT"),
+            KPIsInEpisode(kpiName="Reward")
         ]
     
         eval_policy = tf_agent.policy
@@ -317,10 +317,12 @@ def train_eval(
             
             
             if time_step.is_last():
-                tf.compat.v2.summary.scalar(
-                    name='KPIs/CT', data=time_step.observation[0][-2], step=train_metrics[0].result())
-                tf.compat.v2.summary.scalar(
-                    name='KPIs/Total reward', data=time_step.observation[0][-1], step=train_metrics[0].result())
+                summaries = []
+                rep = tf.cast(train_metrics[0].result(), tf.int64)
+                summaries.append(tf.compat.v2.summary.scalar(
+                    name='KPIs/CT', data=time_step.observation[0][-2], step=rep))
+                summaries.append(tf.compat.v2.summary.scalar(
+                    name='KPIs/Total reward', data=time_step.observation[0][-1], step=rep))
             
             if global_step.numpy() % train_checkpoint_interval == 0:
                 train_checkpointer.save(global_step=global_step.numpy())

@@ -33,8 +33,7 @@ class SimEnvironment2(SimEnvironment0):
         if rule==None and self.policy!=None:
             rule=AgentRule(self.policy)
         super().start(training=training,rule=rule)
-        self.updateCurrentState()
-        self.rewards.append(0) 
+        self.updateCurrentState() 
         self.envState=1
     
     def getJobByIndex(self,actionIdx):
@@ -63,7 +62,7 @@ class SimEnvironment2(SimEnvironment0):
         self.updateCurrentState()
         #print(self.rep)
         self.reward=self.getRewardForStepByStep()
-        self.rewards[self.rep-1]+=self.reward
+        self.totalReward+=self.reward
         
         trainData.reward=self.reward        
         trainData.nextState=self.state
@@ -73,8 +72,9 @@ class SimEnvironment2(SimEnvironment0):
         
         
         if self.sim.getState()==3: 
-            print(self.name+" "+str(self.rep)+" "+self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.rewards[self.rep-1]))
+            print(self.name+" "+str(self.rep)+" "+self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.totalReward))
             self.kpi.append(self.simResult.getTotalSummary().getAvgCT())  
+            self.rewards.append(self.totalReward)
             self.envState=2          
             self.restart()
 

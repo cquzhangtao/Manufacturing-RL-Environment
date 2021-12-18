@@ -25,6 +25,7 @@ class SimEnvironment0(object):
         self.simResult=None
         self.kpi=[]
         self.rewards=[]
+        self.totalReward=0
         self.environmentSpec=None
         self.initializing=False;
         self.init()
@@ -32,7 +33,8 @@ class SimEnvironment0(object):
     def clear(self):
         self.rep=0        
         self.kpi=[] 
-        self.rewards=[]   
+        self.rewards=[]
+        self.totalReward=0   
         
     def getSimEventListeners(self):
         return []
@@ -46,6 +48,8 @@ class SimEnvironment0(object):
         self.model.setReplication(self.rep) 
         self.model.setScenario(self.scenario)
         self.model.training=training 
+        
+        self.totalReward=0
         
         for machine in self.model.machines:
             machine.rule=rule
@@ -86,9 +90,9 @@ class SimEnvironment0(object):
         del  self.eventListeners[0]  
         
         self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
-        totalReward=sum([j for sub in trainDataset.reward for j in sub])
-        print(self.simResult.getTotalSummary().toString()+",Total Reward:"+str(totalReward))
-        self.rewards.append(totalReward)    
+        self.totalReward=sum([j for sub in trainDataset.reward for j in sub])
+        print(self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.totalReward))
+        self.rewards.append(self.totalReward)    
         
         return trainDataset
     
