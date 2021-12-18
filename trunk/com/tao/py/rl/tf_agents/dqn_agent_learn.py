@@ -124,8 +124,8 @@ def train_eval(
     log_interval=1000,
     summary_interval=1000,
     summaries_flush_secs=10,
-    debug_summaries=False,
-    summarize_grads_and_vars=False,
+    debug_summaries=True,
+    summarize_grads_and_vars=True,
     eval_metrics_callback=None):
     
     
@@ -351,7 +351,7 @@ def train_eval(
                     eval_metrics_callback(results, global_step.numpy())
                 metric_utils.log_metrics(eval_metrics)
         
-    env.drawKPICurve()
+    #env.drawKPICurve()
     return train_loss
 
 
