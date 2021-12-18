@@ -49,9 +49,11 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
     def getObservation(self):
         kpi=[]
         if self.finishedEpisode():
+            if len(self.kpi)<1:
+                kpi=[0,0]
             kpi=[self.kpi[len(self.kpi)-1],self.rewards[len(self.rewards)-1]]
         else:
-            if len(self.kpi)==0:
+            if len(self.kpi)<1:
                 kpi=[0,0]
             else:
                 kpi=[self.kpi[len(self.kpi)-1],self.rewards[len(self.rewards)-1]]

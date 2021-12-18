@@ -35,3 +35,39 @@ class KPIsInEpisode(tf_metric.TFStepMetric):
     @common.function
     def reset(self):
         self.kpiValue.assign(0)
+        
+    def tf_summaries(self, train_step=None, step_metrics=()):
+        """Generates summaries against train_step and all step_metrics.
+    
+        Args:
+          train_step: (Optional) Step counter for training iterations. If None, no
+            metric is generated against the global step.
+          step_metrics: (Optional) Iterable of step metrics to generate summaries
+            against.
+    
+        Returns:
+          A list of summaries.
+        """
+        summaries = []
+        prefix = self._prefix
+        tag = common.join_scope(prefix, self.name)
+        result = self.result()
+        
+        if train_step is not None:
+            summaries.append(
+              tf.compat.v2.summary.scalar(name=tag, data=result, step=train_step))
+        if prefix:
+            prefix += '_'
+        for step_metric in step_metrics:
+            # Skip plotting the metrics against itself.
+            if self.name == step_metric.name:
+                continue
+            step_tag = '{}vs_{}/{}'.format(prefix, step_metric.name, self.name)
+            # Summaries expect the step value to be an int64.
+            step = tf.cast(step_metric.result(), tf.int64)
+            print(str(step)+str(result))
+            summaries.append(tf.compat.v2.summary.scalar(
+                name=step_tag,
+                data=result,
+                step=step))
+        return summaries
