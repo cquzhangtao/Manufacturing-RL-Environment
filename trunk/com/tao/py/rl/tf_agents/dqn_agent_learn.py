@@ -124,7 +124,7 @@ def train_eval(
     log_interval=10,
     summary_interval=1,
     summaries_flush_secs=10,
-    debug_summaries=True,
+    debug_summaries=False,
     summarize_grads_and_vars=False,
     eval_metrics_callback=None):
     
@@ -396,8 +396,8 @@ def main(_):
     #logging.set_verbosity(logging.INFO)
     tf.compat.v1.enable_v2_behavior()
     gin.parse_config_files_and_bindings(FLAGS.gin_file, FLAGS.gin_param)
-    tf.config.run_functions_eagerly(True)
-    tf.data.experimental.enable_debug_mode()
+    #tf.config.run_functions_eagerly(True)
+    #tf.data.experimental.enable_debug_mode()
     train_eval(FLAGS.root_dir, num_iterations=FLAGS.num_iterations,use_tf_functions=FLAGS.graph_compute)
 
 
