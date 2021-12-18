@@ -27,8 +27,8 @@ def prepare():
     simConfig=SimConfig(1,100);
     
     scenario=Scenario(1,"S1",simConfig,createModel)
-    env=SimEnvironment5(scenario)
-    evalEnv=SimEnvironment5(scenario)
+    env=SimEnvironment5(scenario,name="Train")
+    evalEnv=SimEnvironment5(scenario,name="Evaluation")
     
     
     def observation_and_action_constrain_splitter(observation):

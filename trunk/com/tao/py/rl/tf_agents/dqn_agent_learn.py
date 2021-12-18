@@ -115,13 +115,13 @@ def train_eval(
     use_tf_functions=False,
     # Params for eval
     num_eval_episodes=1,
-    eval_interval=1000,
+    eval_interval=500,
     # Params for checkpoints
-    train_checkpoint_interval=10000,
-    policy_checkpoint_interval=5000,
-    rb_checkpoint_interval=20000,
+    train_checkpoint_interval=10,
+    policy_checkpoint_interval=10,
+    rb_checkpoint_interval=10,
     # Params for summaries and logging
-    log_interval=1000,
+    log_interval=10,
     summary_interval=10,
     summaries_flush_secs=10,
     debug_summaries=True,

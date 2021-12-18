@@ -18,8 +18,8 @@ from com.tao.py.rl.environment.Environment4 import SimEnvironment4
 
 class SimEnvironment5(SimEnvironment4,PyEnvironment):
 
-    def __init__(self,scenario):
-        super().__init__(scenario)
+    def __init__(self,scenario,name=""):
+        super().__init__(scenario,name=name)
 
         envSpec=self.environmentSpec
         self.kpiNum=2

@@ -14,11 +14,11 @@ from com.tao.py.rl.data.TrainDataItem import TrainDataItem
 
 class SimEnvironment2(SimEnvironment0):
 
-    def __init__(self,scenario):
+    def __init__(self,scenario,name=""):
         self.policy=None
         self.stepCounter=0
         self.envState=0
-        super().__init__(scenario)
+        super().__init__(scenario,name=name)
 
     
     def clear(self):
@@ -73,7 +73,7 @@ class SimEnvironment2(SimEnvironment0):
         
         
         if self.sim.getState()==3: 
-            print(str(self.rep)+" "+self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.rewards[self.rep-1]))
+            print(self.name+" "+str(self.rep)+" "+self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.rewards[self.rep-1]))
             self.kpi.append(self.simResult.getTotalSummary().getAvgCT())  
             self.envState=2          
             self.restart()

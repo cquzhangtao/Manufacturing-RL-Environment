@@ -16,9 +16,10 @@ import matplotlib.pyplot as plt
 
 class SimEnvironment0(object):
 
-    def __init__(self,scenario):
+    def __init__(self,scenario,name=""):
         self.scenario=scenario
         self.state=None
+        self.name=name
         self.rep=0
         self.eventListeners=[]
         self.simResult=None
