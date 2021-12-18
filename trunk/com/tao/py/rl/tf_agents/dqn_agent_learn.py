@@ -81,7 +81,7 @@ FLAGS = flags.FLAGS
 
 KERAS_LSTM_FUSED = 2
 import datetime
-from com.tao.py.rl.tf_agents.mmetrics import KPIsInEpisode
+from com.tao.py.rl.tf_agents.mmetrics import KPIsInEpisode, NumberOfEpisodes
 
 
 @gin.configurable
@@ -122,7 +122,7 @@ def train_eval(
     rb_checkpoint_interval=10,
     # Params for summaries and logging
     log_interval=10,
-    summary_interval=10,
+    summary_interval=1,
     summaries_flush_secs=10,
     debug_summaries=True,
     summarize_grads_and_vars=False,
@@ -149,207 +149,211 @@ def train_eval(
     ]
     
     global_step = tf.compat.v1.train.get_or_create_global_step()
-    with record_if(
-          lambda: tf.math.equal(global_step % summary_interval, 0)):
+    #with record_if(
+    #      lambda: tf.math.equal(global_step % summary_interval, 0)):
           
-        env, evalEvn, mask = prepareEnv()
-        tf_env = tf_py_environment.TFPyEnvironment(env)
-        eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
-    
-        if train_sequence_length != 1 and n_step_update != 1:
-            raise NotImplementedError(
-              'train_eval does not currently support n-step updates with stateful '
-              'networks (i.e., RNNs)')
-    
-        action_spec = tf_env.action_spec()
-        num_actions = action_spec.maximum - action_spec.minimum + 1
-    
-        if train_sequence_length > 1:
-            q_net = create_recurrent_network(
-                input_fc_layer_params,
-                lstm_size,
-                output_fc_layer_params,
-                num_actions)
-        else:
-            q_net = create_feedforward_network(fc_layer_params, num_actions)
-            train_sequence_length = n_step_update
-    
-        # TODO(b/127301657): Decay epsilon based on global step, cf. cl/188907839
-        tf_agent = dqn_agent.DqnAgent(
-            tf_env.time_step_spec(),
-            tf_env.action_spec(),
-            q_network=q_net,
-            epsilon_greedy=epsilon_greedy,
-            n_step_update=n_step_update,
-            target_update_tau=target_update_tau,
-            target_update_period=target_update_period,
-            optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate),
-            td_errors_loss_fn=common.element_wise_squared_loss,
-            gamma=gamma,
-            reward_scale_factor=reward_scale_factor,
-            gradient_clipping=gradient_clipping,
-            debug_summaries=debug_summaries,
-            summarize_grads_and_vars=summarize_grads_and_vars,
-            train_step_counter=global_step,
-            observation_and_action_constraint_splitter=mask)
-        tf_agent.initialize()
-    
-        train_metrics = [
-            tf_metrics.NumberOfEpisodes(),
-            tf_metrics.EnvironmentSteps(),
-            tf_metrics.AverageReturnMetric(),
-            tf_metrics.AverageEpisodeLengthMetric(),
-            KPIsInEpisode(kpiName="CT"),
-            KPIsInEpisode(kpiName="Reward")
-        ]
-    
-        eval_policy = tf_agent.policy
-        collect_policy = tf_agent.collect_policy
-    
-        replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
-            data_spec=tf_agent.collect_data_spec,
-            batch_size=tf_env.batch_size,
-            max_length=replay_buffer_capacity)
-    
-        collect_driver = dynamic_step_driver.DynamicStepDriver(
-            tf_env,
-            collect_policy,
-            observers=[replay_buffer.add_batch] + train_metrics,
-            num_steps=collect_steps_per_iteration)
-    
-        train_checkpointer = common.Checkpointer(
-            ckpt_dir=train_dir,
-            agent=tf_agent,
-            global_step=global_step,
-            metrics=metric_utils.MetricsGroup(train_metrics, 'train_metrics'))
-        policy_checkpointer = common.Checkpointer(
-            ckpt_dir=os.path.join(train_dir, 'policy'),
-            policy=eval_policy,
-            global_step=global_step)
-        rb_checkpointer = common.Checkpointer(
-            ckpt_dir=os.path.join(train_dir, 'replay_buffer'),
-            max_to_keep=1,
-            replay_buffer=replay_buffer)
-    
-        train_checkpointer.initialize_or_restore()
-        rb_checkpointer.initialize_or_restore()
-    
-        if use_tf_functions:
-            # To speed up collect use common.function.
-            collect_driver.run = common.function(collect_driver.run)
-            tf_agent.train = common.function(tf_agent.train)
-    
-        initial_collect_policy = random_tf_policy.RandomTFPolicy(
-            tf_env.time_step_spec(), tf_env.action_spec(), observation_and_action_constraint_splitter=mask)
-    
-        # Collect initial replay data.
-        logging.info(
-            'Initializing replay buffer by collecting experience for %d steps with '
-            'a random policy.', initial_collect_steps)
-        
-        
-        dynamic_step_driver.DynamicStepDriver(
-            tf_env,
-            initial_collect_policy,
-            observers=[replay_buffer.add_batch] + train_metrics,
-            num_steps=initial_collect_steps).run()
-        print("replay buffer is initialized.")
-    
-        results = metric_utils.eager_compute(
-            eval_metrics,
-            eval_tf_env,
-            eval_policy,
-            num_episodes=num_eval_episodes,
-            train_step=global_step,
-            summary_writer=eval_summary_writer,
-            summary_prefix='Metrics',
-            use_function=use_tf_functions
-        )
-        if eval_metrics_callback is not None:
-            eval_metrics_callback(results, global_step.numpy())
-        metric_utils.log_metrics(eval_metrics)
-    
-        time_step = None
-        policy_state = collect_policy.get_initial_state(tf_env.batch_size)
-    
-        timed_at_step = global_step.numpy()
-        time_acc = 0
-    
-        # Dataset generates trajectories with shape [Bx2x...]
-        dataset = replay_buffer.as_dataset(
-            num_parallel_calls=3,
-            sample_batch_size=batch_size,
-            num_steps=train_sequence_length + 1).prefetch(3)
-        iterator = iter(dataset)
-    
-        def train_step():
-            experience, _ = next(iterator)
-            return tf_agent.train(experience)
-    
-        if use_tf_functions:
-            train_step = common.function(train_step)
-    
-        for _ in range(num_iterations):
-            start_time = time.time()
-            time_step, policy_state = collect_driver.run(
-                time_step=time_step,
-                policy_state=policy_state,
-            )
-            for _ in range(train_steps_per_iteration):
-                train_loss = train_step()
-            time_acc += time.time() - start_time
-            
+    env, evalEvn, mask = prepareEnv()
+    tf_env = tf_py_environment.TFPyEnvironment(env)
+    eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
 
-            
-            if global_step.numpy() % log_interval == 0:
-                logging.info('step = %d, loss = %f', global_step.numpy(),
-                             train_loss.loss)
-                steps_per_sec = (global_step.numpy() - timed_at_step) / time_acc
-                logging.info('%.3f steps/sec', steps_per_sec)
-                tf.compat.v2.summary.scalar(
-                    name='global_steps_per_sec', data=steps_per_sec, step=global_step)
-                timed_at_step = global_step.numpy()
-                time_acc = 0
-            
-            for train_metric in train_metrics:
-                train_metric.tf_summaries(
-                    train_step=global_step, step_metrics=train_metrics[:2])
-            
-            
-            if time_step.is_last():
-                summaries = []
-                rep = tf.cast(train_metrics[0].result(), tf.int64)
-                summaries.append(tf.compat.v2.summary.scalar(
-                    name='KPIs/CT', data=time_step.observation[0][-2], step=rep))
-                summaries.append(tf.compat.v2.summary.scalar(
-                    name='KPIs/Total reward', data=time_step.observation[0][-1], step=rep))
-            
-            if global_step.numpy() % train_checkpoint_interval == 0:
-                train_checkpointer.save(global_step=global_step.numpy())
-            
-            if global_step.numpy() % policy_checkpoint_interval == 0:
-                policy_checkpointer.save(global_step=global_step.numpy())
-            
-            if global_step.numpy() % rb_checkpoint_interval == 0:
-                rb_checkpointer.save(global_step=global_step.numpy())
-            
-            if global_step.numpy() % eval_interval == 0:
-                results = metric_utils.eager_compute(
-                  eval_metrics,
-                  eval_tf_env,
-                  eval_policy,
-                  num_episodes=num_eval_episodes,
-                  train_step=global_step,
-                  summary_writer=eval_summary_writer,
-                  summary_prefix='Metrics',
-                  use_function=use_tf_functions
-                  )
-                if eval_metrics_callback is not None:
-                    eval_metrics_callback(results, global_step.numpy())
-                metric_utils.log_metrics(eval_metrics)
+    if train_sequence_length != 1 and n_step_update != 1:
+        raise NotImplementedError(
+          'train_eval does not currently support n-step updates with stateful '
+          'networks (i.e., RNNs)')
+
+    action_spec = tf_env.action_spec()
+    num_actions = action_spec.maximum - action_spec.minimum + 1
+
+    if train_sequence_length > 1:
+        q_net = create_recurrent_network(
+            input_fc_layer_params,
+            lstm_size,
+            output_fc_layer_params,
+            num_actions)
+    else:
+        q_net = create_feedforward_network(fc_layer_params, num_actions)
+        train_sequence_length = n_step_update
+
+    # TODO(b/127301657): Decay epsilon based on global step, cf. cl/188907839
+    tf_agent = dqn_agent.DqnAgent(
+        tf_env.time_step_spec(),
+        tf_env.action_spec(),
+        q_network=q_net,
+        epsilon_greedy=epsilon_greedy,
+        n_step_update=n_step_update,
+        target_update_tau=target_update_tau,
+        target_update_period=target_update_period,
+        optimizer=tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate),
+        td_errors_loss_fn=common.element_wise_squared_loss,
+        gamma=gamma,
+        reward_scale_factor=reward_scale_factor,
+        gradient_clipping=gradient_clipping,
+        debug_summaries=debug_summaries,
+        summarize_grads_and_vars=summarize_grads_and_vars,
+        train_step_counter=global_step,
+        observation_and_action_constraint_splitter=mask)
+    tf_agent.initialize()
+
+    train_metrics = [
+
+        tf_metrics.NumberOfEpisodes(),
+        tf_metrics.EnvironmentSteps(),
+        tf_metrics.AverageReturnMetric(),
+        tf_metrics.AverageEpisodeLengthMetric(),
+        NumberOfEpisodes(),
+        KPIsInEpisode(kpiName="CT"),
+        KPIsInEpisode(kpiName="Reward")
+    ]
+
+    eval_policy = tf_agent.policy
+    collect_policy = tf_agent.collect_policy
+
+    replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
+        data_spec=tf_agent.collect_data_spec,
+        batch_size=tf_env.batch_size,
+        max_length=replay_buffer_capacity)
+
+    collect_driver = dynamic_step_driver.DynamicStepDriver(
+        tf_env,
+        collect_policy,
+        observers=[replay_buffer.add_batch] + train_metrics,
+        num_steps=collect_steps_per_iteration)
+
+    train_checkpointer = common.Checkpointer(
+        ckpt_dir=train_dir,
+        agent=tf_agent,
+        global_step=global_step,
+        metrics=metric_utils.MetricsGroup(train_metrics, 'train_metrics'))
+    policy_checkpointer = common.Checkpointer(
+        ckpt_dir=os.path.join(train_dir, 'policy'),
+        policy=eval_policy,
+        global_step=global_step)
+    rb_checkpointer = common.Checkpointer(
+        ckpt_dir=os.path.join(train_dir, 'replay_buffer'),
+        max_to_keep=1,
+        replay_buffer=replay_buffer)
+
+    train_checkpointer.initialize_or_restore()
+    rb_checkpointer.initialize_or_restore()
+
+    if use_tf_functions:
+        # To speed up collect use common.function.
+        collect_driver.run = common.function(collect_driver.run)
+        tf_agent.train = common.function(tf_agent.train)
+
+    initial_collect_policy = random_tf_policy.RandomTFPolicy(
+        tf_env.time_step_spec(), tf_env.action_spec(), observation_and_action_constraint_splitter=mask)
+
+    # Collect initial replay data.
+    logging.info(
+        'Initializing replay buffer by collecting experience for %d steps with '
+        'a random policy.', initial_collect_steps)
+    
+    
+    dynamic_step_driver.DynamicStepDriver(
+        tf_env,
+        initial_collect_policy,
+        observers=[replay_buffer.add_batch] + train_metrics,
+        num_steps=initial_collect_steps).run()
+    print("replay buffer is initialized.")
+
+    results = metric_utils.eager_compute(
+        eval_metrics,
+        eval_tf_env,
+        eval_policy,
+        num_episodes=num_eval_episodes,
+        train_step=global_step,
+        summary_writer=eval_summary_writer,
+        summary_prefix='Metrics',
+        use_function=use_tf_functions
+    )
+    if eval_metrics_callback is not None:
+        eval_metrics_callback(results, global_step.numpy())
+    metric_utils.log_metrics(eval_metrics)
+
+    time_step = None
+    policy_state = collect_policy.get_initial_state(tf_env.batch_size)
+
+    timed_at_step = global_step.numpy()
+    time_acc = 0
+
+    # Dataset generates trajectories with shape [Bx2x...]
+    dataset = replay_buffer.as_dataset(
+        num_parallel_calls=3,
+        sample_batch_size=batch_size,
+        num_steps=train_sequence_length + 1).prefetch(3)
+    iterator = iter(dataset)
+
+    def train_step():
+        experience, _ = next(iterator)
+        return tf_agent.train(experience)
+
+    if use_tf_functions:
+        train_step = common.function(train_step)
+
+    for _ in range(num_iterations):
+        start_time = time.time()
+        time_step, policy_state = collect_driver.run(
+            time_step=time_step,
+            policy_state=policy_state,
+        )
+        for _ in range(train_steps_per_iteration):
+            train_loss = train_step()
+        time_acc += time.time() - start_time
         
-        env.drawKPICurve()
-        return train_loss
+
+        
+        if global_step.numpy() % log_interval == 0:
+            logging.info('step = %d, loss = %f', global_step.numpy(),
+                         train_loss.loss)
+            steps_per_sec = (global_step.numpy() - timed_at_step) / time_acc
+            logging.info('%.3f steps/sec', steps_per_sec)
+            tf.compat.v2.summary.scalar(
+                name='global_steps_per_sec', data=steps_per_sec, step=global_step)
+            timed_at_step = global_step.numpy()
+            time_acc = 0
+        
+        for train_metric in train_metrics[:4]:
+            train_metric.tf_summaries(
+                train_step=global_step, step_metrics=train_metrics[:2])
+        for train_metric in train_metrics[4:]:
+            train_metric.tf_summaries(
+                train_step=global_step, step_metrics=[train_metrics[4]])            
+        
+        if time_step.is_last():
+            summaries = []
+            rep = tf.cast(train_metrics[4].result(), tf.int64)
+            summaries.append(tf.compat.v2.summary.scalar(
+                name='KPIs/CT', data=time_step.observation[0][-2], step=rep))
+            summaries.append(tf.compat.v2.summary.scalar(
+                name='KPIs/Total reward', data=time_step.observation[0][-1], step=rep))
+        
+        if global_step.numpy() % train_checkpoint_interval == 0:
+            train_checkpointer.save(global_step=global_step.numpy())
+        
+        if global_step.numpy() % policy_checkpoint_interval == 0:
+            policy_checkpointer.save(global_step=global_step.numpy())
+        
+        if global_step.numpy() % rb_checkpoint_interval == 0:
+            rb_checkpointer.save(global_step=global_step.numpy())
+        
+        if global_step.numpy() % eval_interval == 0:
+            results = metric_utils.eager_compute(
+              eval_metrics,
+              eval_tf_env,
+              eval_policy,
+              num_episodes=num_eval_episodes,
+              train_step=global_step,
+              summary_writer=eval_summary_writer,
+              summary_prefix='Metrics',
+              use_function=use_tf_functions
+              )
+            if eval_metrics_callback is not None:
+                eval_metrics_callback(results, global_step.numpy())
+            metric_utils.log_metrics(eval_metrics)
+        
+    env.drawKPICurve()
+    return train_loss
 
 
 logits = functools.partial(
@@ -392,7 +396,8 @@ def main(_):
     #logging.set_verbosity(logging.INFO)
     tf.compat.v1.enable_v2_behavior()
     gin.parse_config_files_and_bindings(FLAGS.gin_file, FLAGS.gin_param)
-    
+    tf.config.run_functions_eagerly(True)
+    tf.data.experimental.enable_debug_mode()
     train_eval(FLAGS.root_dir, num_iterations=FLAGS.num_iterations,use_tf_functions=FLAGS.graph_compute)
 
 

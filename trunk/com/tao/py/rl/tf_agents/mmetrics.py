@@ -36,38 +36,35 @@ class KPIsInEpisode(tf_metric.TFStepMetric):
     def reset(self):
         self.kpiValue.assign(0)
         
-    def tf_summaries(self, train_step=None, step_metrics=()):
-        """Generates summaries against train_step and all step_metrics.
+class NumberOfEpisodes(tf_metric.TFStepMetric):
+    """Counts the number of episodes in the environment."""
     
-        Args:
-          train_step: (Optional) Step counter for training iterations. If None, no
-            metric is generated against the global step.
-          step_metrics: (Optional) Iterable of step metrics to generate summaries
-            against.
+    def __init__(self, name='NumberOfEpisodes', prefix='Metrics', dtype=tf.int64):
+        super(NumberOfEpisodes, self).__init__(name=name, prefix=prefix)
+        self.dtype = dtype
+        self.number_episodes = common.create_variable(
+            initial_value=0, dtype=self.dtype, shape=(), name='number_episodes')
     
-        Returns:
-          A list of summaries.
-        """
-        summaries = []
-        prefix = self._prefix
-        tag = common.join_scope(prefix, self.name)
-        result = self.result()
+    def call(self, trajectory):
+        """Increase the number of number_episodes according to trajectory.
         
-        if train_step is not None:
-            summaries.append(
-              tf.compat.v2.summary.scalar(name=tag, data=result, step=train_step))
-        if prefix:
-            prefix += '_'
-        for step_metric in step_metrics:
-            # Skip plotting the metrics against itself.
-            if self.name == step_metric.name:
-                continue
-            step_tag = '{}vs_{}/{}'.format(prefix, step_metric.name, self.name)
-            # Summaries expect the step value to be an int64.
-            step = tf.cast(step_metric.result(), tf.int64)
-            print(str(step)+str(result))
-            summaries.append(tf.compat.v2.summary.scalar(
-                name=step_tag,
-                data=result,
-                step=step))
-        return summaries
+        It would increase for all trajectory.is_last().
+        
+        Args:
+          trajectory: A tf_agents.trajectory.Trajectory
+        
+        Returns:
+          The arguments, for easy chaining.
+        """
+        # The __call__ will execute this.
+        num_episodes = tf.cast(trajectory.is_boundary(), self.dtype)
+        num_episodes = tf.reduce_sum(input_tensor=num_episodes)
+        self.number_episodes.assign_add(num_episodes)
+        return trajectory
+    
+    def result(self):
+        return tf.identity(self.number_episodes, name=self.name)
+    
+    @common.function
+    def reset(self):
+        self.number_episodes.assign(0)
