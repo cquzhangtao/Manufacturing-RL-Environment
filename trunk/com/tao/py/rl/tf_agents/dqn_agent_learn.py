@@ -144,8 +144,8 @@ def train_eval(
     eval_metrics = [
         tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
         tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
-        #KPIsInEpisode(kpiName="CT"),
-        #KPIsInEpisode(kpiName="Reward")
+        KPIsInEpisode(kpiName="CT"),
+        KPIsInEpisode(kpiName="Reward")
     ]
     
     global_step = tf.compat.v1.train.get_or_create_global_step()
