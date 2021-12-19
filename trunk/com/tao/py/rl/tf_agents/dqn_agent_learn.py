@@ -106,7 +106,7 @@ def train_eval(
     target_update_period=5,
     # Params for train
     train_steps_per_iteration=1,
-    batch_size=1,
+    batch_size=3,
     learning_rate=0.001,
     n_step_update=1,
     gamma=0.99,
@@ -395,8 +395,8 @@ def main(_):
     #logging.set_verbosity(logging.INFO)
     tf.compat.v1.enable_v2_behavior()
     gin.parse_config_files_and_bindings(FLAGS.gin_file, FLAGS.gin_param)
-    #tf.config.run_functions_eagerly(True)
-    #tf.data.experimental.enable_debug_mode()
+    tf.config.run_functions_eagerly(True)
+    tf.data.experimental.enable_debug_mode()
     train_eval(FLAGS.root_dir, num_iterations=FLAGS.num_iterations,use_tf_functions=FLAGS.graph_compute)
 
 

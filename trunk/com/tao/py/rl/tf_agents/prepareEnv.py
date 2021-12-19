@@ -40,21 +40,15 @@ def prepare():
         kpiStartIdx=env.environmentSpec.stateFeatureNum+env.actionNum
 
         if len(observation.shape)==2:
-            observ=observation[0]
+            observ=observation[:,0:env.environmentSpec.stateFeatureNum]
 
-            a=observ[0:env.environmentSpec.stateFeatureNum]
-    
-            observation=tf.expand_dims(a, axis=0)
-            action_mask=tf.expand_dims(observ[env.environmentSpec.stateFeatureNum:kpiStartIdx], axis=0)
-            return observation,action_mask
+            action_mask=observation[:,env.environmentSpec.stateFeatureNum:kpiStartIdx]
+            return observ,action_mask
         
         if len(observation.shape)==3:
-            observ=observation[0]
+            observ=observation[:,:,0:env.environmentSpec.stateFeatureNum]
 
-            a=observ[:,0:env.environmentSpec.stateFeatureNum]
-    
-            observation=tf.expand_dims(a, axis=0)
-            action_mask=tf.expand_dims(observ[:,env.environmentSpec.stateFeatureNum:kpiStartIdx], axis=0)
-            return observation,action_mask
+            action_mask=observation[:,:,env.environmentSpec.stateFeatureNum:kpiStartIdx]
+            return observ,action_mask
 
     return env,evalEnv,observation_and_action_constrain_splitter
