@@ -1,4 +1,6 @@
 eclipse.preferences.version=1
+encoding//com/tao/py/rl/tf_agents/ddpg_agent.py=utf-8
+encoding//com/tao/py/rl/tf_agents/ddpg_agent_learn.py=utf-8
 encoding//com/tao/py/rl/tf_agents/dqn_agent.py=utf-8
 encoding//com/tao/py/rl/tf_agents/dqn_agent_learn.py=utf-8
 encoding//com/tao/py/rl/tf_agents/dqn_agent_no_buffer.py=utf-8

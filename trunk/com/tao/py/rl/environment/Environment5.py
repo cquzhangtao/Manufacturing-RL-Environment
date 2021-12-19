@@ -28,7 +28,7 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         self._observation_spec_no_mask = array_spec.BoundedArraySpec(
             shape=(envSpec.stateFeatureNum,), dtype=np.float32, minimum=envSpec.minState, maximum=envSpec.maxState,name='observation')
         self._action_spec = array_spec.BoundedArraySpec(
-            shape=(), dtype=np.int32, minimum=0, maximum=self.actionNum-1,name='action')
+            shape=(1,), dtype=np.int32, minimum=0, maximum=self.actionNum-1,name='action')
      
     
     def observation_spec(self) :
