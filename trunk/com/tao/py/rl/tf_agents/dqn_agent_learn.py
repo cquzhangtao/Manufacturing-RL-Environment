@@ -90,11 +90,11 @@ def train_eval(
     num_iterations=10000,
     train_sequence_length=1,
     # Params for QNetwork
-    fc_layer_params=(100,),
+    fc_layer_params=(100,33,),
     # Params for QRnnNetwork
-    input_fc_layer_params=(50,),
+    input_fc_layer_params=(50,24,),
     lstm_size=(20,),
-    output_fc_layer_params=(20,),
+    output_fc_layer_params=(20,45,),
 
     # Params for collect
     initial_collect_steps=1000,

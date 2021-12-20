@@ -234,6 +234,8 @@ class DqnAgent(tf_agent.TFAgent):
       net_observation_spec, _ = observation_and_action_constraint_splitter(
           net_observation_spec)
     q_network.create_variables(net_observation_spec)
+    for tvar in q_network.trainable_variables:
+        print(tvar.name+str(tvar.shape))
     if target_q_network:
       target_q_network.create_variables(net_observation_spec)
     self._target_q_network = common.maybe_copy_target_network_with_checks(

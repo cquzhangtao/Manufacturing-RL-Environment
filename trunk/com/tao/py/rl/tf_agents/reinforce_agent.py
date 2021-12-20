@@ -204,6 +204,11 @@ class ReinforceAgent(tf_agent.TFAgent):
     tf.Module.__init__(self, name=name)
 
     actor_network.create_variables()
+    #print(actor_network.summary())
+    #print(actor_network._encoder.summary())
+    #print(actor_network._projection_networks.summary())
+    for tvar in actor_network.trainable_variables:
+        print(tvar.name+str(tvar.shape))
     self._actor_network = actor_network
     if value_network:
       value_network.create_variables()

@@ -39,8 +39,8 @@ from com.tao.py.rl.tf_agents.mmetrics import KPIsInEpisode
 def train_eval(
     root_dir,
     num_iterations=1000,
-    actor_fc_layers=(100,),
-    value_net_fc_layers=(100,),
+    actor_fc_layers=(123,32,),
+    value_net_fc_layers=(149,56,),
     use_value_network=False,
     use_tf_functions=False,
     # Params for collect
@@ -225,6 +225,8 @@ def main(_):
         config=tf.compat.v1.ConfigProto(allow_soft_placement=True))
     tf.compat.v1.enable_v2_behavior()
     #logging.set_verbosity(logging.INFO)
+    tf.config.run_functions_eagerly(True)
+    tf.data.experimental.enable_debug_mode()
     train_eval(FLAGS.root_dir, num_iterations=FLAGS.num_iterations,use_tf_functions=FLAGS.graph_compute)
 
 

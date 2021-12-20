@@ -137,6 +137,8 @@ class DdpgAgent(tf_agent.TFAgent):
     self._actor_network = actor_network
     actor_network.create_variables(
         net_observation_spec)
+    for tvar in actor_network.trainable_variables:
+        print(tvar.name+str(tvar.shape))
     if target_actor_network:
       target_actor_network.create_variables(net_observation_spec)
     self._target_actor_network = common.maybe_copy_target_network_with_checks(
@@ -148,6 +150,8 @@ class DdpgAgent(tf_agent.TFAgent):
     self._critic_network = critic_network
     critic_input_spec = (net_observation_spec, action_spec)
     critic_network.create_variables(critic_input_spec)
+    for tvar in critic_network.trainable_variables:
+        print(tvar.name+str(tvar.shape))
     if target_critic_network:
       target_critic_network.create_variables(critic_input_spec)
     self._target_critic_network = common.maybe_copy_target_network_with_checks(
