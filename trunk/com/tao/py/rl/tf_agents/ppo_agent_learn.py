@@ -44,8 +44,7 @@ import tensorflow as tf  # pylint: disable=g-explicit-tensorflow-version-import
 
 from com.tao.py.rl.tf_agents import ppo_clip_agent
 from tf_agents.drivers import dynamic_episode_driver
-from tf_agents.environments import parallel_py_environment
-from tf_agents.environments import suite_mujoco
+
 from tf_agents.environments import tf_py_environment
 from tf_agents.eval import metric_utils
 from tf_agents.metrics import tf_metrics
@@ -82,7 +81,7 @@ flags.DEFINE_integer(
     'The number of episodes to take in the environment before '
     'each update. This is the total across all parallel '
     'environments.')
-flags.DEFINE_integer('num_eval_episodes', 30,
+flags.DEFINE_integer('num_eval_episodes', 1,
                      'The number of episodes to run eval on.')
 flags.DEFINE_boolean('use_rnns', False,
                      'If true, use RNN for policy and value function.')
@@ -92,7 +91,6 @@ FLAGS = flags.FLAGS
 @gin.configurable
 def train_eval(
     root_dir,
-    env_name='HalfCheetah-v2',
     random_seed=None,
     # TODO(b/127576522): rename to policy_fc_layers.
     actor_fc_layers=(200, 100),
@@ -102,7 +100,7 @@ def train_eval(
     # Params for collect
     num_environment_steps=25000000,
     collect_episodes_per_iteration=30,
-    num_parallel_environments=30,
+    num_parallel_environments=1,
     replay_buffer_capacity=1001,  # Per-environment
     # Params for train
     num_epochs=25,
@@ -317,11 +315,9 @@ def main(_):
   tf.data.experimental.enable_debug_mode()
   train_eval(
       FLAGS.root_dir,
-      env_name=FLAGS.env_name,
       use_rnns=FLAGS.use_rnns,
       num_environment_steps=FLAGS.num_environment_steps,
       collect_episodes_per_iteration=FLAGS.collect_episodes_per_iteration,
-      num_parallel_environments=FLAGS.num_parallel_environments,
       replay_buffer_capacity=FLAGS.replay_buffer_capacity,
       num_epochs=FLAGS.num_epochs,
       num_eval_episodes=FLAGS.num_eval_episodes,

@@ -304,7 +304,7 @@ class PPOAgent(tf_agent.TFAgent):
           'actor_net must be an instance of a network.Network.')
     if not isinstance(value_net, network.Network):
       raise TypeError('value_net must be an instance of a network.Network.')
-
+    self.observation_and_action_constraint_splitter=observation_and_action_constraint_splitter
     # PPOPolicy validates these, so we skip validation here.
     actor_net.create_variables(time_step_spec.observation)
     value_net.create_variables(time_step_spec.observation)
@@ -719,8 +719,17 @@ class PPOAgent(tf_agent.TFAgent):
     batch_size = nest_utils.get_outer_shape(time_steps, self._time_step_spec)[0]
     if self._compute_value_and_advantage_in_train:
       value_state = self._collect_policy.get_initial_value_state(batch_size)
+      
+    observation_and_action_constraint_splitter = (
+        self.observation_and_action_constraint_splitter)
+    network_observation = batched_experience.observation
+    mask = None
+    if observation_and_action_constraint_splitter is not None:
+      network_observation, mask = observation_and_action_constraint_splitter(
+          network_observation)
+      
       value_preds, _ = self._collect_policy.apply_value_network(
-          batched_experience.observation,
+          network_observation,
           batched_experience.step_type,
           value_state=value_state,
           training=False)
@@ -1140,8 +1149,16 @@ class PPOAgent(tf_agent.TFAgent):
     batch_size = nest_utils.get_outer_shape(time_steps, self._time_step_spec)[0]
     value_state = self._collect_policy.get_initial_value_state(batch_size)
 
+    observation_and_action_constraint_splitter = (
+    self.observation_and_action_constraint_splitter)
+    network_observation = time_steps.observation
+    mask = None
+    if observation_and_action_constraint_splitter is not None:
+      network_observation, mask = observation_and_action_constraint_splitter(
+          network_observation)
+    
     value_preds, _ = self._collect_policy.apply_value_network(
-        time_steps.observation,
+        network_observation,
         time_steps.step_type,
         value_state=value_state,
         training=training)

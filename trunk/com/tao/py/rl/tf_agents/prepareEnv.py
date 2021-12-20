@@ -50,5 +50,8 @@ def prepare():
 
             action_mask=observation[:,:,env.environmentSpec.stateFeatureNum:kpiStartIdx]
             return observ,action_mask
+        
+        if len(observation.shape)>3:
+            print("ERRRRRRROR")
 
     return env,evalEnv,observation_and_action_constrain_splitter
