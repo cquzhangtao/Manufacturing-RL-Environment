@@ -47,6 +47,7 @@ class SimEnvironment4(SimEnvironment3):
         return self.queue[queueIdx]
     
     def getQueueIdx(self,actionIdx):
+
         return self.actionIdices.index(actionIdx)
     
     def updateCurrentState(self):

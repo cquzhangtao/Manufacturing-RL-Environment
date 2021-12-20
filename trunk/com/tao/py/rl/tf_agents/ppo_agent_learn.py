@@ -63,7 +63,8 @@ from tensorflow.python.ops.summary_ops_v2 import create_file_writer as create_fi
 from com.tao.py.rl.tf_agents.prepareEnv import prepare as prepareEnv
 import datetime
 flags.DEFINE_boolean('graph_compute',True,"enable graph computation")
-
+flags.DEFINE_integer('num_iterations', 100000,
+                     'Total number train/eval iterations to perform.')
 
 flags.DEFINE_string('root_dir', os.getenv('TEST_UNDECLARED_OUTPUTS_DIR'),
                     'Root directory for writing logs/summaries/checkpoints.')
@@ -92,7 +93,6 @@ FLAGS = flags.FLAGS
 def train_eval(
     root_dir,
     env_name='HalfCheetah-v2',
-    env_load_fn=suite_mujoco.load,
     random_seed=None,
     # TODO(b/127576522): rename to policy_fc_layers.
     actor_fc_layers=(200, 100),
@@ -166,12 +166,12 @@ def train_eval(
           output_fc_layer_params=None)
     else:
       actor_net = actor_distribution_network.ActorDistributionNetwork(
-          tf_env.observation_spec(),
+          env._observation_spec_no_mask,
           tf_env.action_spec(),
           fc_layer_params=actor_fc_layers,
           activation_fn=tf.keras.activations.tanh)
       value_net = value_network.ValueNetwork(
-          tf_env.observation_spec(),
+          env._observation_spec_no_mask,
           fc_layer_params=value_fc_layers,
           activation_fn=tf.keras.activations.tanh)
 
@@ -190,7 +190,7 @@ def train_eval(
         debug_summaries=debug_summaries,
         summarize_grads_and_vars=summarize_grads_and_vars,
         train_step_counter=global_step,
-        observation_and_action_constrain_splitter=mask)
+        observation_and_action_constraint_splitter=mask)
     tf_agent.initialize()
 
     environment_steps_metric = tf_metrics.EnvironmentSteps()

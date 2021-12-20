@@ -37,7 +37,7 @@ from tf_agents.utils import nest_utils
 from tf_agents.utils import tensor_normalizer
 
 
-@gin.configurable(module='tf_agents')
+
 class PPOPolicy(actor_policy.ActorPolicy):
   """An ActorPolicy that also returns policy_info needed for PPO training.
 
@@ -169,7 +169,7 @@ class PPOPolicy(actor_policy.ActorPolicy):
         actor_network=actor_network,
         observation_normalizer=observation_normalizer,
         clip=clip,
-        observation_and_action_constraint_splitte=observation_and_action_constraint_splitter)
+        observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
 
     self._collect = collect
     self._value_network = value_network
@@ -218,16 +218,18 @@ class PPOPolicy(actor_policy.ActorPolicy):
     return self._value_network(observations, step_types, value_state,
                                training=training)
 
-  def _apply_actor_network(self, time_step, policy_state, training=False):
-    observation = time_step.observation
+  def _apply_actor_network(self, observation, stepType,policy_state, training=False,mask=None):
+
     if self._observation_normalizer:
       observation = self._observation_normalizer.normalize(observation)
 
     return self._actor_network(
         observation,
-        time_step.step_type,
+        stepType,
         network_state=policy_state,
-        training=training)
+        training=training,
+        mask=mask
+       )
 
   def _variables(self):
     var_list = self._actor_network.variables[:]
@@ -246,12 +248,21 @@ class PPOPolicy(actor_policy.ActorPolicy):
       policy_state['actor_network_state'] = ()
     if 'value_network_state' not in policy_state:
       policy_state['value_network_state'] = ()
+      
+    
+    observation_and_action_constraint_splitter = (
+        self.observation_and_action_constraint_splitter)
+    network_observation = time_step.observation
+    mask = None
+    if observation_and_action_constraint_splitter is not None:
+      network_observation, mask = observation_and_action_constraint_splitter(
+          network_observation)
 
     new_policy_state = {'actor_network_state': (), 'value_network_state': ()}
 
     (distributions, new_policy_state['actor_network_state']) = (
         self._apply_actor_network(
-            time_step, policy_state['actor_network_state'], training=training))
+           network_observation, time_step.step_type, policy_state['actor_network_state'], training=training,mask=mask))
 
     if self._collect:
       policy_info = {
@@ -267,10 +278,11 @@ class PPOPolicy(actor_policy.ActorPolicy):
         # computed and saved here.
         (policy_info['value_prediction'],
          new_policy_state['value_network_state']) = self.apply_value_network(
-             time_step.observation,
+             network_observation,
              time_step.step_type,
              value_state=policy_state['value_network_state'],
-             training=False)
+             training=False,
+             )
     else:
       policy_info = ()
 
