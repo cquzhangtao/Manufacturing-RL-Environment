@@ -221,6 +221,11 @@ class CEMPolicy(tf_policy.TFPolicy):
     return mean, var
 
   def getActionsFromObservation(self, observ):
+      net_observation=observ
+      if self.observation_and_action_constrain_splitter:
+          net_observation,actions=self.observation_and_action_constrain_splitter(net_observation)
+      
+      #TODO
       return None
   
   def actor_func(
@@ -292,7 +297,11 @@ class CEMPolicy(tf_policy.TFPolicy):
                        step_type: Optional[tf.Tensor]=None,
                        policy_state: Sequence[tf.Tensor]=()
                        ) -> Tuple[tf.Tensor, Sequence[tf.Tensor]]:
-    scores, next_policy_state = self._q_network((observation, action),
+      
+    net_observation=observation
+    if self.observation_and_action_constrain_splitter:
+        net_observation,_=self.observation_and_action_constrain_splitter(net_observation)
+    scores, next_policy_state = self._q_network((net_observation, action),
                                                 step_type=step_type,
                                                 network_state=policy_state,
                                                 training=self._training)  # [B]

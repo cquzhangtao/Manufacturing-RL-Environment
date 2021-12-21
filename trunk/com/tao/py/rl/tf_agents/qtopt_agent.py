@@ -238,7 +238,12 @@ class QtOptAgent(tf_agent.TFAgent):
       self._info_spec = ()
 
     self._q_network = q_network
-    net_observation_spec = (time_step_spec.observation, action_spec)
+    
+    net_observation_spec=time_step_spec.observation
+    if self.observation_and_action_constrain_splitter:
+        net_observation_spec,_=self.observation_and_action_constrain_splitter(net_observation_spec)
+    
+    net_observation_spec = (net_observation_spec, action_spec)
 
     q_network.create_variables(net_observation_spec)
 
@@ -655,7 +660,10 @@ class QtOptAgent(tf_agent.TFAgent):
 
   def _compute_q_values(
       self, time_steps, actions, network_state=(), training=False):
-    q_values, _ = self._q_network((time_steps.observation, actions),
+    net_observation=time_steps.observation
+    if self.observation_and_action_constrain_splitter:
+        net_observation,_=self.observation_and_action_constrain_splitter(net_observation)
+    q_values, _ = self._q_network((net_observation, actions),
                                   step_type=time_steps.step_type,
                                   network_state=network_state,
                                   training=training)
@@ -666,18 +674,23 @@ class QtOptAgent(tf_agent.TFAgent):
     if not self._in_graph_bellman_update:
       return info['target_q']
 
+    net_observation=next_time_steps.observation
+    if self.observation_and_action_constrain_splitter:
+        net_observation,_=self.observation_and_action_constrain_splitter(next_time_steps.observation)
+    
+    
     next_action_policy_step = self._policy.action(
         next_time_steps, network_state)
 
     if self._enable_td3:
       q_values_target_delayed, _ = self._target_q_network_delayed(
-          (next_time_steps.observation, next_action_policy_step.action),
+          (net_observation, next_action_policy_step.action),
           step_type=next_time_steps.step_type,
           network_state=network_state,
           training=False)
 
       q_values_target_delayed_2, _ = self._target_q_network_delayed_2(
-          (next_time_steps.observation, next_action_policy_step.action),
+          (net_observation, next_action_policy_step.action),
           step_type=next_time_steps.step_type,
           network_state=network_state,
           training=False)
@@ -686,7 +699,7 @@ class QtOptAgent(tf_agent.TFAgent):
                                 q_values_target_delayed)
     else:
       q_next_state, _ = self._target_q_network(
-          (next_time_steps.observation, next_action_policy_step.action),
+          (net_observation, next_action_policy_step.action),
           step_type=next_time_steps.step_type,
           network_state=network_state,
           training=False)
