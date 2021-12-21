@@ -65,7 +65,7 @@ from tf_agents.networks import nest_map
 from tf_agents.keras_layers import inner_reshape
 
 import com.tao.py.rl.tf_agents.qtopt_agent as qtopt_agent
-from com.tao.py.rl.tf_agents.prepareEnv import prepare as prepareEnv
+from com.tao.py.rl.tf_agents.prepareEnv import prepare2 as prepareEnv
 from six.moves import range
 import tensorflow as tf  # pylint: disable=g-explicit-tensorflow-version-import
 
@@ -196,9 +196,7 @@ def train_eval(
             summarize_grads_and_vars=summarize_grads_and_vars,
             train_step_counter=global_step,
             observation_and_action_constraint_splitter=mask,
-            
-            
-            
+
             )
         tf_agent.initialize()
     

@@ -116,7 +116,8 @@ class CEMPolicy(tf_policy.TFPolicy):
                preprocess_state_action: bool=True,
                training: bool=False,
                weights: types.NestedTensorOrArray=None,
-               name: Optional[str]=None):
+               name: Optional[str]=None,
+               observation_and_action_constrain_splitter=None):
     """Builds a CEM-Policy given a network and a sampler.
 
     Args:
@@ -180,6 +181,7 @@ class CEMPolicy(tf_policy.TFPolicy):
     self._training = training
     self._preprocess_state_action = preprocess_state_action
     self._weights = weights
+    self.observation_and_action_constrain_splitter=observation_and_action_constrain_splitter
 
     super(CEMPolicy, self).__init__(
         time_step_spec,

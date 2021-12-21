@@ -124,7 +124,8 @@ class QtOptAgent(tf_agent.TFAgent):
       summarize_grads_and_vars=False,
       train_step_counter=None,
       info_spec=None,
-      name=None):
+      name=None,
+      observation_and_action_constrain_splitter=None):
     """Creates a Qtopt Agent.
 
     Args:
@@ -295,6 +296,7 @@ class QtOptAgent(tf_agent.TFAgent):
     self._gamma = gamma
     self._reward_scale_factor = reward_scale_factor
     self._gradient_clipping = gradient_clipping
+    self.observation_and_action_constrain_splitter=observation_and_action_constrain_splitter
 
     policy, collect_policy = self._setup_policy(time_step_spec, action_spec,
                                                 emit_log_probability)
@@ -381,7 +383,8 @@ class QtOptAgent(tf_agent.TFAgent):
         num_elites=self._num_elites_cem,
         num_iterations=self._num_iter_cem,
         emit_log_probability=emit_log_probability,
-        training=False)
+        training=False,
+        observation_and_action_constrain_splitter=self.observation_and_action_constrain_splitter)
 
     collect_policy = epsilon_greedy_policy.EpsilonGreedyPolicy(
         policy, epsilon=self._epsilon_greedy)
