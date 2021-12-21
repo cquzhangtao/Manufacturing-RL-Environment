@@ -9,6 +9,7 @@ encoding//com/tao/py/rl/tf_agents/ppo_agent.py=utf-8
 encoding//com/tao/py/rl/tf_agents/ppo_agent_learn.py=utf-8
 encoding//com/tao/py/rl/tf_agents/ppo_clip_agent.py=utf-8
 encoding//com/tao/py/rl/tf_agents/ppo_policy.py=utf-8
+encoding//com/tao/py/rl/tf_agents/qtop_agent_learn.py=utf-8
 encoding//com/tao/py/rl/tf_agents/qtopt_agent.py=utf-8
 encoding//com/tao/py/rl/tf_agents/qtopt_cem_policy.py=utf-8
 encoding//com/tao/py/rl/tf_agents/reinforce_agent.py=utf-8
