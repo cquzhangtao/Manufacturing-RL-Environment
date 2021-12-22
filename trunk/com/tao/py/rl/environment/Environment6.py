@@ -23,8 +23,9 @@ class SimEnvironment6(SimEnvironment3,PyEnvironment):
 
         envSpec=self.environmentSpec
         self.kpiNum=2
+        self.maxActionNum=100
         self._observation_spec = array_spec.BoundedArraySpec(
-            shape=(envSpec.stateFeatureNum+self.actionNum+self.kpiNum,), dtype=np.float32, minimum=np.append(envSpec.minState,[0]*(self.actionNum+self.kpiNum)), maximum=np.append(envSpec.maxState,[1]*(self.actionNum+self.kpiNum)),name='observation')
+            shape=(envSpec.stateFeatureNum+2+self.maxActionNum*envSpec.actionFeatureNum+self.kpiNum,), dtype=np.float32, minimum=np.append(envSpec.minState,[0]*(self.maxActionNum*envSpec.actionFeatureNum+2+self.kpiNum)), maximum=np.append(envSpec.maxState,[1]*(self.maxActionNum*envSpec.actionFeatureNum+2+self.kpiNum)),name='observation')
         self._observation_spec_no_mask = array_spec.BoundedArraySpec(
             shape=(envSpec.stateFeatureNum,), dtype=np.float32, minimum=envSpec.minState, maximum=envSpec.maxState,name='observation')
         self._action_spec = array_spec.BoundedArraySpec(
@@ -58,9 +59,16 @@ class SimEnvironment6(SimEnvironment3,PyEnvironment):
             else:
                 kpi=[self.kpi[len(self.kpi)-1],self.rewards[len(self.rewards)-1]]
             
-        actions=[feature for action in self.actions for feature in action]    
+        end=self.maxActionNum
+        if len(self.actions)<self.maxActionNum:
+            end= len(self.actions)
         
-        return np.array(self.state.getData()+actions+kpi, dtype=np.float32)
+        actions=[feature for action in self.actions[:end] for feature in action.getData()] 
+        
+        while len(actions)<self.maxActionNum*self.environmentSpec.actionFeatureNum:
+            actions.append(0)
+        
+        return np.array(self.state.getData()+[len(self.actions),self.environmentSpec.actionFeatureNum]+actions+kpi, dtype=np.float32)
       
     def _reset(self): 
         self.start()  

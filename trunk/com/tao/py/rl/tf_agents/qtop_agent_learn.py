@@ -58,7 +58,7 @@ from tf_agents.environments.examples import masked_cartpole  # pylint: disable=u
 from tf_agents.eval import metric_utils
 from tf_agents.metrics import tf_metrics
 from tf_agents.networks import sequential
-from tf_agents.policies import random_tf_policy
+from com.tao.py.rl.tf_agents import qtopt_random_policy
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.utils import common
 from tf_agents.networks import nest_map
@@ -170,7 +170,7 @@ def train_eval(
             
             tf_env.time_step_spec(),
             tf_env.action_spec(),
-            q_network=q_net,
+            q_net,
             tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate),
             epsilon_greedy=epsilon_greedy,
             n_step_update=n_step_update,
@@ -181,7 +181,7 @@ def train_eval(
             target_q_network=None,
             target_update_tau=target_update_tau,
             target_update_period=target_update_period,
-            enable_td3=True,
+            enable_td3=False,
             target_q_network_delayed=None,
             target_q_network_delayed_2=None,
             delayed_target_update_period=5,
@@ -189,14 +189,13 @@ def train_eval(
             td_errors_loss_fn=common.element_wise_squared_loss,
             auxiliary_loss_fns=None,
             gamma=gamma,
-            reward_scale_factor==reward_scale_factor,
+            reward_scale_factor=reward_scale_factor,
             gradient_clipping=gradient_clipping,
             # Params for debugging
             debug_summaries=debug_summaries,
             summarize_grads_and_vars=summarize_grads_and_vars,
             train_step_counter=global_step,
             observation_and_action_constraint_splitter=mask,
-
             )
         tf_agent.initialize()
     
@@ -247,8 +246,8 @@ def train_eval(
             collect_driver.run = common.function(collect_driver.run)
             tf_agent.train = common.function(tf_agent.train)
     
-        initial_collect_policy = random_tf_policy.RandomTFPolicy(
-            tf_env.time_step_spec(), tf_env.action_spec(), observation_and_action_constraint_splitter=mask)
+        initial_collect_policy = qtopt_random_policy.RandomQtoptPolicy(tf_env.time_step_spec(),
+            tf_env.action_spec(),observation_and_action_constraint_splitter=mask)
     
         # Collect initial replay data.
         logging.info(

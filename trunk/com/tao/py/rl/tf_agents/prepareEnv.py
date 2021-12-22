@@ -91,7 +91,7 @@ def prepare2(num_parallel_environments=1):
         
         observ=observation
         
-        kpiStartIdx=env.environmentSpec.stateFeatureNum+env.actionNum*env.environmentSpec.actionFeatureNum
+        kpiStartIdx=env.environmentSpec.stateFeatureNum+2+env.maxActionNum*env.environmentSpec.actionFeatureNum
 
         if len(observation.shape)==2:
             observ=observation[:,0:env.environmentSpec.stateFeatureNum]

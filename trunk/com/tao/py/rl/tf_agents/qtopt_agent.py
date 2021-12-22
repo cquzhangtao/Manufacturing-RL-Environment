@@ -94,22 +94,16 @@ class QtOptAgent(tf_agent.TFAgent):
       action_spec,
       q_network,
       optimizer,
-      actions_sampler,
       epsilon_greedy=0.1,
       n_step_update=1,
       emit_log_probability=False,
       in_graph_bellman_update=True,
-      # Params for cem
-      init_mean_cem=None,
-      init_var_cem=None,
-      num_samples_cem=32,
-      num_elites_cem=4,
-      num_iter_cem=3,
+
       # Params for target network updates
       target_q_network=None,
       target_update_tau=1.0,
       target_update_period=1,
-      enable_td3=True,
+      enable_td3=False,
       target_q_network_delayed=None,
       target_q_network_delayed_2=None,
       delayed_target_update_period=5,
@@ -125,7 +119,7 @@ class QtOptAgent(tf_agent.TFAgent):
       train_step_counter=None,
       info_spec=None,
       name=None,
-      observation_and_action_constrain_splitter=None):
+      observation_and_action_constraint_splitter=None):
     """Creates a Qtopt Agent.
 
     Args:
@@ -219,13 +213,9 @@ class QtOptAgent(tf_agent.TFAgent):
         RNN is provided) and `n_step_update > 1`.
     """
     tf.Module.__init__(self, name=name)
+    
+    self.observation_and_action_constraint_splitter=observation_and_action_constraint_splitter
 
-    self._sampler = actions_sampler
-    self._init_mean_cem = init_mean_cem
-    self._init_var_cem = init_var_cem
-    self._num_samples_cem = num_samples_cem
-    self._num_elites_cem = num_elites_cem
-    self._num_iter_cem = num_iter_cem
     self._in_graph_bellman_update = in_graph_bellman_update
     if not in_graph_bellman_update:
       if info_spec is not None:
@@ -240,8 +230,8 @@ class QtOptAgent(tf_agent.TFAgent):
     self._q_network = q_network
     
     net_observation_spec=time_step_spec.observation
-    if self.observation_and_action_constrain_splitter:
-        net_observation_spec,_=self.observation_and_action_constrain_splitter(net_observation_spec)
+    if self.observation_and_action_constraint_splitter:
+        net_observation_spec,_=self.observation_and_action_constraint_splitter(net_observation_spec)
     
     net_observation_spec = (net_observation_spec, action_spec)
 
@@ -301,7 +291,7 @@ class QtOptAgent(tf_agent.TFAgent):
     self._gamma = gamma
     self._reward_scale_factor = reward_scale_factor
     self._gradient_clipping = gradient_clipping
-    self.observation_and_action_constrain_splitter=observation_and_action_constrain_splitter
+
 
     policy, collect_policy = self._setup_policy(time_step_spec, action_spec,
                                                 emit_log_probability)
@@ -380,16 +370,10 @@ class QtOptAgent(tf_agent.TFAgent):
         time_step_spec,
         action_spec,
         q_network=self._target_q_network,
-        sampler=self._sampler,
-        init_mean=self._init_mean_cem,
-        init_var=self._init_var_cem,
         info_spec=self._info_spec,
-        num_samples=self._num_samples_cem,
-        num_elites=self._num_elites_cem,
-        num_iterations=self._num_iter_cem,
         emit_log_probability=emit_log_probability,
         training=False,
-        observation_and_action_constrain_splitter=self.observation_and_action_constrain_splitter)
+        observation_and_action_constrain_splitter=self.observation_and_action_constraint_splitter)
 
     collect_policy = epsilon_greedy_policy.EpsilonGreedyPolicy(
         policy, epsilon=self._epsilon_greedy)
@@ -661,8 +645,8 @@ class QtOptAgent(tf_agent.TFAgent):
   def _compute_q_values(
       self, time_steps, actions, network_state=(), training=False):
     net_observation=time_steps.observation
-    if self.observation_and_action_constrain_splitter:
-        net_observation,_=self.observation_and_action_constrain_splitter(net_observation)
+    if self.observation_and_action_constraint_splitter:
+        net_observation,_=self.observation_and_action_constraint_splitter(net_observation)
     q_values, _ = self._q_network((net_observation, actions),
                                   step_type=time_steps.step_type,
                                   network_state=network_state,
@@ -675,8 +659,8 @@ class QtOptAgent(tf_agent.TFAgent):
       return info['target_q']
 
     net_observation=next_time_steps.observation
-    if self.observation_and_action_constrain_splitter:
-        net_observation,_=self.observation_and_action_constrain_splitter(next_time_steps.observation)
+    if self.observation_and_action_constraint_splitter:
+        net_observation,_=self.observation_and_action_constraint_splitter(next_time_steps.observation)
     
     
     next_action_policy_step = self._policy.action(
