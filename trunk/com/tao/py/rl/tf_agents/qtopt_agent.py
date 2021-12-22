@@ -36,7 +36,7 @@ import tensorflow as tf  # pylint: disable=g-explicit-tensorflow-version-import
 from tf_agents.agents import data_converter
 from tf_agents.agents import tf_agent
 from tf_agents.networks import utils as network_utils
-from tf_agents.policies import epsilon_greedy_policy
+import com.tao.py.rl.tf_agents.qtopt_epsilon_greedy_policy as  epsilon_greedy_policy
 from com.tao.py.rl.tf_agents import qtopt_cem_policy
 from tf_agents.specs import tensor_spec
 from tf_agents.typing import types
@@ -92,6 +92,7 @@ class QtOptAgent(tf_agent.TFAgent):
       self,
       time_step_spec,
       action_spec,
+      max_action_num,
       q_network,
       optimizer,
       epsilon_greedy=0.1,
@@ -293,7 +294,7 @@ class QtOptAgent(tf_agent.TFAgent):
     self._gradient_clipping = gradient_clipping
 
 
-    policy, collect_policy = self._setup_policy(time_step_spec, action_spec,
+    policy, collect_policy = self._setup_policy(time_step_spec, action_spec,max_action_num,
                                                 emit_log_probability)
 
     if q_network.state_spec and n_step_update != 1:
@@ -365,18 +366,19 @@ class QtOptAgent(tf_agent.TFAgent):
         self._as_transition = data_converter.AsNStepTransition(
             self.data_context, gamma=gamma, n=n_step_update)
 
-  def _setup_policy(self, time_step_spec, action_spec, emit_log_probability):
+  def _setup_policy(self, time_step_spec, action_spec,max_action_num, emit_log_probability):
     policy = qtopt_cem_policy.CEMPolicy(
         time_step_spec,
         action_spec,
-        q_network=self._target_q_network,
+        max_action_num,
+        self._target_q_network,
         info_spec=self._info_spec,
         emit_log_probability=emit_log_probability,
         training=False,
-        observation_and_action_constrain_splitter=self.observation_and_action_constraint_splitter)
+        observation_and_action_constraint_splitter=self.observation_and_action_constraint_splitter)
 
     collect_policy = epsilon_greedy_policy.EpsilonGreedyPolicy(
-        policy, epsilon=self._epsilon_greedy)
+        policy, self._epsilon_greedy,max_action_num)
 
     return policy, collect_policy
 

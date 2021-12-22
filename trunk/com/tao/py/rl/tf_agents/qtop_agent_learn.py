@@ -68,7 +68,8 @@ import com.tao.py.rl.tf_agents.qtopt_agent as qtopt_agent
 from com.tao.py.rl.tf_agents.prepareEnv import prepare2 as prepareEnv
 from six.moves import range
 import tensorflow as tf  # pylint: disable=g-explicit-tensorflow-version-import
-
+from tf_agents.environments import parallel_py_environment
+from tf_agents.system import system_multiprocessing as multiprocessing
 
 flags.DEFINE_string('root_dir', os.getenv('TEST_UNDECLARED_OUTPUTS_DIR'),
                     'Root directory for writing logs/summaries/checkpoints.')
@@ -90,7 +91,7 @@ def train_eval(
     num_iterations=10000,
     train_sequence_length=1,
 
-    
+    num_parallel_environments=1,
     critic_obs_fc_layers=(430,),
     critic_action_fc_layers=(10,),
     critic_joint_fc_layers=(300,),
@@ -105,7 +106,7 @@ def train_eval(
     target_update_period=5,
     # Params for train
     train_steps_per_iteration=1,
-    batch_size=3,
+    batch_size=7,
     learning_rate=0.001,
     n_step_update=1,
     gamma=0.99,
@@ -151,8 +152,8 @@ def train_eval(
     with record_if(
           lambda: tf.math.equal(global_step % summary_interval, 0)):
           
-        env, evalEvn, mask = prepareEnv()
-        tf_env = tf_py_environment.TFPyEnvironment(env)
+        env, evalEvn, mask,envs = prepareEnv(num_parallel_environments=num_parallel_environments)
+        tf_env = tf_py_environment.TFPyEnvironment(parallel_py_environment.ParallelPyEnvironment(envs))
         eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
     
         if train_sequence_length != 1 and n_step_update != 1:
@@ -170,6 +171,7 @@ def train_eval(
             
             tf_env.time_step_spec(),
             tf_env.action_spec(),
+            env.maxActionNum,
             q_net,
             tf.compat.v1.train.AdamOptimizer(learning_rate=learning_rate),
             epsilon_greedy=epsilon_greedy,
@@ -212,6 +214,9 @@ def train_eval(
     
         eval_policy = tf_agent.policy
         collect_policy = tf_agent.collect_policy
+        initial_collect_policy = qtopt_random_policy.RandomQtoptPolicy(tf_env.time_step_spec(),
+            tf_env.action_spec(),env.maxActionNum,observation_and_action_constraint_splitter=mask)
+
     
         replay_buffer = tf_uniform_replay_buffer.TFUniformReplayBuffer(
             data_spec=tf_agent.collect_data_spec,
@@ -246,8 +251,6 @@ def train_eval(
             collect_driver.run = common.function(collect_driver.run)
             tf_agent.train = common.function(tf_agent.train)
     
-        initial_collect_policy = qtopt_random_policy.RandomQtoptPolicy(tf_env.time_step_spec(),
-            tf_env.action_spec(),observation_and_action_constraint_splitter=mask)
     
         # Collect initial replay data.
         logging.info(
@@ -424,4 +427,4 @@ if __name__ == '__main__':
 
     # with tf.compat.v1.Session() as sess:
     flags.mark_flag_as_required('root_dir')
-    app.run(main)
+    multiprocessing.handle_main(functools.partial(app.run, main))

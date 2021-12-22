@@ -10,6 +10,7 @@ from tf_agents.specs import array_spec
 
 
 from com.tao.py.rl.environment.Environment3 import SimEnvironment3
+from glfw import FALSE
 
 
 
@@ -74,10 +75,24 @@ class SimEnvironment6(SimEnvironment3,PyEnvironment):
         self.start()  
         return ts.restart(self.getObservation())
     
-    def _step(self,actionIdx): 
+    def getActionIndex(self,selaction):
+        actionIdx=-1
+        
+        for action in self.actions:
+            actionIdx+=1
+            match=True
+            for i, j in zip(selaction, action.getData()):
+                if i != j:
+                    match=False
+                    break
+            if match:
+                return actionIdx
+        return actionIdx
+    
+    def _step(self,action): 
         if self.finishedEpisode():
             return self._reset()
-        
+        actionIdx=self.getActionIndex(action)
         super().takeAction(actionIdx) 
         observ=self.getObservation() 
         if self.finishedEpisode() : 

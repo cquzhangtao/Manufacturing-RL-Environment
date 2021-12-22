@@ -103,15 +103,16 @@ class CEMPolicy(tf_policy.TFPolicy):
   def __init__(self,
                time_step_spec: ts.TimeStep,
                action_spec: types.NestedTensorSpec,
+               max_action_num,
                q_network: network.Network,
-               actor_policy: Optional[tf_policy.TFPolicy]=None,
-               info_spec: types.NestedSpecTensorOrArray=(),
-               emit_log_probability: bool=False,
-               preprocess_state_action: bool=True,
-               training: bool=False,
-               weights: types.NestedTensorOrArray=None,
-               name: Optional[str]=None,
-               observation_and_action_constrain_splitter=None):
+               actor_policy: Optional[tf_policy.TFPolicy] = None,
+               info_spec: types.NestedSpecTensorOrArray = (),
+               emit_log_probability: bool = False,
+               preprocess_state_action: bool = True,
+               training: bool = False,
+               weights: types.NestedTensorOrArray = None,
+               name: Optional[str] = None,
+               observation_and_action_constraint_splitter=None):
     """Builds a CEM-Policy given a network and a sampler.
 
     Args:
@@ -147,6 +148,7 @@ class CEMPolicy(tf_policy.TFPolicy):
         `action_spec`.
     """
     network_action_spec = getattr(q_network, 'action_spec', None)
+    self.max_action_num=max_action_num
 
     if network_action_spec is not None:
       if not action_spec.is_compatible_with(network_action_spec):
@@ -169,8 +171,7 @@ class CEMPolicy(tf_policy.TFPolicy):
     self._training = training
     self._preprocess_state_action = preprocess_state_action
     self._weights = weights
-    self.observation_and_action_constrain_splitter=observation_and_action_constrain_splitter
-    self._enable_functions=False
+    #self._enable_functions=False
 
     super(CEMPolicy, self).__init__(
         time_step_spec,
@@ -180,6 +181,9 @@ class CEMPolicy(tf_policy.TFPolicy):
         clip=False,
         emit_log_probability=emit_log_probability,
         name=name)
+    
+    self._observation_and_action_constraint_splitter=observation_and_action_constraint_splitter
+ 
 
   def _initial_params(self, batch_size: tf.Tensor
                       ) -> Tuple[tf.Tensor, tf.Tensor]:
@@ -222,8 +226,9 @@ class CEMPolicy(tf_policy.TFPolicy):
             
             npActions = actions[...,2:2+actionNum*actionFeatureNum]
             npActions=tf.reshape(npActions,(actionNum,actionFeatureNum))
-            return npActions
-        return None
+            npActions=tf.expand_dims(npActions,axis=0)
+            return npActions,actionNum
+        return None,None
   
   def actor_func(
       self, observation: types.NestedTensorOrArray,
@@ -251,15 +256,15 @@ class CEMPolicy(tf_policy.TFPolicy):
       batch_size = batch_size * seq_size
     
     # Sample a batch of actions with the shape of [B, N, A] or [BxT, N, A]
-    actions = self.getActionsFromObservation(observation)
+    actions,actionNum = self.getActionsFromObservation(observation)
     
-    actionNum=len(actions)
+ 
     if outer_rank == 2:
       scores, next_policy_state = self._score_with_time(
-          observation, actions, step_type, policy_state, seq_size)  # [BxT, N]
+          observation, actions,actionNum, step_type, policy_state, seq_size)  # [BxT, N]
     else:
       scores, next_policy_state = self._score(
-          observation, actions, step_type, policy_state)  # [B, N]
+          observation, actions,actionNum, step_type, policy_state)  # [B, N]
     
     best_scores, ind = tf.nn.top_k(scores, actionNum)  # ind: [B, M]
     
@@ -297,8 +302,8 @@ class CEMPolicy(tf_policy.TFPolicy):
                        ) -> Tuple[tf.Tensor, Sequence[tf.Tensor]]:
       
     net_observation=observation
-    if self.observation_and_action_constrain_splitter:
-        net_observation,_=self.observation_and_action_constrain_splitter(net_observation)
+    if self.observation_and_action_constraint_splitter:
+        net_observation,_=self.observation_and_action_constraint_splitter(net_observation)
     scores, next_policy_state = self._q_network((net_observation, action),
                                                 step_type=step_type,
                                                 network_state=policy_state,
@@ -306,7 +311,7 @@ class CEMPolicy(tf_policy.TFPolicy):
     return scores, next_policy_state
 
   def _score(
-      self, observation, sample_actions, step_type=None, policy_state=()
+      self, observation, sample_actions, action_num,step_type=None, policy_state=()
       ) -> Tuple[tf.Tensor, Sequence[tf.Tensor]]:
     """Scores the sample actions internally as part of CEM.
 
@@ -322,7 +327,7 @@ class CEMPolicy(tf_policy.TFPolicy):
     Returns:
       a tensor of shape [B, N] representing the scores for the actions.
     """
-    action_num=len(sample_actions)
+   
     def expand_to_megabatch(feature):
       # Collapse second dimension of megabatch.
       dim = tf.shape(feature)[2]
@@ -353,6 +358,7 @@ class CEMPolicy(tf_policy.TFPolicy):
   def _score_with_time(self,
                        observation: types.NestedTensorOrArray,
                        sample_actions: types.NestedTensorOrArray,
+                       actionNum,
                        step_type: Optional[tf.Tensor],
                        policy_state: Sequence[tf.Tensor],
                        seq_size: tf.Tensor

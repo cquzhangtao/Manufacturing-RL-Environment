@@ -68,23 +68,26 @@ def prepare(num_parallel_environments=1):
     if num_parallel_environments>1:
         return env,evalEnv,observation_and_action_constrain_splitter,envs
 
-def createEnv2(name,scenario):
-
-    return SimEnvironment6(scenario,name=name)
+def createEnv2(name,scenario,observe_spec,observation_spec_no_mask,action_spec):
+    env=SimEnvironment6(scenario,name=name)
+    env._action_spec=action_spec
+    env._observation_spec=observe_spec
+    env._observation_spec_no_mask=observation_spec_no_mask
+    return env
     
 def prepare2(num_parallel_environments=1):
     simConfig=SimConfig(1,100);
     
     scenario=Scenario(1,"S1",simConfig,createModel)
-    
+    evalEnv=SimEnvironment6(scenario,name="Evaluation")
     envs=[]
     for i in range(num_parallel_environments):
-        fun=functools.partial(createEnv2,"Train"+str(i),scenario)
+        fun=functools.partial(createEnv2,"Train"+str(i),scenario,evalEnv._observation_spec,evalEnv._observation_spec_no_mask,evalEnv._action_spec)
         envs.append(fun)
     
-    evalEnv=SimEnvironment6(scenario,name="Evaluation")
+
     
-    env=envs[0]()
+    env=evalEnv
     def observation_and_action_constrain_splitter(observation):
         if isinstance(observation,BoundedTensorSpec):
             return tf_agents.specs.from_spec(env._observation_spec_no_mask),None 
@@ -107,7 +110,5 @@ def prepare2(num_parallel_environments=1):
         
         if len(observation.shape)>3:
             print("ERRRRRRROR")
-    if num_parallel_environments==1:
-        return env,evalEnv,observation_and_action_constrain_splitter
-    if num_parallel_environments>1:
-        return env,evalEnv,observation_and_action_constrain_splitter,envs
+
+    return env,evalEnv,observation_and_action_constrain_splitter,envs
