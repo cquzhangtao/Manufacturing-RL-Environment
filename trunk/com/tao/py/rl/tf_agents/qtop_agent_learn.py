@@ -152,7 +152,7 @@ def train_eval(
           lambda: tf.math.equal(global_step % summary_interval, 0)):
           
         env, evalEvn, mask,envs = prepareEnv(num_parallel_environments=num_parallel_environments)
-        tf_env = tf_py_environment.TFPyEnvironment(parallel_py_environment.ParallelPyEnvironment(envs,start_serially=False))
+        tf_env = tf_py_environment.TFPyEnvironment(parallel_py_environment.ParallelPyEnvironment(envs,start_serially=True))
         eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
     
         if train_sequence_length != 1 and n_step_update != 1:
