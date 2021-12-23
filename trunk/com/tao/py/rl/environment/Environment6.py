@@ -10,7 +10,7 @@ from tf_agents.specs import array_spec
 
 
 from com.tao.py.rl.environment.Environment3 import SimEnvironment3
-from glfw import FALSE
+
 
 
 
@@ -38,12 +38,12 @@ class SimEnvironment6(SimEnvironment3,PyEnvironment):
 
     def action_spec(self) :
         return self._action_spec  
-    @property
-    def batched(self) -> bool:
-        return False
-    @property
-    def batch_size(self):
-        return 0
+    # @property
+    # def batched(self) -> bool:
+    #     return False
+    # @property
+    # def batch_size(self):
+    #     return 0
     
     def restart(self):
         pass

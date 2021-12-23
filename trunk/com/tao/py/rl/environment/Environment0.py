@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 class SimEnvironment0(object):
 
-    def __init__(self,scenario,name=""):
+    def __init__(self,scenario,name="",init_runs=5):
         self.scenario=scenario
         self.state=None
         self.name=name
@@ -28,7 +28,7 @@ class SimEnvironment0(object):
         self.totalReward=0
         self.environmentSpec=None
         self.initializing=False;
-        self.init()
+        self.init(repNum=init_runs)
     
     def clear(self):
         self.rep=0        

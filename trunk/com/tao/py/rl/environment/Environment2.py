@@ -14,11 +14,11 @@ from com.tao.py.rl.data.TrainDataItem import TrainDataItem
 
 class SimEnvironment2(SimEnvironment0):
 
-    def __init__(self,scenario,name=""):
+    def __init__(self,scenario,name="",init_runs=5):
         self.policy=None
         self.stepCounter=0
         self.envState=0
-        super().__init__(scenario,name=name)
+        super().__init__(scenario,name=name,init_runs=init_runs)
 
     
     def clear(self):

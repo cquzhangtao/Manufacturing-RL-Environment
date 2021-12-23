@@ -36,12 +36,12 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
 
     def action_spec(self) :
         return self._action_spec  
-    @property
-    def batched(self) -> bool:
-        return False
-    @property
-    def batch_size(self):
-        return 0
+    # @property
+    # def batched(self) -> bool:
+    #     return False
+    # @property
+    # def batch_size(self):
+    #     return 0
     
     def restart(self):
         pass

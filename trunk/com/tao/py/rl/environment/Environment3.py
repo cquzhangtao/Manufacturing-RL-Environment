@@ -13,10 +13,10 @@ from com.tao.py.manu.event.JobDepartureEvent import JobDepartureEvent
 
 class SimEnvironment3(SimEnvironment2,SimEventListener):
 
-    def __init__(self,scenario,name=""):
+    def __init__(self,scenario,name="",init_runs=5):
         self.jobs=[]
         self.steps=[]
-        super().__init__(scenario,name=name)
+        super().__init__(scenario,name=name,init_runs=init_runs)
 
     
     def clear(self):

@@ -40,7 +40,7 @@ def prepare(num_parallel_environments=1):
     
     evalEnv=SimEnvironment5(scenario,name="Evaluation")
     
-    env=envs[0]()
+    env=evalEnv
     def observation_and_action_constrain_splitter(observation):
         if isinstance(observation,BoundedTensorSpec):
             return tf_agents.specs.from_spec(env._observation_spec_no_mask),None 
