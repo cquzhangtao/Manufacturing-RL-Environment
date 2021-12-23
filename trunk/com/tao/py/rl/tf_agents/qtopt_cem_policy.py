@@ -266,10 +266,15 @@ class CEMPolicy(tf_policy.TFPolicy):
     else:
       scores, next_policy_state = self._score(
           observation, actions,actionNum, step_type, policy_state)  # [B, N]
-    
+    modiScores=tf.zeros([0,self.max_action_num])
     for bidx in range(batch_size):
-        for sidx in range(actionNum[bidx],self.max_action_num):
-            scores[bidx,sidx]=-99999999
+        validScores=scores[bidx,:actionNum[bidx]]
+        dummyScores=tf.fill([self.max_action_num-actionNum[bidx]],-999999.0)
+        singeScores=tf.concat([validScores,dummyScores],axis=0)
+        singeScores=tf.expand_dims(singeScores,axis=0)
+        modiScores=tf.concat([modiScores,singeScores],axis=0)
+        
+    scores=modiScores
     
     best_scores, ind = tf.nn.top_k(scores, self.max_action_num)  # ind: [B, M]
     
