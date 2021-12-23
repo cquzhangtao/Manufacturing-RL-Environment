@@ -218,16 +218,17 @@ class CEMPolicy(tf_policy.TFPolicy):
         observation_and_action_constraint_splitter=(self.observation_and_action_constraint_splitter)
         if observation_and_action_constraint_splitter:
             _,actions=observation_and_action_constraint_splitter(net_observation)
+            batch_size=len(observ)
             actionNum=tf.cast(actions[...,0],tf.dtypes.int32)
-            actionNum=tf.reshape(actionNum,())
-            
             actionFeatureNum=tf.cast(actions[...,1],tf.dtypes.int32)
-            actionFeatureNum=tf.reshape(actionNum,())
+            actionFeatureNum=self._action_spec.shape[0]
             
-            npActions = actions[...,2:2+actionNum*actionFeatureNum]
-            npActions=tf.reshape(npActions,(actionNum,actionFeatureNum))
-            npActions=tf.expand_dims(npActions,axis=0)
-            return npActions,actionNum
+
+            
+            npActions = actions[...,2:]
+            npActions=tf.reshape(npActions,(batch_size,self.max_action_num,actionFeatureNum))
+            return npActions,actionNum,actionFeatureNum,batch_size
+        
         return None,None
   
   def actor_func(
@@ -256,7 +257,7 @@ class CEMPolicy(tf_policy.TFPolicy):
       batch_size = batch_size * seq_size
     
     # Sample a batch of actions with the shape of [B, N, A] or [BxT, N, A]
-    actions,actionNum = self.getActionsFromObservation(observation)
+    actions,actionNum,actionFeatureNum,batch_size = self.getActionsFromObservation(observation)
     
  
     if outer_rank == 2:
@@ -266,7 +267,11 @@ class CEMPolicy(tf_policy.TFPolicy):
       scores, next_policy_state = self._score(
           observation, actions,actionNum, step_type, policy_state)  # [B, N]
     
-    best_scores, ind = tf.nn.top_k(scores, actionNum)  # ind: [B, M]
+    for bidx in range(batch_size):
+        for sidx in range(actionNum[bidx],self.max_action_num):
+            scores[bidx,sidx]=-99999999
+    
+    best_scores, ind = tf.nn.top_k(scores, self.max_action_num)  # ind: [B, M]
     
     best_next_policy_state = next_policy_state
     
@@ -278,9 +283,9 @@ class CEMPolicy(tf_policy.TFPolicy):
     if outer_rank == 2:
       best_actions = tf.nest.map_structure(
           lambda x: tf.reshape(# pylint: disable=g-long-lambda
-              x, [-1, seq_size, actionNum, tf.shape(x)[-1]]),
+              x, [-1, seq_size, self.max_action_num, tf.shape(x)[-1]]),
           best_actions)
-      best_scores = tf.reshape(best_scores, [-1, seq_size, actionNum])
+      best_scores = tf.reshape(best_scores, [-1, seq_size, self.max_action_num])
 
     return best_actions, best_scores, best_next_policy_state
 
@@ -339,19 +344,19 @@ class CEMPolicy(tf_policy.TFPolicy):
           expand_to_megabatch, sample_actions)
       # TODO(b/138331671) Move tf.contrib.seq2seq.tile_batch to utils.common
       # [B, ...] -> [BxN, ...]
-      observation = nest_utils.tile_batch(observation, action_num)
-      step_type = nest_utils.tile_batch(step_type, action_num)
-      policy_state = nest_utils.tile_batch(policy_state, action_num)
+      observation = nest_utils.tile_batch(observation, self.max_action_num)
+      step_type = nest_utils.tile_batch(step_type, self.max_action_num)
+      policy_state = nest_utils.tile_batch(policy_state, self.max_action_num)
 
     scores, next_policy_state = self.compute_target_q(
         observation, sample_actions, step_type, policy_state)  # [BxN]
 
     if self._preprocess_state_action:
       next_policy_state = tf.nest.map_structure(
-          lambda x: tf.reshape(x, [-1, action_num] + x.shape.as_list(# pylint:disable=g-long-lambda
+          lambda x: tf.reshape(x, [-1, self.max_action_num] + x.shape.as_list(# pylint:disable=g-long-lambda
           )[1:])[:, 0, ...], next_policy_state)
 
-    scores = tf.reshape(scores, [-1, action_num])  # [B, N]
+    scores = tf.reshape(scores, [-1, self.max_action_num])  # [B, N]
 
     return scores, next_policy_state
 

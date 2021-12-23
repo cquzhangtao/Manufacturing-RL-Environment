@@ -91,7 +91,7 @@ def train_eval(
     num_iterations=10000,
     train_sequence_length=1,
 
-    num_parallel_environments=1,
+    num_parallel_environments=4,
     critic_obs_fc_layers=(430,),
     critic_action_fc_layers=(10,),
     critic_joint_fc_layers=(300,),
@@ -205,8 +205,8 @@ def train_eval(
     
             tf_metrics.NumberOfEpisodes(),
             tf_metrics.EnvironmentSteps(),
-            tf_metrics.AverageReturnMetric(),
-            tf_metrics.AverageEpisodeLengthMetric(),
+            tf_metrics.AverageReturnMetric(batch_size=num_parallel_environments),
+            tf_metrics.AverageEpisodeLengthMetric(batch_size=num_parallel_environments),
             NumberOfEpisodes(),
             KPIsInEpisode(kpiName="CT"),
             KPIsInEpisode(kpiName="Reward")
