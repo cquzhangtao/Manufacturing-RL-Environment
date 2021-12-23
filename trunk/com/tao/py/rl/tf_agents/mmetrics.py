@@ -25,7 +25,7 @@ class KPIsInEpisode(tf_metric.TFStepMetric):
     
     def call(self, trajectory):
 
-        self.kpiValue.assign(tf.where(self.kpiName=="CT",trajectory.observation[0][-2],trajectory.observation[0][-1])) 
+        self.kpiValue.assign(tf.where(self.kpiName=="CT",tf.reduce_mean(trajectory.observation[:,-2]),tf.reduce_mean(trajectory.observation[:,-1]))) 
 
         return trajectory
     

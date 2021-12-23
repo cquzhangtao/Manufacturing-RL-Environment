@@ -105,7 +105,7 @@ def train_eval(
     target_update_period=5,
     # Params for train
     train_steps_per_iteration=1,
-    batch_size=7,
+    batch_size=10,
     learning_rate=0.001,
     n_step_update=10,
     gamma=0.99,
@@ -114,14 +114,14 @@ def train_eval(
     use_tf_functions=False,
     # Params for eval
     num_eval_episodes=1,
-    eval_interval=500,
+    eval_interval=70,
     # Params for checkpoints
     train_checkpoint_interval=1000,
     policy_checkpoint_interval=1000,
     rb_checkpoint_interval=1000,
     # Params for summaries and logging
     log_interval=1000,
-    summary_interval=1000,
+    summary_interval=10,
     summaries_flush_secs=10,
     debug_summaries=True,
     summarize_grads_and_vars=True,
@@ -206,9 +206,9 @@ def train_eval(
             tf_metrics.EnvironmentSteps(),
             tf_metrics.AverageReturnMetric(batch_size=num_parallel_environments),
             tf_metrics.AverageEpisodeLengthMetric(batch_size=num_parallel_environments),
-            #NumberOfEpisodes(),
-            #KPIsInEpisode(kpiName="CT"),
-            #KPIsInEpisode(kpiName="Reward")
+            NumberOfEpisodes(),
+            KPIsInEpisode(kpiName="CT"),
+            KPIsInEpisode(kpiName="Reward")
         ]
     
         eval_policy = tf_agent.policy
@@ -327,12 +327,12 @@ def train_eval(
                 train_metric.tf_summaries(
                     train_step=global_step, step_metrics=[train_metrics[4]])            
             
-            # with record_if(time_step.is_last()):
-            #     rep = tf.cast(train_metrics[4].result(), tf.int64)
-            #     tf.compat.v2.summary.scalar(
-            #         name='KPIs/CT', data=time_step.observation[0][-2], step=rep)
-            #     tf.compat.v2.summary.scalar(
-            #         name='KPIs/Total reward', data=time_step.observation[0][-1], step=rep)
+            with record_if(tf.math.reduce_all(time_step.is_last())):
+                rep = tf.cast(train_metrics[4].result(), tf.int64)
+                tf.compat.v2.summary.scalar(
+                    name='KPIs/CT', data=tf.reduce_mean(time_step.observation[:,-2]), step=rep)
+                tf.compat.v2.summary.scalar(
+                    name='KPIs/Total reward', data=tf.reduce_mean(time_step.observation[:,-1]), step=rep)
             
             if global_step.numpy() % train_checkpoint_interval == 0:
                 train_checkpointer.save(global_step=global_step.numpy())
