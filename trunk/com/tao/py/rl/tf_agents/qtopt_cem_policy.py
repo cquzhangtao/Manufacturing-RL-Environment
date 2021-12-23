@@ -262,10 +262,10 @@ class CEMPolicy(tf_policy.TFPolicy):
  
     if outer_rank == 2:
       scores, next_policy_state = self._score_with_time(
-          observation, actions,actionNum, step_type, policy_state, seq_size)  # [BxT, N]
+          observation, actions, step_type, policy_state, seq_size)  # [BxT, N]
     else:
       scores, next_policy_state = self._score(
-          observation, actions,actionNum, step_type, policy_state)  # [B, N]
+          observation, actions,step_type, policy_state)  # [B, N]
     modiScores=tf.zeros([0,self.max_action_num])
     for bidx in range(batch_size):
         validScores=scores[bidx,:actionNum[bidx]]
@@ -321,7 +321,7 @@ class CEMPolicy(tf_policy.TFPolicy):
     return scores, next_policy_state
 
   def _score(
-      self, observation, sample_actions, action_num,step_type=None, policy_state=()
+      self, observation, sample_actions, step_type=None, policy_state=()
       ) -> Tuple[tf.Tensor, Sequence[tf.Tensor]]:
     """Scores the sample actions internally as part of CEM.
 
@@ -368,7 +368,6 @@ class CEMPolicy(tf_policy.TFPolicy):
   def _score_with_time(self,
                        observation: types.NestedTensorOrArray,
                        sample_actions: types.NestedTensorOrArray,
-                       actionNum,
                        step_type: Optional[tf.Tensor],
                        policy_state: Sequence[tf.Tensor],
                        seq_size: tf.Tensor
@@ -388,7 +387,7 @@ class CEMPolicy(tf_policy.TFPolicy):
     Returns:
       a tensor of shape [BxT, N] representing the scores for the actions.
     """
-    action_num=len(sample_actions)
+
     # Reshape input to be compatible with network: [BxN, T, A]
 
     def expand_to_megabatch(feature):
@@ -410,9 +409,9 @@ class CEMPolicy(tf_policy.TFPolicy):
           expand_to_megabatch, sample_actions)
       # TODO(b/138331671) Move tf.contrib.seq2seq.tile_batch to utils.common
       # [B, T, ...] -> [BxN, T, ...]
-      observation = nest_utils.tile_batch(observation, action_num)
-      step_type = nest_utils.tile_batch(step_type, action_num)
-      policy_state = nest_utils.tile_batch(policy_state, action_num)
+      observation = nest_utils.tile_batch(observation, self.max_action_num)
+      step_type = nest_utils.tile_batch(step_type, self.max_action_num)
+      policy_state = nest_utils.tile_batch(policy_state, self.max_action_num)
     else:
       # [BxT, N, A] -> [B, T, N, A]
       sample_actions = tf.nest.map_structure(
@@ -423,12 +422,12 @@ class CEMPolicy(tf_policy.TFPolicy):
 
     if self._preprocess_state_action:
       next_policy_state = tf.nest.map_structure(
-          lambda x: tf.reshape(x, [-1, action_num] + x.shape.as_list(# pylint:disable=g-long-lambda
+          lambda x: tf.reshape(x, [-1, self.max_action_num] + x.shape.as_list(# pylint:disable=g-long-lambda
           )[1:])[:, 0, ...], next_policy_state)
 
-    scores = tf.reshape(scores, [-1, action_num, seq_size])  # [B, N, T]
+    scores = tf.reshape(scores, [-1, self.max_action_num, seq_size])  # [B, N, T]
     scores = tf.transpose(scores, [0, 2, 1])  # [B, T, N]
-    scores = tf.reshape(scores, [-1, action_num])  # [BxT, N]
+    scores = tf.reshape(scores, [-1, self.max_action_num])  # [BxT, N]
 
     return scores, next_policy_state
 

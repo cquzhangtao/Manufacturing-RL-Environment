@@ -183,7 +183,7 @@ def train_eval(
             target_q_network=None,
             target_update_tau=target_update_tau,
             target_update_period=target_update_period,
-            enable_td3=False,
+            enable_td3=True,
             target_q_network_delayed=None,
             target_q_network_delayed_2=None,
             delayed_target_update_period=5,

@@ -260,8 +260,8 @@ class QtOptAgent(tf_agent.TFAgent):
         target_q_network_delayed.create_variables()
       self._target_q_network_delayed = (
           common.maybe_copy_target_network_with_checks(
-              self._q_network, target_q_network_delayed,
-              'TargetQNetworkDelayed'))
+              self._q_network, target_q_network_delayed, input_spec=net_observation_spec,
+              name='TargetQNetworkDelayed'))
       self._target_updater_delayed = self._get_target_updater_delayed(
           1.0, delayed_target_update_period)
 
@@ -269,8 +269,8 @@ class QtOptAgent(tf_agent.TFAgent):
         target_q_network_delayed_2.create_variables()
       self._target_q_network_delayed_2 = (
           common.maybe_copy_target_network_with_checks(
-              self._q_network, target_q_network_delayed_2,
-              'TargetQNetworkDelayed2'))
+              self._q_network, target_q_network_delayed_2, input_spec=net_observation_spec,
+              name='TargetQNetworkDelayed2'))
       self._target_updater_delayed_2 = self._get_target_updater_delayed_2(
           1.0, delayed_target_update_period)
 
