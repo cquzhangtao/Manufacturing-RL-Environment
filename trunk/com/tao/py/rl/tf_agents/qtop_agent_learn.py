@@ -91,7 +91,7 @@ def train_eval(
     num_iterations=10000,
     train_sequence_length=1,
 
-    num_parallel_environments=4,
+    num_parallel_environments=7,
     critic_obs_fc_layers=(430,),
     critic_action_fc_layers=(10,),
     critic_joint_fc_layers=(300,),
@@ -360,6 +360,8 @@ def train_eval(
                 metric_utils.log_metrics(eval_metrics)
         
     #env.drawKPICurve()
+    tf_env.close()
+    eval_tf_env.close()
     return train_loss
 
 
@@ -422,10 +424,14 @@ def main(_):
     if not FLAGS.graph_compute:        
         tf.data.experimental.enable_debug_mode()
     train_eval(FLAGS.root_dir, num_iterations=FLAGS.num_iterations,use_tf_functions=FLAGS.graph_compute)
+    print("done1")
 
 
 if __name__ == '__main__':
 
     # with tf.compat.v1.Session() as sess:
     flags.mark_flag_as_required('root_dir')
-    multiprocessing.handle_main(functools.partial(app.run, main))
+    #app.run(main)
+    multiprocessing.handle_main(main)
+    #out=multiprocessing.handle_main(functools.partial(app.run, main))
+    print("done2")
