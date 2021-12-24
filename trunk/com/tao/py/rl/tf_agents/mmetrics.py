@@ -22,7 +22,7 @@ class KPIsInEpisode(tf_metric.TFStepMetric):
         self.kpiValue = common.create_variable(
             initial_value=0, dtype=dtype, shape=(), name=kpiName)
 
-    
+    @common.function(autograph=True)
     def call(self, trajectory):
 
         self.kpiValue.assign(tf.where(self.kpiName=="CT",tf.reduce_mean(trajectory.observation[:,-2]),tf.reduce_mean(trajectory.observation[:,-1]))) 
@@ -44,7 +44,7 @@ class NumberOfEpisodes(tf_metric.TFStepMetric):
         self.dtype = dtype
         self.number_episodes = common.create_variable(
             initial_value=0, dtype=self.dtype, shape=(), name='number_episodes')
-    
+    @common.function(autograph=True)
     def call(self, trajectory):
         """Increase the number of number_episodes according to trajectory.
         

@@ -218,7 +218,7 @@ class CEMPolicy(tf_policy.TFPolicy):
         observation_and_action_constraint_splitter=(self.observation_and_action_constraint_splitter)
         if observation_and_action_constraint_splitter:
             _,actions=observation_and_action_constraint_splitter(net_observation)
-            batch_size=len(observ)
+            batch_size=observ.shape[0]
             actionNum=tf.cast(actions[...,0],tf.dtypes.int32)
             actionFeatureNum=tf.cast(actions[...,1],tf.dtypes.int32)
             actionFeatureNum=self._action_spec.shape[0]

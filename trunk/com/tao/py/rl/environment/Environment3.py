@@ -17,6 +17,7 @@ class SimEnvironment3(SimEnvironment2,SimEventListener):
     def __init__(self,scenario,rewardCalculator=WIPReward(),name="",init_runs=5):
         self.jobs=[]
         self.steps=[]
+        self.supportNStep=True
         super().__init__(scenario,rewardCalculator=rewardCalculator,name=name,init_runs=init_runs)
 
     
@@ -29,7 +30,7 @@ class SimEnvironment3(SimEnvironment2,SimEventListener):
         return [self]+super().getSimEventListeners()        
     
     def onEventTriggered(self,event): 
-        if isinstance(event, JobDepartureEvent):
+        if self.supportNStep and isinstance(event, JobDepartureEvent):
             self.jobs.append(event.getJob())
             self.steps.append(self.stepCounter)
     

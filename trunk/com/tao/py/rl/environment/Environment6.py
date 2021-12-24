@@ -22,7 +22,7 @@ class SimEnvironment6(SimEnvironment3,PyEnvironment):
 
     def __init__(self,scenario,rewardCalculator=WIPReward(),name=""):
         super().__init__(scenario,rewardCalculator=rewardCalculator,name=name)
-
+        self.supportNStep=False
         envSpec=self.environmentSpec
         self.kpiNum=2
         self.maxActionNum=100
