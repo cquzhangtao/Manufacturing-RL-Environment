@@ -32,7 +32,7 @@ def createEnv(name,scenario):
     return env
 
 def prepare(num_parallel_environments=1):
-    simConfig=SimConfig(1,100);
+    simConfig=SimConfig(1,1000);
     
     scenario=Scenario(1,"S1",simConfig,createModel)
     
@@ -85,7 +85,7 @@ def createEnv2(name,scenario,observe_spec,observation_spec_no_mask,action_spec):
     
     
 def prepare2(num_parallel_environments=1):
-    simConfig=SimConfig(1,100);
+    simConfig=SimConfig(1,1000);
     
     scenario=Scenario(1,"S1",simConfig,createModel)
     rewardFn=WIPReward()

@@ -26,8 +26,7 @@ class WIPReward(SimEventListener):
         self.preWIP=0
         self.preWIPChangeTime=0
         self.totalWIP=0
-    def onStepStart(self):
-        self.totalWIP=0
+
         
     def onEventTriggered(self,event): 
         curTime=event.getTime()
@@ -47,5 +46,7 @@ class WIPReward(SimEventListener):
     def getReward(self,scenario,replication,model,tool,queue,job,time): 
         self.totalWIP+=(time-self.preWIPChangeTime)*self.preWIP
         self.preWIPChangeTime=time 
-        print(-self.totalWIP)
-        return  -self.totalWIP     
+        reward=2000-self.totalWIP
+        #print(str(time)+","+str(reward))
+        self.totalWIP=0
+        return  reward     

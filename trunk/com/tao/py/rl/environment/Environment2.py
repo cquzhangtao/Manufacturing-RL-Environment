@@ -68,7 +68,7 @@ class SimEnvironment2(SimEnvironment0):
         trainData.nextState=self.state
         trainData.nextActions=self.actions        
         #print(trainData)
-        self.rewardCalculator.onStepStart()
+        
         
         
         if self.sim.getState()==3: 
@@ -91,6 +91,7 @@ class SimEnvironment2(SimEnvironment0):
         
         trainData.nextState=self.state
         trainData.nextActions=self.actions
+
         
         return trainData
     

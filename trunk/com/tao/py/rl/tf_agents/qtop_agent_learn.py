@@ -90,7 +90,7 @@ def train_eval(
     num_iterations=10000,
     train_sequence_length=1,
 
-    num_parallel_environments=7,
+    num_parallel_environments=1,
     critic_obs_fc_layers=(430,),
     critic_action_fc_layers=(10,),
     critic_joint_fc_layers=(300,),
@@ -105,9 +105,9 @@ def train_eval(
     target_update_period=5,
     # Params for train
     train_steps_per_iteration=1,
-    batch_size=10,
+    batch_size=1,
     learning_rate=0.001,
-    n_step_update=10,
+    n_step_update=1,
     gamma=0.99,
     reward_scale_factor=1.0,
     gradient_clipping=None,

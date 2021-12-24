@@ -39,6 +39,7 @@ class TrainDataCollector(SimEventListener):
         self.preState=state
         self.preAction=self.environment.getActionFromJob(job,time)        
         self.preReward=self.environment.getReward(event.getScenario().getIndex(),event.getReplication(),job.getModel(),tool,queue,job,time)
+
                 
     def getDataset(self):
         return self.dataset
