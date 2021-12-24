@@ -30,25 +30,29 @@ class SimEnvironment0(object):
         self.rewardCalculator=rewardCalculator
         self.environmentSpec=None
         self.initializing=False;
+        self.simResult=SimDataCollector()
         self.init(repNum=init_runs)
     
     def clear(self):
         self.rep=0        
         self.kpi=[] 
         self.allEpisodTotalReward=[]
-        self.episodTotalReward=0   
+        self.episodTotalReward=0 
+        self.rewardCalculator.reset() 
+        self.simResult=SimDataCollector() 
         
     def getSimEventListeners(self):
-        self.simResult=SimDataCollector()
+        
         return [self.simResult,self.rewardCalculator]
     
     def start(self,training=False,rule=FIFORule(),simListeners=[]):
+        self.rep+=1
         self.eventListeners=[]
         self.eventListeners.extend(self.getSimEventListeners())
         self.eventListeners.extend(simListeners)
         
         self.model=self.scenario.createModel()       
-        self.model.setReplication(self.rep) 
+        self.model.setReplication(self.rep-1) 
         self.model.setScenario(self.scenario)
         self.model.training=training 
         
@@ -56,18 +60,19 @@ class SimEnvironment0(object):
         
         self.rewardCalculator.reset()
         
+        
         for machine in self.model.machines:
             machine.rule=rule
             
         self.sim=Simulator(self.scenario.getSimConfig(),self.eventListeners)                
                 
         for simEntity in self.model.getSimEntities():
-            simEntity.setReplication(self.rep) 
+            simEntity.setReplication(self.rep-1) 
             simEntity.setScenario(self.scenario)
             simEntity.training=training   
 
         self.sim.start(self.model)
-        self.rep+=1
+        
     
 
             
@@ -106,7 +111,7 @@ class SimEnvironment0(object):
         
     
     def getStateFromModel(self,model,tool,queue,time):
-        return State([time,len(queue)])
+        return State([time,self.simResult.getReplicationSummary(self.scenario.getIndex(), self.rep-1).timeWip,len(queue)])
     
     
     def getActionFromJob(self,job,time): 
