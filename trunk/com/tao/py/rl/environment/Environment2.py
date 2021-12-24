@@ -26,13 +26,15 @@ class SimEnvironment2(SimEnvironment0):
         self.envState=0
         super().clear()
     
-    
-    def start(self,training=True,rule=None):
+    def getSimEventListeners(self):
         self.decisionMaking=DecisionEventListener()
-        self.eventListeners.append(self.decisionMaking)
+        return [self.decisionMaking]+super().getSimEventListeners()      
+    
+    def start(self,training=True,rule=None,simListeners=[]):
+
         if rule==None and self.policy!=None:
             rule=AgentRule(self.policy)
-        super().start(training=training,rule=rule)
+        super().start(training=training,rule=rule,simListeners=simListeners)
         self.updateCurrentState() 
         self.envState=1
     
@@ -52,7 +54,7 @@ class SimEnvironment2(SimEnvironment0):
         queueIdx=self.getQueueIdx(actionIdx)
         self.job=self.queue[queueIdx]
         
-        trainData=TrainDataItem(self.state,self.actions[queueIdx],0,None,None)
+        #trainData=TrainDataItem(self.state,self.actions[queueIdx],0,None,None)
         
         event=DecisionMadeEvent(self.time,self.tool,self.job,self.queue)
         self.tool.addEventOnTop(event)
@@ -62,19 +64,19 @@ class SimEnvironment2(SimEnvironment0):
         self.updateCurrentState()
         #print(self.rep)
         self.reward=self.getRewardForStepByStep()
-        self.totalReward+=self.reward
+        self.episodTotalReward+=self.reward
         
-        trainData.reward=self.reward        
-        trainData.nextState=self.state
-        trainData.nextActions=self.actions        
+        #trainData.reward=self.reward        
+        #trainData.nextState=self.state
+        #trainData.nextActions=self.actions        
         #print(trainData)
         
         
         
         if self.sim.getState()==3: 
-            print(self.name+" "+str(self.rep)+" "+self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.totalReward))
+            print(self.name+" "+str(self.rep)+" "+self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.episodTotalReward))
             self.kpi.append(self.simResult.getTotalSummary().getAvgCT())  
-            self.rewards.append(self.totalReward)
+            self.allEpisodTotalReward.append(self.episodTotalReward)
             self.envState=2          
             self.restart()
 

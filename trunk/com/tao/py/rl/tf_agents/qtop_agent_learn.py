@@ -114,7 +114,7 @@ def train_eval(
     use_tf_functions=False,
     # Params for eval
     num_eval_episodes=1,
-    eval_interval=70,
+    eval_interval=270,
     # Params for checkpoints
     train_checkpoint_interval=1000,
     policy_checkpoint_interval=1000,

@@ -25,7 +25,7 @@ class SimEnvironment3(SimEnvironment2,SimEventListener):
         super().clear()       
              
     def getSimEventListeners(self):
-        return [self]        
+        return [self]+super().getSimEventListeners()        
     
     def onEventTriggered(self,event): 
         if isinstance(event, JobDepartureEvent):

@@ -24,8 +24,8 @@ class SimEnvironment0(object):
         self.eventListeners=[]
         self.simResult=None
         self.kpi=[]
-        self.rewards=[]
-        self.totalReward=0
+        self.allEpisodTotalReward=[]
+        self.episodTotalReward=0
         self.rewardCalculator=rewardCalculator
         self.environmentSpec=None
         self.initializing=False;
@@ -34,24 +34,24 @@ class SimEnvironment0(object):
     def clear(self):
         self.rep=0        
         self.kpi=[] 
-        self.rewards=[]
-        self.totalReward=0   
+        self.allEpisodTotalReward=[]
+        self.episodTotalReward=0   
         
     def getSimEventListeners(self):
-        return []
-    
-    def start(self,training=False,rule=FIFORule()):
         self.simResult=SimDataCollector()
-        self.eventListeners.append(self.simResult)
-        self.eventListeners.append(self.rewardCalculator)
+        return [self.simResult,self.rewardCalculator]
+    
+    def start(self,training=False,rule=FIFORule(),simListeners=[]):
+        self.eventListeners=[]
         self.eventListeners.extend(self.getSimEventListeners())
+        self.eventListeners.extend(simListeners)
         
         self.model=self.scenario.createModel()       
         self.model.setReplication(self.rep) 
         self.model.setScenario(self.scenario)
         self.model.training=training 
         
-        self.totalReward=0
+        self.episodTotalReward=0
         
         self.rewardCalculator.reset()
         
@@ -71,15 +71,15 @@ class SimEnvironment0(object):
 
             
     def collectData(self,policy,rule=None,repNum=1): 
-        self.eventListeners=[] 
+
         trainDataCollector=TrainDataCollectors(self) 
-        self.eventListeners.append(trainDataCollector)
+
 
         if rule==None:
             rule=AgentRule(policy)
         
         for _ in range(repNum):
-            self.start(training=False,rule=rule)
+            self.start(training=False,simListeners=[trainDataCollector],rule=rule)
         
 
 
@@ -89,13 +89,11 @@ class SimEnvironment0(object):
             for _ in range(repNum):
                 self.start(training=False,rule=rule)
             trainDataset=TrainDataset(trainDataCollector)   
-            
-        del  self.eventListeners[0]  
         
         self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
-        self.totalReward=sum([j for sub in trainDataset.reward for j in sub])
-        print(self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.totalReward))
-        self.rewards.append(self.totalReward)    
+        self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])
+        print(self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.episodTotalReward))
+        self.allEpisodTotalReward.append(self.episodTotalReward)    
         
         return trainDataset
     

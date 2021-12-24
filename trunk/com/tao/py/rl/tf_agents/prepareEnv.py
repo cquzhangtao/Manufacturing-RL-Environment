@@ -25,23 +25,26 @@ Log.addFilter("INFO")
 def createModel():
     return ModelFactory.create1M2PModel()
 
-def createEnv(name,scenario):
+def createEnv(name,scenario,observe_spec,observation_spec_no_mask,action_spec):
     rewardFn=WIPReward()
     env=SimEnvironment5(scenario,rewardFn,name=name)
+    env._action_spec=action_spec
+    env._observation_spec=observe_spec
+    env._observation_spec_no_mask=observation_spec_no_mask
 
     return env
 
 def prepare(num_parallel_environments=1):
     simConfig=SimConfig(1,1000);
-    
+    rewardFn=WIPReward()
     scenario=Scenario(1,"S1",simConfig,createModel)
-    
+    evalEnv=SimEnvironment5(scenario,rewardFn,name="Evaluation")
     envs=[]
     for i in range(num_parallel_environments):
-        fun=functools.partial(createEnv,"Train"+str(i),scenario)
+        fun=functools.partial(createEnv,"Train"+str(i),scenario,evalEnv._observation_spec,evalEnv._observation_spec_no_mask,evalEnv._action_spec)
         envs.append(fun)
     
-    evalEnv=createEnv("Evaluation",scenario)
+    
     
     env=evalEnv
     def observation_and_action_constrain_splitter(observation):
@@ -66,10 +69,9 @@ def prepare(num_parallel_environments=1):
         
         if len(observation.shape)>3:
             print("ERRRRRRROR")
-    if num_parallel_environments==1:
-        return env,evalEnv,observation_and_action_constrain_splitter
-    if num_parallel_environments>1:
-        return env,evalEnv,observation_and_action_constrain_splitter,envs
+
+
+    return env,evalEnv,observation_and_action_constrain_splitter,envs
 
 def createEnv2(name,scenario,observe_spec,observation_spec_no_mask,action_spec):
     rewardFn=WIPReward()

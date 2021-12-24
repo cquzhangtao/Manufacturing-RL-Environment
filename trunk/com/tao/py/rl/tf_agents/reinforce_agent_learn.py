@@ -33,6 +33,8 @@ FLAGS = flags.FLAGS
 from tensorflow.python.ops.summary_ops_v2 import create_file_writer as create_file_writer,record_if as record_if
 import datetime
 from com.tao.py.rl.tf_agents.mmetrics import KPIsInEpisode
+from tf_agents.environments import parallel_py_environment
+from tf_agents.system import system_multiprocessing as multiprocessing
 
 
 
@@ -54,7 +56,7 @@ def train_eval(
     value_estimation_loss_coef=0.2,
     # Params for eval
     num_eval_episodes=1,
-    eval_interval=1,
+    eval_interval=10,
     # Params for checkpoints, summaries, and logging
     log_interval=100,
     summary_interval=1,
@@ -79,8 +81,8 @@ def train_eval(
 
     with record_if(
       lambda: tf.math.equal(global_step % summary_interval, 0)):
-        env, evalEvn, mask = prepareEnv()
-        tf_env = tf_py_environment.TFPyEnvironment(env)
+        env, evalEvn, mask,envs = prepareEnv()
+        tf_env = tf_py_environment.TFPyEnvironment(parallel_py_environment.ParallelPyEnvironment(envs,start_serially=True))
         eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
         
         eval_metrics = [
@@ -232,4 +234,4 @@ def main(_):
 
 if __name__ == '__main__':
     flags.mark_flag_as_required('root_dir')
-    app.run(main)
+    multiprocessing.handle_main(main)

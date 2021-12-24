@@ -65,6 +65,7 @@ from tf_agents.utils import common
 
 import com.tao.py.rl.tf_agents.dqn_agent as dqn_agent
 from com.tao.py.rl.tf_agents.prepareEnv import prepare as prepareEnv
+from tf_agents.system import system_multiprocessing as multiprocessing
 from six.moves import range
 import tensorflow as tf  # pylint: disable=g-explicit-tensorflow-version-import
 
@@ -82,6 +83,7 @@ FLAGS = flags.FLAGS
 KERAS_LSTM_FUSED = 2
 import datetime
 from com.tao.py.rl.tf_agents.mmetrics import KPIsInEpisode, NumberOfEpisodes
+from tf_agents.environments import parallel_py_environment
 
 
 @gin.configurable
@@ -152,8 +154,8 @@ def train_eval(
     with record_if(
           lambda: tf.math.equal(global_step % summary_interval, 0)):
           
-        env, evalEvn, mask = prepareEnv()
-        tf_env = tf_py_environment.TFPyEnvironment(env)
+        env, evalEvn, mask,envs = prepareEnv()
+        tf_env = tf_py_environment.TFPyEnvironment(parallel_py_environment.ParallelPyEnvironment(envs,start_serially=True))
         eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
     
         if train_sequence_length != 1 and n_step_update != 1:
@@ -404,4 +406,4 @@ if __name__ == '__main__':
 
     # with tf.compat.v1.Session() as sess:
     flags.mark_flag_as_required('root_dir')
-    app.run(main)
+    multiprocessing.handle_main(main)

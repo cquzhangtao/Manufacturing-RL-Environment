@@ -53,12 +53,12 @@ class SimEnvironment6(SimEnvironment3,PyEnvironment):
         if self.finishedEpisode():
             if len(self.kpi)<1:
                 kpi=[0,0]
-            kpi=[self.kpi[len(self.kpi)-1],self.rewards[len(self.rewards)-1]]
+            kpi=[self.kpi[len(self.kpi)-1],self.allEpisodTotalReward[len(self.allEpisodTotalReward)-1]]
         else:
             if len(self.kpi)<1:
                 kpi=[0,0]
             else:
-                kpi=[self.kpi[len(self.kpi)-1],self.rewards[len(self.rewards)-1]]
+                kpi=[self.kpi[len(self.kpi)-1],self.allEpisodTotalReward[len(self.allEpisodTotalReward)-1]]
             
         end=self.maxActionNum
         if len(self.actions)<self.maxActionNum:
