@@ -10,6 +10,7 @@ from tf_agents.specs import array_spec
 
 
 from com.tao.py.rl.environment.Environment3 import SimEnvironment3
+from com.tao.py.rl.environment.RewardCalculator import WIPReward
 
 
 
@@ -19,8 +20,8 @@ from com.tao.py.rl.environment.Environment3 import SimEnvironment3
 
 class SimEnvironment6(SimEnvironment3,PyEnvironment):
 
-    def __init__(self,scenario,rewardCalculator,name=""):
-        super().__init__(scenario,rewardCalculator,name=name)
+    def __init__(self,scenario,rewardCalculator=WIPReward(),name=""):
+        super().__init__(scenario,rewardCalculator=rewardCalculator,name=name)
 
         envSpec=self.environmentSpec
         self.kpiNum=2

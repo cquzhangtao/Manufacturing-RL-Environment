@@ -11,12 +11,13 @@ from com.tao.py.rl.kernel.State import State
 from com.tao.py.rl.kernel.Action import Action
 from com.tao.py.manu.rule.Rule import AgentRule, FIFORule, RandomRule
 import matplotlib.pyplot as plt
+from com.tao.py.rl.environment.RewardCalculator import WIPReward
 
 
 
 class SimEnvironment0(object):
 
-    def __init__(self,scenario,rewardCalculator,name="",init_runs=5):
+    def __init__(self,scenario,rewardCalculator=WIPReward(),name="",init_runs=5):
         self.scenario=scenario
         self.state=None
         self.name=name
@@ -137,5 +138,5 @@ class SimEnvironment0(object):
         plt.xlabel("Replication")
         plt.ylabel("Avg CT")
         _, ax2 = plt.subplots()
-        ax2.plot(self.rewards)
+        ax2.plot(self.allEpisodTotalReward)
         plt.show()

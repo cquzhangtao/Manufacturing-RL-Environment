@@ -8,13 +8,14 @@ Created on Dec 4, 2021
 from com.tao.py.rl.environment.Environment3 import SimEnvironment3
 from com.tao.py.rl.kernel.Action import Action
 import itertools
+from com.tao.py.rl.environment.RewardCalculator import WIPReward
 
 
 
 class SimEnvironment4(SimEnvironment3):
 
-    def __init__(self,scenario,rewardCalculator,name=""):
-        super().__init__(scenario,rewardCalculator,name=name,init_runs=10)
+    def __init__(self,scenario,rewardCalculator=WIPReward(),name=""):
+        super().__init__(scenario,rewardCalculator=rewardCalculator,name=name,init_runs=10)
         #self.init(10)
         self.actionFeatureDiscretSize=10
         self.featureSplitSize,self.actionNum=self.calActionNum()

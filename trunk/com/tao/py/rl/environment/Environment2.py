@@ -10,15 +10,16 @@ from com.tao.py.rl.environment.DecisionEventListener import DecisionEventListene
 from com.tao.py.manu.rule.Rule import AgentRule
 from com.tao.py.rl.environment.Environment0 import SimEnvironment0
 from com.tao.py.rl.data.TrainDataItem import TrainDataItem
+from com.tao.py.rl.environment.RewardCalculator import WIPReward
 
 
 class SimEnvironment2(SimEnvironment0):
 
-    def __init__(self,scenario,rewardCalculator,name="",init_runs=5):
+    def __init__(self,scenario,rewardCalculator=WIPReward(),name="",init_runs=5):
         self.policy=None
         self.stepCounter=0
         self.envState=0
-        super().__init__(scenario,rewardCalculator,name=name,init_runs=init_runs)
+        super().__init__(scenario,rewardCalculator=rewardCalculator,name=name,init_runs=init_runs)
 
     
     def clear(self):

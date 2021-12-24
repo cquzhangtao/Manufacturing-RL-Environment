@@ -9,14 +9,15 @@ from com.tao.py.rl.environment.Environment2 import SimEnvironment2
 
 from com.tao.py.sim.kernel.SimEventListener import SimEventListener
 from com.tao.py.manu.event.JobDepartureEvent import JobDepartureEvent
+from com.tao.py.rl.environment.RewardCalculator import WIPReward
 
 
 class SimEnvironment3(SimEnvironment2,SimEventListener):
 
-    def __init__(self,scenario,rewardCalculator,name="",init_runs=5):
+    def __init__(self,scenario,rewardCalculator=WIPReward(),name="",init_runs=5):
         self.jobs=[]
         self.steps=[]
-        super().__init__(scenario,rewardCalculator,name=name,init_runs=init_runs)
+        super().__init__(scenario,rewardCalculator=rewardCalculator,name=name,init_runs=init_runs)
 
     
     def clear(self):
