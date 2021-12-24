@@ -16,7 +16,7 @@ import matplotlib.pyplot as plt
 
 class SimEnvironment0(object):
 
-    def __init__(self,scenario,name="",init_runs=5):
+    def __init__(self,scenario,rewardCalculator,name="",init_runs=5):
         self.scenario=scenario
         self.state=None
         self.name=name
@@ -26,6 +26,7 @@ class SimEnvironment0(object):
         self.kpi=[]
         self.rewards=[]
         self.totalReward=0
+        self.rewardCalculator=rewardCalculator
         self.environmentSpec=None
         self.initializing=False;
         self.init(repNum=init_runs)
@@ -42,6 +43,7 @@ class SimEnvironment0(object):
     def start(self,training=False,rule=FIFORule()):
         self.simResult=SimDataCollector()
         self.eventListeners.append(self.simResult)
+        self.eventListeners.append(self.rewardCalculator)
         self.eventListeners.extend(self.getSimEventListeners())
         
         self.model=self.scenario.createModel()       
@@ -50,6 +52,8 @@ class SimEnvironment0(object):
         self.model.training=training 
         
         self.totalReward=0
+        
+        self.rewardCalculator.reset()
         
         for machine in self.model.machines:
             machine.rule=rule
@@ -64,7 +68,6 @@ class SimEnvironment0(object):
         self.sim.start(self.model)
         self.rep+=1
     
-
 
             
     def collectData(self,policy,rule=None,repNum=1): 
@@ -120,9 +123,10 @@ class SimEnvironment0(object):
     
     def getReward(self,scenario,replication,model,tool,queue,job,time): 
         #return 10-time+job.getReleaseTime()       
-        return self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
+        #return self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
         #return 1/len(queue)
         #return 10-job.getProcessTime()
+        return self.rewardCalculator.getReward(scenario,replication,model,tool,queue,job,time)
     
     def getRewardForStepByStep(self): 
         return self.getReward(self.scenario.getIndex(), self.rep-1, self.model, self.tool, self.queue, self.job, self.time)        

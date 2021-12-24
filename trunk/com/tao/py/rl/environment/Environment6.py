@@ -19,8 +19,8 @@ from com.tao.py.rl.environment.Environment3 import SimEnvironment3
 
 class SimEnvironment6(SimEnvironment3,PyEnvironment):
 
-    def __init__(self,scenario,name=""):
-        super().__init__(scenario,name=name)
+    def __init__(self,scenario,rewardCalculator,name=""):
+        super().__init__(scenario,rewardCalculator,name=name)
 
         envSpec=self.environmentSpec
         self.kpiNum=2

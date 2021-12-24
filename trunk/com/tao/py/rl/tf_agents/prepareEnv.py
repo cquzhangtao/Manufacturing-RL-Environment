@@ -15,6 +15,7 @@ import com.tao.py.utilities.Log as Log
 import tf_agents
 import logging
 import functools
+from com.tao.py.rl.environment.RewardCalculator import WIPReward
 
 logging.disable(logging.WARNING)
 
@@ -25,8 +26,10 @@ def createModel():
     return ModelFactory.create1M2PModel()
 
 def createEnv(name,scenario):
+    rewardFn=WIPReward()
+    env=SimEnvironment5(scenario,rewardFn,name=name)
 
-    return SimEnvironment5(scenario,name=name)
+    return env
 
 def prepare(num_parallel_environments=1):
     simConfig=SimConfig(1,100);
@@ -38,7 +41,7 @@ def prepare(num_parallel_environments=1):
         fun=functools.partial(createEnv,"Train"+str(i),scenario)
         envs.append(fun)
     
-    evalEnv=SimEnvironment5(scenario,name="Evaluation")
+    evalEnv=createEnv("Evaluation",scenario)
     
     env=evalEnv
     def observation_and_action_constrain_splitter(observation):
@@ -69,17 +72,25 @@ def prepare(num_parallel_environments=1):
         return env,evalEnv,observation_and_action_constrain_splitter,envs
 
 def createEnv2(name,scenario,observe_spec,observation_spec_no_mask,action_spec):
-    env=SimEnvironment6(scenario,name=name)
+    rewardFn=WIPReward()
+    env=SimEnvironment6(scenario,rewardFn,name=name)
     env._action_spec=action_spec
     env._observation_spec=observe_spec
     env._observation_spec_no_mask=observation_spec_no_mask
+
+    
     return env
+
+
+    
     
 def prepare2(num_parallel_environments=1):
     simConfig=SimConfig(1,100);
     
     scenario=Scenario(1,"S1",simConfig,createModel)
-    evalEnv=SimEnvironment6(scenario,name="Evaluation")
+    rewardFn=WIPReward()
+    evalEnv=SimEnvironment6(scenario,rewardFn,name="Evaluation")
+
     envs=[]
     for i in range(num_parallel_environments):
         fun=functools.partial(createEnv2,"Train"+str(i),scenario,evalEnv._observation_spec,evalEnv._observation_spec_no_mask,evalEnv._action_spec)

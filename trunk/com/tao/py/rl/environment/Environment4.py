@@ -13,8 +13,8 @@ import itertools
 
 class SimEnvironment4(SimEnvironment3):
 
-    def __init__(self,scenario,name=""):
-        super().__init__(scenario,name=name,init_runs=10)
+    def __init__(self,scenario,rewardCalculator,name=""):
+        super().__init__(scenario,rewardCalculator,name=name,init_runs=10)
         #self.init(10)
         self.actionFeatureDiscretSize=10
         self.featureSplitSize,self.actionNum=self.calActionNum()
