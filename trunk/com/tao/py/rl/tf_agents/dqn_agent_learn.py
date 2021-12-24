@@ -108,7 +108,7 @@ def train_eval(
     target_update_period=5,
     # Params for train
     train_steps_per_iteration=1,
-    batch_size=3,
+    batch_size=1,
     learning_rate=0.001,
     n_step_update=1,
     gamma=0.99,
@@ -117,14 +117,14 @@ def train_eval(
     use_tf_functions=False,
     # Params for eval
     num_eval_episodes=1,
-    eval_interval=500,
+    eval_interval=180,
     # Params for checkpoints
     train_checkpoint_interval=1000,
     policy_checkpoint_interval=1000,
     rb_checkpoint_interval=1000,
     # Params for summaries and logging
     log_interval=1000,
-    summary_interval=1000,
+    summary_interval=10,
     summaries_flush_secs=10,
     debug_summaries=True,
     summarize_grads_and_vars=True,
@@ -397,8 +397,9 @@ def main(_):
     #logging.set_verbosity(logging.INFO)
     tf.compat.v1.enable_v2_behavior()
     gin.parse_config_files_and_bindings(FLAGS.gin_file, FLAGS.gin_param)
-    tf.config.run_functions_eagerly(True)
-    tf.data.experimental.enable_debug_mode()
+    tf.config.run_functions_eagerly(not FLAGS.graph_compute)
+    if not FLAGS.graph_compute:        
+        tf.data.experimental.enable_debug_mode()
     train_eval(FLAGS.root_dir, num_iterations=FLAGS.num_iterations,use_tf_functions=FLAGS.graph_compute)
 
 

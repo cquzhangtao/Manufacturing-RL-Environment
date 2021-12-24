@@ -100,20 +100,20 @@ def train_eval(
     lstm_size=(20,),
     # Params for collect
     num_environment_steps=25000000,
-    collect_episodes_per_iteration=30,
-    num_parallel_environments=7,
+    collect_episodes_per_iteration=1,
+    num_parallel_environments=1,
     replay_buffer_capacity=1001,  # Per-environment
     # Params for train
     num_epochs=25,
     learning_rate=1e-3,
     # Params for eval
-    num_eval_episodes=30,
-    eval_interval=500,
+    num_eval_episodes=1,
+    eval_interval=180,
     # Params for summaries and logging
     train_checkpoint_interval=500,
     policy_checkpoint_interval=500,
     log_interval=50,
-    summary_interval=50,
+    summary_interval=1,
     summaries_flush_secs=1,
     use_tf_functions=True,
     debug_summaries=False,
@@ -313,8 +313,9 @@ def train_eval(
 def main(_):
     logging.set_verbosity(logging.INFO)
     tf.compat.v1.enable_v2_behavior()
-    tf.config.run_functions_eagerly(True)
-    tf.data.experimental.enable_debug_mode()
+    tf.config.run_functions_eagerly(not FLAGS.graph_compute)
+    if not FLAGS.graph_compute:        
+        tf.data.experimental.enable_debug_mode()
     train_eval(
         FLAGS.root_dir,
         use_rnns=FLAGS.use_rnns,
