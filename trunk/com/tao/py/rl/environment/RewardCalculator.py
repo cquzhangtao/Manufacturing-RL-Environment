@@ -30,11 +30,9 @@ class WIPReward(SimEventListener):
     def onEventTriggered(self,event): 
         curTime=event.getTime()
         if isinstance(event, DecisionMakingEvent):
-            
             self.totalWIP+=(curTime-self.preWIPChangeTime)*self.preWIP
             self.preWIPChangeTime=curTime
-        elif isinstance(event, DecisionMadeEvent):
-            self.totalWIP=0
+            self.totalWIP=0           
             
         elif isinstance(event,JobReleaseEvent):
             self.totalWIP+=(curTime-self.preWIPChangeTime)*self.preWIP
