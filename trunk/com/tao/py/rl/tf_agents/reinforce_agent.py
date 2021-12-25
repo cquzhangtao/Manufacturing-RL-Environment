@@ -222,6 +222,7 @@ class ReinforceAgent(tf_agent.TFAgent):
         observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
 
     policy = greedy_policy.GreedyPolicy(collect_policy)
+    self.observation_and_action_constraint_splitter=observation_and_action_constraint_splitter
 
     self._optimizer = optimizer
     self._gamma = gamma
@@ -337,7 +338,10 @@ class ReinforceAgent(tf_agent.TFAgent):
     value_preds = None
 
     if self._baseline:
-      value_preds, _ = self._value_network(time_steps.observation,
+      net_observation=time_steps.observation
+      if self.observation_and_action_constraint_splitter:
+          net_observation,mask=self.observation_and_action_constraint_splitter(net_observation)
+      value_preds, _ = self._value_network(net_observation,
                                            time_steps.step_type,
                                            training=True)
       if self._debug_summaries:

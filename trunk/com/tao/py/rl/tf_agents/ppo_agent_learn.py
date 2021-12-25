@@ -14,6 +14,7 @@
 # limitations under the License.
 
 
+
 r"""Train and Eval PPO.
 
 To run:
@@ -57,6 +58,7 @@ from tf_agents.policies import policy_saver
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.system import system_multiprocessing as multiprocessing
 from tf_agents.utils import common
+from com.tao.py.rl.tf_agents.mmetrics import KPIsInEpisode
 
 
 from tensorflow.python.ops.summary_ops_v2 import create_file_writer as create_file_writer, record_if as record_if
@@ -108,16 +110,16 @@ def train_eval(
     learning_rate=1e-3,
     # Params for eval
     num_eval_episodes=1,
-    eval_interval=180,
+    eval_interval=250,
     # Params for summaries and logging
     train_checkpoint_interval=500,
     policy_checkpoint_interval=500,
     log_interval=50,
-    summary_interval=1,
+    summary_interval=2,
     summaries_flush_secs=1,
     use_tf_functions=True,
-    debug_summaries=False,
-    summarize_grads_and_vars=False):
+    debug_summaries=True,
+    summarize_grads_and_vars=True):
     
     """A simple train and eval for PPO."""
     if root_dir is None:
@@ -138,7 +140,9 @@ def train_eval(
         eval_dir, flush_millis=summaries_flush_secs * 1000)
     eval_metrics = [
         tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
-        tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes)
+        tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
+        KPIsInEpisode(kpiName="CT"),
+        KPIsInEpisode(kpiName="Reward")
     ]
     
     global_step = tf.compat.v1.train.get_or_create_global_step()
@@ -204,6 +208,8 @@ def train_eval(
                 batch_size=num_parallel_environments),
             tf_metrics.AverageEpisodeLengthMetric(
                 batch_size=num_parallel_environments),
+            KPIsInEpisode(kpiName="CT"),
+            KPIsInEpisode(kpiName="Reward")
         ]
     
         eval_policy = tf_agent.policy
@@ -259,7 +265,7 @@ def train_eval(
                     train_step=global_step,
                     summary_writer=eval_summary_writer,
                     summary_prefix='Metrics',
-            )
+                    )
     
             start_time = time.time()
             collect_driver.run()
@@ -319,11 +325,6 @@ def main(_):
     train_eval(
         FLAGS.root_dir,
         use_rnns=FLAGS.use_rnns,
-        num_environment_steps=FLAGS.num_environment_steps,
-        collect_episodes_per_iteration=FLAGS.collect_episodes_per_iteration,
-        replay_buffer_capacity=FLAGS.replay_buffer_capacity,
-        num_epochs=FLAGS.num_epochs,
-        num_eval_episodes=FLAGS.num_eval_episodes,
         use_tf_functions=FLAGS.graph_compute)
 
 

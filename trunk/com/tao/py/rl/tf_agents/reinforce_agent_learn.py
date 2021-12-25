@@ -3,7 +3,6 @@
 import os
 import time
 
-from absl import app
 from absl import flags
 from absl import logging
 
@@ -41,15 +40,15 @@ from tf_agents.system import system_multiprocessing as multiprocessing
 def train_eval(
     root_dir,
     num_iterations=1000,
-    actor_fc_layers=(123,32,),
-    value_net_fc_layers=(149,56,),
-    use_value_network=False,
+    actor_fc_layers=(100,),
+    value_net_fc_layers=(100,),
+    use_value_network=True,
     use_tf_functions=False,
     # Params for collect
     collect_episodes_per_iteration=1,
     replay_buffer_capacity=2000,
     # Params for train
-    learning_rate=1e-3,
+    learning_rate=1e-2,
     gamma=0.9,
     gradient_clipping=None,
     normalize_returns=True,
@@ -62,7 +61,7 @@ def train_eval(
     summary_interval=1,
     summaries_flush_secs=1,
     debug_summaries=True,
-    summarize_grads_and_vars=False,
+    summarize_grads_and_vars=True,
     eval_metrics_callback=None):
 
     """A simple train and eval for Reinforce."""
@@ -223,8 +222,7 @@ def train_eval(
 
 
 def main(_):
-    tf.compat.v1.enable_eager_execution(
-        config=tf.compat.v1.ConfigProto(allow_soft_placement=True))
+
     tf.compat.v1.enable_v2_behavior()
     #logging.set_verbosity(logging.INFO)
     tf.config.run_functions_eagerly(not FLAGS.graph_compute)

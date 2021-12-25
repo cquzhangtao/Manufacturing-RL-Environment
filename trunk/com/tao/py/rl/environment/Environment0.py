@@ -47,6 +47,7 @@ class SimEnvironment0(object):
     
     def start(self,training=False,rule=FIFORule(),simListeners=[]):
         self.rep+=1
+        #print(self.name+str(self.rep)+"starts")
         self.eventListeners=[]
         self.eventListeners.extend(self.getSimEventListeners())
         self.eventListeners.extend(simListeners)
@@ -98,7 +99,7 @@ class SimEnvironment0(object):
         
         self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
         self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])
-        print(self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.episodTotalReward))
+        print("{},Total Reward:{:.6f}".format(self.simResult.getTotalSummary().toString(),self.episodTotalReward))
         self.allEpisodTotalReward.append(self.episodTotalReward)    
         
         return trainDataset

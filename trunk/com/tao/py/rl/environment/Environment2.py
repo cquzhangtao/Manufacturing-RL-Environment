@@ -75,7 +75,7 @@ class SimEnvironment2(SimEnvironment0):
         
         
         if self.sim.getState()==3: 
-            print(self.name+" "+str(self.rep)+" "+self.simResult.getTotalSummary().toString()+",Total Reward:"+str(self.episodTotalReward))
+            print("{} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.getTotalSummary().toString(),self.episodTotalReward))
             self.kpi.append(self.simResult.getTotalSummary().getAvgCT())  
             self.allEpisodTotalReward.append(self.episodTotalReward)
             self.envState=2          
