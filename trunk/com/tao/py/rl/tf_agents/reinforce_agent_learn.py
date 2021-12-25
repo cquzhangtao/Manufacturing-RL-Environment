@@ -48,10 +48,10 @@ def train_eval(
     collect_episodes_per_iteration=1,
     replay_buffer_capacity=2000,
     # Params for train
-    learning_rate=1e-2,
+    learning_rate=1e-3,
     gamma=0.9,
     gradient_clipping=None,
-    normalize_returns=True,
+    normalize_returns=False,
     value_estimation_loss_coef=0.2,
     # Params for eval
     num_eval_episodes=1,
