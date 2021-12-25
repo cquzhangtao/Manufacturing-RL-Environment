@@ -41,8 +41,8 @@ from tf_agents.system import system_multiprocessing as multiprocessing
 def train_eval(
     root_dir,
     num_iterations=1000,
-    actor_fc_layers=(100,100,),
-    value_net_fc_layers=(100,100,),
+    actor_fc_layers=(200,100,),
+    value_net_fc_layers=(200,100,),
     use_value_network=True,
     use_tf_functions=False,
     # Params for collect
