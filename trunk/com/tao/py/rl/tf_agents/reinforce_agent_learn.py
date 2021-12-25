@@ -18,6 +18,7 @@ from tf_agents.networks import actor_distribution_network
 from tf_agents.networks import value_network
 from tf_agents.replay_buffers import tf_uniform_replay_buffer
 from tf_agents.utils import common
+from tf_agents.policies import random_tf_policy
 
 from com.tao.py.rl.tf_agents.prepareEnv import prepare as prepareEnv
 
@@ -40,8 +41,8 @@ from tf_agents.system import system_multiprocessing as multiprocessing
 def train_eval(
     root_dir,
     num_iterations=1000,
-    actor_fc_layers=(100,),
-    value_net_fc_layers=(100,),
+    actor_fc_layers=(100,100,),
+    value_net_fc_layers=(100,100,),
     use_value_network=True,
     use_tf_functions=False,
     # Params for collect
@@ -136,6 +137,13 @@ def train_eval(
     
         eval_policy = tf_agent.policy
         collect_policy = tf_agent.collect_policy
+        # initial_collect_policy = random_tf_policy.RandomTFPolicy(
+        #     tf_env.time_step_spec(), tf_env.action_spec(), observation_and_action_constraint_splitter=mask)
+        # dynamic_episode_driver.DynamicEpisodeDriver(
+        #     tf_env,
+        #     initial_collect_policy,
+        #     observers=[replay_buffer.add_batch] + train_metrics,
+        #     num_episodes=100).run()
     
         collect_driver = dynamic_episode_driver.DynamicEpisodeDriver(
             tf_env,
