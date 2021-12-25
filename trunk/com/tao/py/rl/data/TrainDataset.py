@@ -176,7 +176,7 @@ class TrainDataset(object):
         
         self.maxState=numpy.max(allStateData,axis=0)
         self.maxAction=numpy.max(allActionData,axis=0)
-        self. max=numpy.concatenate((self.maxState,self.maxAction))
+        self.max=numpy.concatenate((self.maxState,self.maxAction))
         
         self.stdState=numpy.std(allStateData,axis=0)
         self.stdAction=numpy.std(allActionData,axis=0)
@@ -186,6 +186,8 @@ class TrainDataset(object):
         invertAction=[list(x) for x  in zip(*allActionData)]
         self.countState=[len(set(row)) for row in invertState]
         self.countAction=[len(set(row)) for row in invertAction]
+        self.uniqueAction=[list(set(row)) for row in invertAction]
+        self.uniqueState=[list(set(row)) for row in invertState]
      
     def calTargetQValue(self,agent,reward,nextState,nextActions):
         qvalues=([self.calQValue(agent,nextState,nextActions[col:col+self.actionFeatureNum]) for col in range(0,len(nextActions),self.actionFeatureNum) ])

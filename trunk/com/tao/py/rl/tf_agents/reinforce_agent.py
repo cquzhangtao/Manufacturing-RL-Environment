@@ -42,6 +42,7 @@ from tf_agents.utils import common
 from tf_agents.utils import eager_utils
 from tf_agents.utils import nest_utils
 from tf_agents.utils import value_ops
+from tf_agents.policies import random_tf_policy
 
 # A function `advantage(returns, value_predictions) -> advantages.
 AdvantageFnType = Callable[[types.Tensor, types.Tensor], types.Tensor]
@@ -221,6 +222,11 @@ class ReinforceAgent(tf_agent.TFAgent):
         clip=True,
         observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
 
+    # collect_policy = random_tf_policy.RandomTFPolicy(
+    #         time_step_spec, action_spec, observation_and_action_constraint_splitter=observation_and_action_constraint_splitter)
+
+    
+    
     policy = greedy_policy.GreedyPolicy(collect_policy)
     self.observation_and_action_constraint_splitter=observation_and_action_constraint_splitter
 

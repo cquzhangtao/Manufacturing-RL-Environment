@@ -15,9 +15,9 @@ from com.tao.py.rl.environment.RewardCalculator import WIPReward
 class SimEnvironment4(SimEnvironment3):
 
     def __init__(self,scenario,rewardCalculator=WIPReward(),name=""):
-        super().__init__(scenario,rewardCalculator=rewardCalculator,name=name,init_runs=10)
+        super().__init__(scenario,rewardCalculator=rewardCalculator,name=name,init_runs=200)
         #self.init(10)
-        self.actionFeatureDiscretSize=10
+        self.actionFeatureDiscretSize=12
         self.featureSplitSize,self.actionNum=self.calActionNum()
         self.allactions=list(itertools.product(* self.featureSplitSize))
     
@@ -48,8 +48,9 @@ class SimEnvironment4(SimEnvironment3):
         return self.queue[queueIdx]
     
     def getQueueIdx(self,actionIdx):
-
-        return self.actionIdices.index(actionIdx)
+        idx=self.actionIdices.index(actionIdx)
+        #print(idx)
+        return idx
     
     def updateCurrentState(self):
         super().updateCurrentState()
@@ -82,15 +83,30 @@ class SimEnvironment4(SimEnvironment3):
             avalue=feature 
             if avalue<amin:                
                 featureSplitPos[idx]=0
+            elif avalue==amin:
+                featureSplitPos[idx]=1
             elif avalue>=amax:
                 featureSplitPos[idx]=self.actionFeatureDiscretSize-1
             else:
                 fstep=(amax-amin)/(self.actionFeatureDiscretSize-2)
-                featureSplitPos[idx]= int(avalue//fstep) +1              
+                iidx=0
+                start=amin
+                end=start+fstep
+                while True:
+                    if avalue>=start and avalue<end:
+                        break
+                    iidx+=1
+                    start=end
+                    end=start+fstep
+                    
+
+                featureSplitPos[idx]= iidx+1             
             
             idx+=1
             
         actionIdx=self.allactions.index(tuple(featureSplitPos))
+        
+        #print(str(action)+" "+str(actionIdx))
         
         return actionIdx
         

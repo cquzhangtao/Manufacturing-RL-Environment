@@ -32,6 +32,7 @@ class SimEnvironment0(object):
         self.initializing=False;
         self.simResult=SimDataCollector()
         self.init(repNum=init_runs)
+        print("Action feature count:{}, State feature count:{}".format(self.environmentSpec.countAction,self.environmentSpec.countState))
     
     def clear(self):
         self.rep=0        

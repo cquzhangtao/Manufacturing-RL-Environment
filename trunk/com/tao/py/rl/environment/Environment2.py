@@ -66,6 +66,7 @@ class SimEnvironment2(SimEnvironment0):
         #print(self.rep)
         self.reward=self.getRewardForStepByStep()
         self.episodTotalReward+=self.reward
+        #print(self.episodTotalReward)
         
         #trainData.reward=self.reward        
         #trainData.nextState=self.state
