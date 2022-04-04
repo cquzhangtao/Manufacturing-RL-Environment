@@ -7,9 +7,13 @@ from datetime import datetime
 
 filters=[]
 
+disabled=False;
 
-def addFilter(filter):
-    filters.append(filter)
+def disable():    
+    disabled=True
+
+def addFilter(filter1):
+    filters.append(filter1)
 
 def out(info):
     printOut=False
@@ -20,7 +24,8 @@ def out(info):
     
     if len(filters)==0 or printOut:
     
-        print(info)
+        if not disabled:
+            print(info)
 
 
 def p(tag,itype,info): 

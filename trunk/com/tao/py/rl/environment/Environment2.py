@@ -19,6 +19,7 @@ class SimEnvironment2(SimEnvironment0):
         self.policy=None
         self.stepCounter=0
         self.envState=0
+        self.autoRestart=True
         super().__init__(scenario,rewardCalculator=rewardCalculator,name=name,init_runs=init_runs)
 
     
@@ -76,11 +77,12 @@ class SimEnvironment2(SimEnvironment0):
         
         
         if self.sim.getState()==3: 
-            print("{} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.getTotalSummary().toString(),self.episodTotalReward))
+            print("LEAR {} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.getTotalSummary().toString(),self.episodTotalReward))
             self.kpi.append(self.simResult.getTotalSummary().getAvgCT())  
             self.allEpisodTotalReward.append(self.episodTotalReward)
-            self.envState=2          
-            self.restart()
+            self.envState=2   
+            if self.autoRestart:       
+                self.restart()
 
     def finishedEpisode(self):
         return  self.envState==2 
