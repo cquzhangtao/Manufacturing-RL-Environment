@@ -20,9 +20,9 @@ class Network(Model):
         #self.inputLayer=InputLayer(input_shape=(stateFeatureNum,))
         self.layer1=Dense(5)
         self.layer2=Dense(5)
-        self.layer3=Dense(actionFeatureNum)
+        self.layer3=Dense(actionFeatureNum,activation='relu')
         self.layer4=Dense(5)
-        self.layer5=Dense(1)
+        self.layer5=Dense(1,activation='relu')
         
     def call(self, inputs, training=None, mask=None):
         #state=[[row[0:self.stateFeatureNum]] for row in inputs]  
@@ -34,9 +34,9 @@ class Network(Model):
         y=self.layer2(y) 
         y=self.layer3(y)
         y=y*action
-        y=self.layer4(y)
-        qvalue=self.layer5(y)
+        # y=self.layer4(y)
+        #qvalue=self.layer5(y)
         
-        outputs=tf.reduce_sum(qvalue, axis=1, keepdims=True)
+        outputs=tf.reduce_sum(y, axis=1, keepdims=True)
         return outputs
         
