@@ -30,16 +30,10 @@ class Experiment(Entity):
                 
                 rule=scenario.rule
                 if isinstance(scenario.rule,AgentAppRule):
-                    
-                    agent=Agent8(environment)
-                    environment.policy=AgentPolicy(agent,0.2)
-                    rule=AgentAppRule()
+                    rule=scenario.rule.createAgentRule()
+                   
                 
-                model=scenario.createModel()
-                
-                
-                    
-                
+                model=scenario.createModel(rule)               
                 model.setReplication(rep) 
                 model.setScenario(scenario)              
                 sim=Simulator(simConfig,self.eventListeners)

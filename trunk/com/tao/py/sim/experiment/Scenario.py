@@ -29,7 +29,12 @@ class Scenario(Entity):
     def getSimConfig(self):
         return self.simConfig
     
-    def createModel(self):
-        if self.rule==None:
-            return self.model()
-        return self.model(rule=self.rule)
+    def createModel(self,rule=None):
+        if rule==None:
+            if self.rule==None:
+                return self.model()
+            return self.model(rule=self.rule)
+        else:
+            return self.model(rule=rule) 
+    
+        

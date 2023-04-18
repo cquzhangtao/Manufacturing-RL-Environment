@@ -3,6 +3,8 @@ Created on Dec 4, 2021
 
 @author: Shufang
 '''
+
+import pickle
 from com.tao.py.sim.kernel.Simulator import Simulator
 from com.tao.py.manu.stat.SimDataCollector import SimDataCollector
 from com.tao.py.rl.data.TrainDataCollectors import TrainDataCollectors
@@ -135,8 +137,14 @@ class SimEnvironment0(object):
         return self.rewardCalculator.getReward(scenario,replication,model,tool,queue,job,time)
     
     def getRewardForStepByStep(self): 
-        return self.getReward(self.scenario.getIndex(), self.rep-1, self.model, self.tool, self.queue, self.job, self.time)        
-
+        return self.getReward(self.scenario.getIndex(), self.rep-1, self.model, self.tool, self.queue, self.job, self.time) 
+    
+    def saveSpec(self,path):   
+        with open(path, 'wb') as outp:
+            pickle.dump(self.environmentSpec, outp, pickle.HIGHEST_PROTOCOL)
+    def loadSpec(self,path):
+        with open(path, 'rb') as inp:
+            self.environmentSpec = pickle.load(inp)
     
     def drawKPICurve(self): 
         _, ax1 = plt.subplots()
