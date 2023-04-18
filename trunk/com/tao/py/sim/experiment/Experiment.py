@@ -30,7 +30,7 @@ class Experiment(Entity):
                 
                 rule=scenario.rule
                 if isinstance(scenario.rule,AgentAppRule):
-                    rule=scenario.rule.createAgentRule()
+                    rule=scenario.rule.createAgentRule(scenario)
                    
                 
                 model=scenario.createModel(rule)               

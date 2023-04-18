@@ -11,7 +11,8 @@ from com.tao.py.rl.data.TrainDataCollectors import TrainDataCollectors
 from com.tao.py.rl.data.TrainDataset import TrainDataset
 from com.tao.py.rl.kernel.State import State
 from com.tao.py.rl.kernel.Action import Action
-from com.tao.py.manu.rule.Rule import AgentRule, FIFORule, RandomRule
+from com.tao.py.manu.rule.Rule import AgentRule, FIFORule, RandomRule,\
+    AgentAppRule
 import matplotlib.pyplot as plt
 from com.tao.py.rl.environment.RewardCalculator import WIPReward
 
@@ -33,8 +34,14 @@ class SimEnvironment0(object):
         self.environmentSpec=None
         self.initializing=False;
         self.simResult=SimDataCollector()
-        self.init(repNum=init_runs)
-        print("Action feature count:{}, State feature count:{}".format(self.environmentSpec.countAction,self.environmentSpec.countState))
+        
+        if scenario.rule==None or not isinstance(scenario.rule, AgentAppRule):
+            self.init(repNum=init_runs)
+            
+            print("Action feature num:{}, State feature num:{}".format(self.environmentSpec.actionFeatureNum,self.environmentSpec.stateFeatureNum))
+            print("Max action feature:{}, Max state feature:{}".format(self.environmentSpec.maxAction,self.environmentSpec.maxState))
+            print("Min action feature:{}, Min state feature:{}".format(self.environmentSpec.minAction,self.environmentSpec.minState))
+            print("Action feature count:{}, State feature count:{}".format(self.environmentSpec.countAction,self.environmentSpec.countState))
     
     def clear(self):
         self.rep=0        
@@ -100,8 +107,11 @@ class SimEnvironment0(object):
                 self.start(training=False,rule=rule)
             trainDataset=TrainDataset(trainDataCollector)   
         
+        
+        self.simResult.summarize()
         self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
         self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])
+        
         print("{},Total Reward:{:.6f}".format(self.simResult.getTotalSummary().toString(),self.episodTotalReward))
         self.allEpisodTotalReward.append(self.episodTotalReward)    
         
@@ -115,7 +125,8 @@ class SimEnvironment0(object):
         
     
     def getStateFromModel(self,model,tool,queue,time):
-        return State([time,self.simResult.getReplicationSummary(self.scenario.getIndex(), self.rep-1).timeWip,len(queue)])
+        return State([time,len(queue)])
+        #/*self.simResult.getReplicationSummary(self.scenario.getIndex(), self.rep-1).timeWip,*/
     
     
     def getActionFromJob(self,job,time): 
@@ -139,12 +150,13 @@ class SimEnvironment0(object):
     def getRewardForStepByStep(self): 
         return self.getReward(self.scenario.getIndex(), self.rep-1, self.model, self.tool, self.queue, self.job, self.time) 
     
-    def saveSpec(self,path):   
+    def saveSpec(self,path): 
         with open(path, 'wb') as outp:
-            pickle.dump(self.environmentSpec, outp, pickle.HIGHEST_PROTOCOL)
+            pickle.dump(self.environmentSpec.max, outp, pickle.HIGHEST_PROTOCOL)
     def loadSpec(self,path):
+        self.environmentSpec=TrainDataset(None)
         with open(path, 'rb') as inp:
-            self.environmentSpec = pickle.load(inp)
+            self.environmentSpec.max = pickle.load(inp)
     
     def drawKPICurve(self): 
         _, ax1 = plt.subplots()

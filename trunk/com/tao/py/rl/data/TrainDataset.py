@@ -15,12 +15,14 @@ class TrainDataset(object):
         '''
         Constructor
         '''
+        if dataCollector==None:
+            return
         self.dataCollector=dataCollector
         self.discount=0.1        
         self.rawData=dataCollector.flatten()
         
         if len(self.rawData)==0:
-            return;
+            return
 
 
         
