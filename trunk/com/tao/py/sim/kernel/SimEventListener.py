@@ -28,4 +28,11 @@ class SimEventListener(object):
         i= len(array)
         while i<=d1:
             i+=1
-            array.append(None)        
+            array.append(None)      
+            
+    def extend3DArray(self,array,d1,d2,d3):  
+        i= len(array)
+        while i<=d1:
+            i+=1
+            array.append([])
+        self.extend2DArray(array[d1],d2,d3 )    
