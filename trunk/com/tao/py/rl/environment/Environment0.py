@@ -126,7 +126,10 @@ class SimEnvironment0(object):
     
     def getStateFromModel(self,model,tool,queue,time):
         #return State([time,len(queue)])
-        return State([])
+        queueTime=0
+        for job in queue:
+            queueTime+= job.getProcessTime()
+        return State([len(queue),queueTime])
         #/*self.simResult.getReplicationSummary(self.scenario.getIndex(), self.rep-1).timeWip,*/
     
     

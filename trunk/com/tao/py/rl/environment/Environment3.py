@@ -54,7 +54,7 @@ class SimEnvironment3(SimEnvironment2,SimEventListener):
         
         idx=0
         for step in self.steps:
-            if step==start:
+            if step<=start:
                 idx+=1
             else:
                 break
