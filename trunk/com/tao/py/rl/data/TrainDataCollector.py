@@ -5,7 +5,7 @@ Created on Dec 1, 2021
 '''
 from com.tao.py.rl.data.TrainDataItem import TrainDataItem
 from com.tao.py.sim.kernel.SimEventListener import SimEventListener
-from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
+from com.tao.py.rl.event.IDecisionMadeEvent import IDecisionMadeSimEvent
 
 
 class TrainDataCollector(SimEventListener):
@@ -26,20 +26,19 @@ class TrainDataCollector(SimEventListener):
         self.environment=environment
     
     def onEventTriggered(self,event): 
-        if isinstance(event, DecisionMadeEvent):
-            self.onDecisionMade(event,event.getJob(),event.getTool(),event.getQueue(),event.getTime())
+        if isinstance(event, IDecisionMadeSimEvent):
+            self.onDecisionMade(event)
             
         
-    def onDecisionMade(self,event,job,tool,queue,time):
-        state=self.environment.getStateFromModel(job.getModel(), tool,queue,time)
+    def onDecisionMade(self,event):
+        state=event.getState(self.environment)
         if self.preState!=None:            
-            item=TrainDataItem(self.preState,self.preAction,self.preReward,state,self.environment.getActionSetFromQueue(queue,time))
+            item=TrainDataItem(self.preState,self.preAction,self.preReward,state,event.getActionSet(self.environment))
             self.dataset.append(item)
         
         self.preState=state
-        self.preAction=self.environment.getActionFromJob(job,time)        
-        self.preReward=self.environment.getReward(event.getScenario().getIndex(),event.getReplication(),job.getModel(),tool,queue,job,time)
-
+        self.preAction=event.getAction(self.environment)        
+        self.preReward=event.getReward(self.environment)
                 
     def getDataset(self):
         return self.dataset

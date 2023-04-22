@@ -5,7 +5,7 @@ Created on Dec 1, 2021
 '''
 
 from com.tao.py.sim.kernel.SimEventListener import SimEventListener
-from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
+from com.tao.py.rl.event.IDecisionMadeEvent import IDecisionMadeSimEvent
 from com.tao.py.rl.data.TrainDataCollector import TrainDataCollector
 
 
@@ -29,7 +29,7 @@ class TrainDataCollectors(SimEventListener):
     def onEventTriggered(self,event): 
         scenario=0
         rep=0
-        if isinstance(event, DecisionMadeEvent):
+        if isinstance(event, IDecisionMadeSimEvent):
             scenario=event.getScenario().getIndex()
             rep=event.getReplication()
             self.extend2DArray(self.collectors, scenario, rep)
@@ -38,7 +38,7 @@ class TrainDataCollectors(SimEventListener):
                 self.collectors[scenario][rep]=TrainDataCollector(self.environment)
                 self.dataset.append(self.collectors[scenario][rep].getDataset())
             subCollector=self.collectors[scenario][rep]
-            subCollector.onDecisionMade(event,event.getJob(),event.getTool(),event.getQueue(),event.getTime())
+            subCollector.onDecisionMade(event)
                 
     def getDataset(self): 
         return  self.dataset  

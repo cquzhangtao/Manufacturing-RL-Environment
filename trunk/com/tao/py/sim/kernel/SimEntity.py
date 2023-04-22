@@ -4,7 +4,7 @@ Created on Nov 30, 2021
 @author: cquzh
 '''
 from com.tao.py.utilities.Entity import Entity
-from pyexpat import model
+
 
 class SimEntity(Entity):
     '''
