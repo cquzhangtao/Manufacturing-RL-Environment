@@ -20,9 +20,9 @@ class SimEnvironment0(object):
         self.name=name
         
         
-        self.curState=None
-        self.curActualActionSet=None
-        self.preSelectedAction=None
+        self.state=None
+        self.actions=None
+        self.action=None
         self.fullActionSet=None
         
         self.scenario=scenario
@@ -38,13 +38,13 @@ class SimEnvironment0(object):
         self.rewardCalculator=None
         self.rewardCalculatorFn=rewardCalculatorFn
  
-
-        self.init(repNum=init_runs)
-        
-        print("Action feature num:{}, State feature num:{}".format(self.environmentSpec.actionFeatureNum,self.environmentSpec.stateFeatureNum))
-        print("Max action feature:{}, Max state feature:{}".format(self.environmentSpec.maxAction,self.environmentSpec.maxState))
-        print("Min action feature:{}, Min state feature:{}".format(self.environmentSpec.minAction,self.environmentSpec.minState))
-        print("Action feature count:{}, State feature count:{}".format(self.environmentSpec.countAction,self.environmentSpec.countState))
+        if init_runs>0 :
+            self.init(repNum=init_runs)
+            
+            print("Action feature num:{}, State feature num:{}".format(self.environmentSpec.actionFeatureNum,self.environmentSpec.stateFeatureNum))
+            print("Max action feature:{}, Max state feature:{}".format(self.environmentSpec.maxAction,self.environmentSpec.maxState))
+            print("Min action feature:{}, Min state feature:{}".format(self.environmentSpec.minAction,self.environmentSpec.minState))
+            print("Action feature count:{}, State feature count:{}".format(self.environmentSpec.countAction,self.environmentSpec.countState))
     
     def clear(self):
         self.rep=0        
@@ -52,9 +52,9 @@ class SimEnvironment0(object):
         self.allEpisodTotalReward=[]
         self.episodTotalReward=0 
         
-        self.curState=None
-        self.curActualActionSet=None
-        self.preSelectedAction=None
+        self.state=None
+        self.actions=None
+        self.action=None
         self.fullActionSet=None
 
         self.simResult.reset() 
@@ -84,7 +84,7 @@ class SimEnvironment0(object):
         
         self.episodTotalReward=0
         
-
+        self.policy=policy
         
         self.model.applyPolicy(policy)
     
@@ -128,19 +128,20 @@ class SimEnvironment0(object):
     
     def init(self,repNum=5):
         self.initializing=True
+        
         self.environmentSpec=self.collectData(RandomPolicy(self),repNum=repNum)
         self.clear()
         self.initializing=False
         
     
-    def getCurState(self):
-        return self.curState  
+    def getState(self):
+        return self.state  
     
-    def getCurActualActionSet(self):
-        return self.curActualActionSet
+    def getActions(self):
+        return self.actions
     
-    def getPreSelectedAction(self):
-        return self.preSelectedAction
+    def getAction(self):
+        return self.action
     
     def getReward(self): 
         #return 10-time+job.getReleaseTime()       

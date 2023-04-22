@@ -25,6 +25,6 @@ class IDecisionMadeSimEvent(SimEvent):
         pass  
     def getReward(self,env):
         pass  
-    def getActionSet(self,env):
+    def getActions(self,env):
         pass
     

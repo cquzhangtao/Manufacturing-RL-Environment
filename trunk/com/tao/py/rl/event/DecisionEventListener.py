@@ -31,7 +31,7 @@ class DecisionEventListener(SimEventListener):
 
         if isinstance(event, IDecisionMadeSimEvent):
             self.decisionMadeEvent=event;
-            self.environment.preSelectedAction=event.getAction()
+            self.environment.action=event.getAction()
     
     def beforeEventTriggered(self,event): 
 
@@ -40,6 +40,6 @@ class DecisionEventListener(SimEventListener):
             #self.queue=event.getTool().getQueue().copy()
             #self.time=event.getTime()
             self.decisionMakingEvent=event 
-            self.environment.curState= event.getState()
-            self.environment.curActualActionSet=event.getActionSet()  
+            self.environment.state= event.getState()
+            self.environment.actions=event.getActions()  
                 

@@ -18,10 +18,10 @@ class Network(Model):
         self.stateFeatureNum=stateFeatureNum
         self.actionFeatureNum=actionFeatureNum
         #self.inputLayer=InputLayer(input_shape=(stateFeatureNum,))
-        self.layer1=Dense(5)
-        self.layer2=Dense(5)
+        self.layer1=Dense(5,activation='sigmoid')
+        self.layer2=Dense(5,activation='sigmoid')
         self.layer3=Dense(actionFeatureNum,activation='relu')
-        self.layer4=Dense(5)
+        self.layer4=Dense(5,activation='sigmoid')
         self.layer5=Dense(1,activation='relu')
         
     def call(self, inputs, training=None, mask=None):

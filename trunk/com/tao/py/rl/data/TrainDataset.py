@@ -18,7 +18,7 @@ class TrainDataset(object):
         if dataCollector==None:
             return
         self.dataCollector=dataCollector
-        self.discount=0.1        
+        self.discount=0.9        
         self.rawData=dataCollector.flatten()
         
         if len(self.rawData)==0:

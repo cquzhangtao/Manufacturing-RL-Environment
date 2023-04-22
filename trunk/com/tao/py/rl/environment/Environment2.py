@@ -28,9 +28,9 @@ class SimEnvironment2(SimEnvironment0):
         #self.decisionMaking=DecisionEventListener()
         return super().getSimEventListeners()      
     
-    def start(self,simListeners=[]):
+    def start(self,policy,training=True,simListeners=[]):
 
-        super().start(self.policy,training=True,simListeners=simListeners)
+        super().start(policy,training=training,simListeners=simListeners)
         self.updateCurrentState() 
         self.envState=1
     
@@ -38,7 +38,7 @@ class SimEnvironment2(SimEnvironment0):
     
     def restart(self):
         self.stepCounter+=1
-        self.start()
+        self.start(self.policy)
     
     def takeAction(self, actionIdx):
 
@@ -50,7 +50,7 @@ class SimEnvironment2(SimEnvironment0):
         #trainData=TrainDataItem(self.state,self.actions[queueIdx],0,None,None)
         event=self.decisionEventListener.decisionMakingEvent.createDecisionMadeEvent(idxInActualActionSet)
         #event=DecisionMadeEvent(self.time,self.tool,self.job,self.queue)
-        self.decisionEventListener.decisionMakingEvent.addEvenOnTop(event)
+        self.decisionEventListener.decisionMakingEvent.addEventOnTop(event)
 
         self.sim.resume()
 
@@ -102,9 +102,10 @@ class SimEnvironment2(SimEnvironment0):
     def updateCurrentState(self):
         #self.tool=self.decisionMaking.tool;
         #self.queue=self.decisionMaking.queue;
-        self.time=self.decisionMaking.time
-        self.state=self.decisionMaking.getState()
-        self.actions=self.getActionSet()
+        #self.time=self.decisionMaking.time
+        #self.state=self.decisionMaking.getState()
+        #self.actions=self.getActionSet()
+        pass
 
         
              
