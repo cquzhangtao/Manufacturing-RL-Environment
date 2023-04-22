@@ -17,6 +17,9 @@ class SimEventListener(object):
     def onEventTriggered(self,event): 
         pass 
     
+    def beforeEventTriggered(self,event): 
+        pass
+     
     def extend2DArray(self,array,d1,d2):  
         i= len(array)
         while i<=d1:

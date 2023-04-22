@@ -5,7 +5,7 @@ Created on Dec 4, 2021
 '''
 
 from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
-from com.tao.py.rl.environment.DecisionEventListener import DecisionEventListener
+
 
 from com.tao.py.manu.rule.Rule import AgentRule
 from com.tao.py.rl.environment.Environment0 import SimEnvironment0
@@ -29,8 +29,8 @@ class SimEnvironment2(SimEnvironment0):
         super().clear()
     
     def getSimEventListeners(self):
-        self.decisionMaking=DecisionEventListener()
-        return [self.decisionMaking]+super().getSimEventListeners()      
+        #self.decisionMaking=DecisionEventListener()
+        return super().getSimEventListeners()      
     
     def start(self,training=True,rule=None,simListeners=[]):
 

@@ -6,56 +6,57 @@ Created on Dec 4, 2021
 
 import pickle
 from com.tao.py.sim.kernel.Simulator import Simulator
-from com.tao.py.manu.stat.SimDataCollector import SimDataCollector
 from com.tao.py.rl.data.TrainDataCollectors import TrainDataCollectors
 from com.tao.py.rl.data.TrainDataset import TrainDataset
-from com.tao.py.rl.kernel.State import State
-from com.tao.py.rl.kernel.Action import Action
-from com.tao.py.manu.rule.Rule import AgentRule, FIFORule, RandomRule,\
-    AgentAppRule
 import matplotlib.pyplot as plt
-from com.tao.py.rl.environment.RewardCalculator import WIPReward
+from com.tao.py.rl.event.DecisionEventListener import DecisionEventListener
+from com.tao.py.rl.policy.RandomPolicy import RandomPolicy
 
 
 
 class SimEnvironment0(object):
 
-    def __init__(self,scenario,rewardCalculator=WIPReward(),name="",init_runs=5):
+    def __init__(self,scenario,resultContainer,rewardCalculator=None,name="",init_runs=5):
         self.scenario=scenario
         self.state=None
         self.name=name
         self.rep=0
         self.eventListeners=[]
-        self.simResult=None
+        self.simResult=resultContainer
         self.kpi=[]
         self.allEpisodTotalReward=[]
         self.episodTotalReward=0
         self.rewardCalculator=rewardCalculator
         self.environmentSpec=None
         self.initializing=False;
-        self.simResult=SimDataCollector()
+
+        self.init(repNum=init_runs)
         
-        if scenario.rule==None or not isinstance(scenario.rule, AgentAppRule):
-            self.init(repNum=init_runs)
-            
-            print("Action feature num:{}, State feature num:{}".format(self.environmentSpec.actionFeatureNum,self.environmentSpec.stateFeatureNum))
-            print("Max action feature:{}, Max state feature:{}".format(self.environmentSpec.maxAction,self.environmentSpec.maxState))
-            print("Min action feature:{}, Min state feature:{}".format(self.environmentSpec.minAction,self.environmentSpec.minState))
-            print("Action feature count:{}, State feature count:{}".format(self.environmentSpec.countAction,self.environmentSpec.countState))
+        print("Action feature num:{}, State feature num:{}".format(self.environmentSpec.actionFeatureNum,self.environmentSpec.stateFeatureNum))
+        print("Max action feature:{}, Max state feature:{}".format(self.environmentSpec.maxAction,self.environmentSpec.maxState))
+        print("Min action feature:{}, Min state feature:{}".format(self.environmentSpec.minAction,self.environmentSpec.minState))
+        print("Action feature count:{}, State feature count:{}".format(self.environmentSpec.countAction,self.environmentSpec.countState))
     
     def clear(self):
         self.rep=0        
         self.kpi=[] 
         self.allEpisodTotalReward=[]
         self.episodTotalReward=0 
-        self.rewardCalculator.reset() 
-        self.simResult=SimDataCollector() 
+
+        self.simResult.reset() 
+        if self.rewardCalculator !=None:         
+            self.rewardCalculator.reset() 
+        self.initializing=False;
         
     def getSimEventListeners(self):
+        self.decisionEventListener=DecisionEventListener()
         
-        return [self.simResult,self.rewardCalculator]
+        if self.rewardCalculator !=None:        
+            return [self.simResult,self.decisionEventListener,self.rewardCalculator]
+        else:
+            return [self.simResult,self.decisionEventListener]
     
-    def start(self,training=False,rule=FIFORule(),simListeners=[]):
+    def start(self,policy,training=False,simListeners=[]):
         self.rep+=1
         #print(self.name+str(self.rep)+"starts")
         self.eventListeners=[]
@@ -69,11 +70,11 @@ class SimEnvironment0(object):
         
         self.episodTotalReward=0
         
-        self.rewardCalculator.reset()
+        if self.rewardCalculator !=None:         
+            self.rewardCalculator.reset()
         
-        
-        for machine in self.model.machines:
-            machine.rule=rule
+        self.model.applyPolicy(policy)
+    
             
         self.sim=Simulator(self.scenario.getSimConfig(),self.eventListeners)                
                 
@@ -87,16 +88,12 @@ class SimEnvironment0(object):
     
 
             
-    def collectData(self,policy,rule=None,repNum=1): 
+    def collectData(self,policy,repNum=1): 
 
         trainDataCollector=TrainDataCollectors(self) 
-
-
-        if rule==None:
-            rule=AgentRule(policy)
         
         for _ in range(repNum):
-            self.start(training=False,simListeners=[trainDataCollector],rule=rule)
+            self.start(policy,training=False,simListeners=[trainDataCollector])
         
 
 
@@ -104,55 +101,40 @@ class SimEnvironment0(object):
         
         while len(trainDataset.rawData)==0:
             for _ in range(repNum):
-                self.start(training=False,rule=rule)
+                self.start(policy,training=False,simListeners=[trainDataCollector])
             trainDataset=TrainDataset(trainDataCollector)   
         
         
         self.simResult.summarize()
-        self.kpi.append(self.simResult.getTotalSummary().getAvgCT())
+        self.kpi.append(self.simResult.getKPI())
         self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])
         
-        print("{},Total Reward:{:.6f}".format(self.simResult.getTotalSummary().toString(),self.episodTotalReward))
+        print("{},Total Reward:{:.6f}".format(self.simResult.toString(),self.episodTotalReward))
         self.allEpisodTotalReward.append(self.episodTotalReward)    
         
         return trainDataset
     
     def init(self,repNum=5):
         self.initializing=True
-        self.environmentSpec=self.collectData(None, rule=RandomRule(),repNum=repNum)
+        self.environmentSpec=self.collectData(RandomPolicy(self),repNum=repNum)
         self.clear()
         self.initializing=False
         
     
-    def getStateFromModel(self,model,tool,queue,time):
-        #return State([time,len(queue)])
-        queueTime=0
-        for job in queue:
-            queueTime+= job.getProcessTime()
-        return State([len(queue),queueTime])
-        #/*self.simResult.getReplicationSummary(self.scenario.getIndex(), self.rep-1).timeWip,*/
+
     
-    
-    def getActionFromJob(self,job,time): 
-        return Action([job.getProcessTime(),time-job.getReleaseTime()])
-    
-       
-    def getActionSetFromQueue(self,queue,time):  
-        actions=[]
-        for job in queue:
-            actions.append(self.getActionFromJob(job,time))  
-            
-        return actions
-    
-    def getReward(self,scenario,replication,model,tool,queue,job,time): 
+    def getReward(self): 
         #return 10-time+job.getReleaseTime()       
         #return self.simResult.getReplicationSummary(scenario,replication).getAvgCT()
         #return 1/len(queue)
         #return 10-job.getProcessTime()
-        return self.rewardCalculator.getReward(scenario,replication,model,tool,queue,job,time)
+        if self.rewardCalculator !=None: 
+            return self.rewardCalculator.getReward(self)
+        return -1
+    
     
     def getRewardForStepByStep(self): 
-        return self.getReward(self.scenario.getIndex(), self.rep-1, self.model, self.tool, self.queue, self.job, self.time) 
+        return self.getReward() 
     
     def saveSpec(self,path): 
         with open(path, 'wb') as outp:

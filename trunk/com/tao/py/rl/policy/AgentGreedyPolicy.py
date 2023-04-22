@@ -15,7 +15,7 @@ class AgentGreedyPolicy(object):
         Constructor
         '''
         self.agent=agent
-
+        self.environment=agent.environment
         
     def getAction(self,state,actions):
         

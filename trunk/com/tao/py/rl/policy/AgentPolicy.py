@@ -15,6 +15,7 @@ class AgentPolicy(object):
         Constructor
         '''
         self.agent=agent
+        self.environment=agent.environment
         self.epsilon=epsilon
         
     def getAction(self,state,actions):

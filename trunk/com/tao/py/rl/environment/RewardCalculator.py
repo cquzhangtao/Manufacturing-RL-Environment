@@ -9,8 +9,9 @@ from com.tao.py.manu.event.JobReleaseEvent import JobReleaseEvent
 from com.tao.py.manu.event.JobDepartureEvent import JobDepartureEvent
 from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
 from com.tao.py.manu.event.JobInterruptedEvent import JobInterruptedEvent
+from com.tao.py.rl.kernel.IRewardCalculator import IRewardCalculator
 
-class WIPReward(SimEventListener):
+class WIPReward(IRewardCalculator):
     '''
     classdocs
     '''
@@ -48,7 +49,8 @@ class WIPReward(SimEventListener):
             self.preWIPChangeTime=curTime
             self.preWIP-=event.processedTime
             
-    def getReward(self,scenario,replication,model,tool,queue,job,time): 
+    def getReward(self,env):
+        time= env.decisionEventListener.decisionMadeEvent.getTime()
         self.totalWIP+=(time-self.preWIPChangeTime)*self.preWIP
         self.preWIPChangeTime=time 
         reward=2000-self.totalWIP

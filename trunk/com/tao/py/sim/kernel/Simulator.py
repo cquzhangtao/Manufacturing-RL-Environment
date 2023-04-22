@@ -80,8 +80,13 @@ class Simulator(object):
             self.currentEventList=self.getFirstEvents()
         event=self.currentEventList[0]
         del self.currentEventList[0]
-        self.time=event.getTime()        
+        self.time=event.getTime() 
+        
+        for lis in self.eventListeners:
+            lis.beforeEventTriggered(event)          
+        
         event.trigger()
+        
         for lis in self.eventListeners:
             lis.onEventTriggered(event)            
             

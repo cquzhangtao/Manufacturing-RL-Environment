@@ -14,13 +14,13 @@ class Scenario(Entity):
     '''
 
 
-    def __init__(self, uuid,name, simConfig, model,rule=None):
+    def __init__(self, uuid,name, simConfig, createModelFn,rule=None):
         '''
         Constructor
         '''
         super().__init__(uuid, name)
         self.simConfig=simConfig
-        self.model=model
+        self.createModelFn=createModelFn
         global scenarioIndex
         self.index=scenarioIndex
         scenarioIndex+=1
@@ -32,9 +32,9 @@ class Scenario(Entity):
     def createModel(self,rule=None):
         if rule==None:
             if self.rule==None:
-                return self.model()
-            return self.model(rule=self.rule)
+                return self.createModelFn()
+            return self.createModelFn(rule=self.rule)
         else:
-            return self.model(rule=rule) 
+            return self.createModelFn(rule=rule) 
     
         
