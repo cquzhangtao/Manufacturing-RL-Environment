@@ -4,9 +4,8 @@ Created on Nov 30, 2021
 @author: cquzh
 '''
 from com.tao.py.utilities.Entity import Entity
-import copy
 from com.tao.py.sim.kernel.Simulator import Simulator
-from com.tao.py.manu.rule.Rule import AgentAppRule
+
 
 class Experiment(Entity):
     '''
@@ -27,13 +26,7 @@ class Experiment(Entity):
             simConfig=scenario.getSimConfig()
             for rep in range(simConfig.getReplication()):
                 
-                
-                rule=scenario.rule
-                if isinstance(scenario.rule,AgentAppRule):
-                    rule=scenario.rule.createAgentRule(scenario)
-                   
-                
-                model=scenario.createModel(rule)               
+                model=scenario.createModel()               
                 model.setReplication(rep) 
                 model.setScenario(scenario)              
                 sim=Simulator(simConfig,self.eventListeners)

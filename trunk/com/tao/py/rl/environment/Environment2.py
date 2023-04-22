@@ -10,17 +10,17 @@ from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
 from com.tao.py.manu.rule.Rule import AgentRule
 from com.tao.py.rl.environment.Environment0 import SimEnvironment0
 from com.tao.py.rl.data.TrainDataItem import TrainDataItem
-from com.tao.py.rl.environment.RewardCalculator import WIPReward
+
 
 
 class SimEnvironment2(SimEnvironment0):
 
-    def __init__(self,scenario,rewardCalculator=WIPReward(),name="",init_runs=5):
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=5):
         self.policy=None
         self.stepCounter=0
         self.envState=0
         self.autoRestart=True
-        super().__init__(scenario,rewardCalculator=rewardCalculator,name=name,init_runs=init_runs)
+        super().__init__(scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=init_runs)
 
     
     def clear(self):
@@ -32,19 +32,13 @@ class SimEnvironment2(SimEnvironment0):
         #self.decisionMaking=DecisionEventListener()
         return super().getSimEventListeners()      
     
-    def start(self,training=True,rule=None,simListeners=[]):
+    def start(self,simListeners=[]):
 
-        if rule==None and self.policy!=None:
-            rule=AgentRule(self.policy)
-        super().start(training=training,rule=rule,simListeners=simListeners)
+        super().start(self.policy,training=True,simListeners=simListeners)
         self.updateCurrentState() 
         self.envState=1
     
-    def getJobByIndex(self,actionIdx):
-        return self.queue[actionIdx]
-    
-    def getQueueIdx(self,actionIdx):
-        return actionIdx
+
     
     def restart(self):
         self.stepCounter+=1
@@ -103,7 +97,12 @@ class SimEnvironment2(SimEnvironment0):
         
         return trainData
     
+    def getJobByIndex(self,actionIdx):
+        return self.queue[actionIdx]
     
+    def getQueueIdx(self,actionIdx):
+        return actionIdx
+       
     def updateCurrentState(self):
         self.tool=self.decisionMaking.tool;
         self.queue=self.decisionMaking.queue;

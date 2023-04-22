@@ -16,19 +16,22 @@ from com.tao.py.rl.policy.RandomPolicy import RandomPolicy
 
 class SimEnvironment0(object):
 
-    def __init__(self,scenario,resultContainer,rewardCalculator=None,name="",init_runs=5):
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=5):
         self.scenario=scenario
         self.state=None
         self.name=name
         self.rep=0
         self.eventListeners=[]
-        self.simResult=resultContainer
+        self.simResult=resultContainerFn()
         self.kpi=[]
         self.allEpisodTotalReward=[]
         self.episodTotalReward=0
-        self.rewardCalculator=rewardCalculator
+        
         self.environmentSpec=None
-        self.initializing=False;
+        self.initializing=False
+        self.rewardCalculator=None
+        self.rewardCalculatorFn=rewardCalculatorFn
+ 
 
         self.init(repNum=init_runs)
         
@@ -44,14 +47,14 @@ class SimEnvironment0(object):
         self.episodTotalReward=0 
 
         self.simResult.reset() 
-        if self.rewardCalculator !=None:         
-            self.rewardCalculator.reset() 
+
         self.initializing=False;
         
     def getSimEventListeners(self):
         self.decisionEventListener=DecisionEventListener()
         
-        if self.rewardCalculator !=None:        
+        if self.rewardCalculatorFn!=None:
+            self.rewardCalculator=self.rewardCalculatorFn()       
             return [self.simResult,self.decisionEventListener,self.rewardCalculator]
         else:
             return [self.simResult,self.decisionEventListener]
@@ -70,8 +73,7 @@ class SimEnvironment0(object):
         
         self.episodTotalReward=0
         
-        if self.rewardCalculator !=None:         
-            self.rewardCalculator.reset()
+
         
         self.model.applyPolicy(policy)
     
@@ -104,13 +106,12 @@ class SimEnvironment0(object):
                 self.start(policy,training=False,simListeners=[trainDataCollector])
             trainDataset=TrainDataset(trainDataCollector)   
         
-        
-        self.simResult.summarize()
-        self.kpi.append(self.simResult.getKPI())
-        self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])
-        
-        print("{},Total Reward:{:.6f}".format(self.simResult.toString(),self.episodTotalReward))
-        self.allEpisodTotalReward.append(self.episodTotalReward)    
+        if not self.initializing:
+            self.simResult.summarizeReplication(self.scenario.getIndex(),self.rep-1)
+            self.kpi.append(self.simResult.getKPI(self.scenario.getIndex(),self.rep-1))
+            self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])        
+            print("{},Total Reward:{:.6f}".format(self.simResult.toString(self.scenario.getIndex(),self.rep-1),self.episodTotalReward))
+            self.allEpisodTotalReward.append(self.episodTotalReward)    
         
         return trainDataset
     

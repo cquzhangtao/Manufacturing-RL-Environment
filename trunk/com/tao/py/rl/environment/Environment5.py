@@ -10,7 +10,7 @@ from tf_agents.specs import array_spec
 
 
 from com.tao.py.rl.environment.Environment4 import SimEnvironment4
-from com.tao.py.rl.environment.RewardCalculator import WIPReward
+from com.tao.py.manu.experiment.RewardCalculator import WIPReward
 
 
 

@@ -18,11 +18,11 @@ class ISimResult(SimEventListener):
     def reset(self):
         pass
     
-    def getKPI(self):   
+    def getKPI(self,sce,rep):   
         pass
     
-    def summarize(self):
+    def summarize(self,sce,rep):
         pass 
     
-    def toString(self):
+    def toString(self,sce,rep):
         pass

@@ -15,7 +15,7 @@ import com.tao.py.utilities.Log as Log
 import tf_agents
 import logging
 import functools
-from com.tao.py.rl.environment.RewardCalculator import WIPReward
+from com.tao.py.manu.experiment.RewardCalculator import WIPReward
 
 logging.disable(logging.WARNING)
 
