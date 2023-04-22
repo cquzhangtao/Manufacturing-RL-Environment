@@ -25,4 +25,5 @@ class IDecisionMakingSimEvent(SimEvent):
         pass  
     def getActionSet(self,env):
         pass
-    
+    def createDecisionMadeEvent(self,selActionIdx):
+        pass

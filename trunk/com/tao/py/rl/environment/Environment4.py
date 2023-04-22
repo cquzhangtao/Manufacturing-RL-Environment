@@ -14,7 +14,7 @@ import itertools
 
 class SimEnvironment4(SimEnvironment3):
 
-    def __init__(self,scenario,scenario,resultContainerFn,rewardCalculatorFn=None,name=""):
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name=""):
         super().__init__(scenario,scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=200)
         #self.init(10)
         self.actionFeatureDiscretSize=12

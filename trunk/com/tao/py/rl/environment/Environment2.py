@@ -3,13 +3,9 @@ Created on Dec 4, 2021
 
 @author: Shufang
 '''
-
-from com.tao.py.manu.event.DecisionMadeEvent import DecisionMadeEvent
-
-
-from com.tao.py.manu.rule.Rule import AgentRule
 from com.tao.py.rl.environment.Environment0 import SimEnvironment0
 from com.tao.py.rl.data.TrainDataItem import TrainDataItem
+
 
 
 
@@ -48,13 +44,13 @@ class SimEnvironment2(SimEnvironment0):
 
         self.stepCounter+=1
         
-        queueIdx=self.getQueueIdx(actionIdx)
-        self.job=self.queue[queueIdx]
+        #queueIdx=self.getQueueIdx(actionIdx)
+        #self.job=self.queue[queueIdx]
         
         #trainData=TrainDataItem(self.state,self.actions[queueIdx],0,None,None)
-        
-        event=DecisionMadeEvent(self.time,self.tool,self.job,self.queue)
-        self.tool.addEventOnTop(event)
+        event=self.decisionEventListener.decisionMakingEvent.createDecisionMadeEvent(actionIdx)
+        #event=DecisionMadeEvent(self.time,self.tool,self.job,self.queue)
+        self.decisionEventListener.decisionMakingEvent.addEvenOnTop(event)
 
         self.sim.resume()
 
@@ -73,8 +69,8 @@ class SimEnvironment2(SimEnvironment0):
         
         if self.sim.getState()==3: 
             self.simResult.summarizeReplication(self.scenario.getIndex(), self.rep-1)
-            #print("LEAR {} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.getReplicationSummary(self.scenario.getIndex(), self.rep-1).toString(),self.episodTotalReward))
-            self.kpi.append(self.simResult.getReplicationSummary(self.scenario.getIndex(), self.rep-1).getAvgCT())              
+            print("LEAR {} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.toString(self.scenario.getIndex(), self.rep-1),self.episodTotalReward))
+            self.kpi.append(self.simResult.getKPI(self.scenario.getIndex(), self.rep-1))             
             self.allEpisodTotalReward.append(self.episodTotalReward)
             self.envState=2   
             if self.autoRestart:       
@@ -104,11 +100,11 @@ class SimEnvironment2(SimEnvironment0):
         return actionIdx
        
     def updateCurrentState(self):
-        self.tool=self.decisionMaking.tool;
-        self.queue=self.decisionMaking.queue;
+        #self.tool=self.decisionMaking.tool;
+        #self.queue=self.decisionMaking.queue;
         self.time=self.decisionMaking.time
-        self.state=self.getStateFromModel(self.model,self.tool,self.queue,self.time)
-        self.actions=self.getActionSetFromQueue(self.queue,self.time)
+        self.state=self.decisionMaking.getState()
+        self.actions=self.getActionSet()
 
         
              

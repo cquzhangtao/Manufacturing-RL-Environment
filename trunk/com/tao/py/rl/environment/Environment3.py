@@ -9,7 +9,7 @@ from com.tao.py.rl.environment.Environment2 import SimEnvironment2
 
 from com.tao.py.sim.kernel.SimEventListener import SimEventListener
 from com.tao.py.manu.event.JobDepartureEvent import JobDepartureEvent
-from com.tao.py.manu.experiment.RewardCalculator import WIPReward
+
 
 
 class SimEnvironment3(SimEnvironment2,SimEventListener):
