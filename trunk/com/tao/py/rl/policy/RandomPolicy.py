@@ -17,5 +17,5 @@ class RandomPolicy(SimplePolicy):
         self.environment=env
         
     def getAction(self,state,actions):
-        return random.randint(0,len(actions)-1)     
+        return random.randint(0,len(actions)-1),0    
     
