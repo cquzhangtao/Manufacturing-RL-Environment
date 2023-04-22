@@ -46,7 +46,7 @@ class SimEnvironment3(SimEnvironment2,SimEventListener):
             if step>=end:
                 break
             if step>=start:
-                ct+=self.jobs[idx].getCT()
+                ct+=self.jobs[idx].getFF()
                 count+=1
 
             idx+=1  
