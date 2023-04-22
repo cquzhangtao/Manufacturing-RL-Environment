@@ -22,7 +22,7 @@ class TrainDataCollector(SimEventListener):
         #self.result=result
         self.preState=None
         self.preAction=None
-        self.preReward=0
+        #self.preReward=0
         self.environment=environment
     
     def onEventTriggered(self,event): 
@@ -30,15 +30,15 @@ class TrainDataCollector(SimEventListener):
             self.onDecisionMade(event)
             
         
-    def onDecisionMade(self,event):
-        state=event.getState()
+    def onDecisionMade(self):
+        state=self.environment.getCurState()
         if self.preState!=None:            
-            item=TrainDataItem(self.preState,self.preAction,self.preReward,state,event.getActionSet())
+            item=TrainDataItem(self.preState,self.preAction,self.environment.getReward(),state,self.environment.getCurActualActionSet())
             self.dataset.append(item)
         
         self.preState=state
-        self.preAction=event.getAction()        
-        self.preReward=event.getReward(self.environment)
+        self.preAction=self.environment.getAction()        
+        #self.preReward=self.environment.getReward()
                 
     def getDataset(self):
         return self.dataset

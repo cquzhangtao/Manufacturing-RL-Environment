@@ -44,11 +44,11 @@ class SimEnvironment2(SimEnvironment0):
 
         self.stepCounter+=1
         
-        #queueIdx=self.getQueueIdx(actionIdx)
+        idxInActualActionSet=self.getIdxInActualActionSet(actionIdx)
         #self.job=self.queue[queueIdx]
         
         #trainData=TrainDataItem(self.state,self.actions[queueIdx],0,None,None)
-        event=self.decisionEventListener.decisionMakingEvent.createDecisionMadeEvent(actionIdx)
+        event=self.decisionEventListener.decisionMakingEvent.createDecisionMadeEvent(idxInActualActionSet)
         #event=DecisionMadeEvent(self.time,self.tool,self.job,self.queue)
         self.decisionEventListener.decisionMakingEvent.addEvenOnTop(event)
 
@@ -81,10 +81,10 @@ class SimEnvironment2(SimEnvironment0):
     
     def collectOneStepData(self): 
 
-        queueIdx,actionIdx=self.policy.getAction(self.state,self.actions)
-        self.action=actionIdx
-        trainData=TrainDataItem(self.state,self.actions[queueIdx],0,None,None)
-        self.takeAction(actionIdx)
+        idxInActualActionSet,idxInFullActionSet=self.policy.getAction(self.state,self.actions)
+        self.action=idxInFullActionSet
+        trainData=TrainDataItem(self.state,self.actions[idxInActualActionSet],0,None,None)
+        self.takeAction(idxInFullActionSet)
         trainData.reward=self.reward
         
         trainData.nextState=self.state
@@ -93,10 +93,10 @@ class SimEnvironment2(SimEnvironment0):
         
         return trainData
     
-    def getJobByIndex(self,actionIdx):
-        return self.queue[actionIdx]
+    #def getJobByIndex(self,actionIdx):
+    #    return self.queue[actionIdx]
     
-    def getQueueIdx(self,actionIdx):
+    def getIdxInActualActionSet(self,actionIdx):
         return actionIdx
        
     def updateCurrentState(self):

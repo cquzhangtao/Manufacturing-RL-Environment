@@ -17,9 +17,15 @@ from com.tao.py.rl.policy.RandomPolicy import RandomPolicy
 class SimEnvironment0(object):
 
     def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=5):
-        self.scenario=scenario
-        self.state=None
         self.name=name
+        
+        
+        self.curState=None
+        self.curActualActionSet=None
+        self.preSelectedAction=None
+        self.fullActionSet=None
+        
+        self.scenario=scenario
         self.rep=0
         self.eventListeners=[]
         self.simResult=resultContainerFn()
@@ -45,13 +51,18 @@ class SimEnvironment0(object):
         self.kpi=[] 
         self.allEpisodTotalReward=[]
         self.episodTotalReward=0 
+        
+        self.curState=None
+        self.curActualActionSet=None
+        self.preSelectedAction=None
+        self.fullActionSet=None
 
         self.simResult.reset() 
 
         self.initializing=False;
         
     def getSimEventListeners(self):
-        self.decisionEventListener=DecisionEventListener()
+        self.decisionEventListener=DecisionEventListener(self)
         
         if self.rewardCalculatorFn!=None:
             self.rewardCalculator=self.rewardCalculatorFn()       
@@ -122,7 +133,14 @@ class SimEnvironment0(object):
         self.initializing=False
         
     
-
+    def getCurState(self):
+        return self.curState  
+    
+    def getCurActualActionSet(self):
+        return self.curActualActionSet
+    
+    def getPreSelectedAction(self):
+        return self.preSelectedAction
     
     def getReward(self): 
         #return 10-time+job.getReleaseTime()       
