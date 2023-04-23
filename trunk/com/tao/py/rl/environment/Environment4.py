@@ -4,23 +4,27 @@ Created on Dec 4, 2021
 @author: Shufang
 '''
 
-
+import pickle
 from com.tao.py.rl.environment.Environment3 import SimEnvironment3
 from com.tao.py.rl.kernel.Action import Action
 import itertools
-
+from com.tao.py.rl.data.TrainDataset import TrainDataset
 
 
 
 class SimEnvironment4(SimEnvironment3):
 
-    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name=""):
-        super().__init__(scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=200)
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=200):
+        super().__init__(scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=init_runs)
         #self.init(10)
-        self.actionFeatureDiscretSize=3
-        self.featureSplitSize,self.actionNum=self.calActionNum()
-        self.allactions=list(itertools.product(* self.featureSplitSize))
-    
+        
+        if init_runs>0:
+            self.actionFeatureDiscretSize=3
+            self.featureSplitSize,self.actionNum=self.calActionNum()
+            self.allactions=list(itertools.product(* self.featureSplitSize))
+            print("fixed action number"+str(len(self.allactions)));
+            print(self.allactions)
+            
     def calActionNum(self):
         envSpec=self.environmentSpec
         actionFeatureNum=envSpec.actionFeatureNum
@@ -138,3 +142,21 @@ class SimEnvironment4(SimEnvironment3):
             return actions
 
         return [Action([self.getActionIndex(action)]) for action in actions]
+    
+    def saveSpec(self,path): 
+        with open(path, 'wb') as file:
+            self.environmentSpec.save(pickle, file);
+            pickle.dump(self.actionFeatureDiscretSize, file)
+            pickle.dump(self.featureSplitSize, file)
+            pickle.dump(self.actionNum, file)
+            pickle.dump(self.allactions, file)
+            
+            
+    def loadSpec(self,path):
+        self.environmentSpec=TrainDataset(None)
+        with open(path, 'rb') as file:
+            self.environmentSpec.load(pickle, file)
+            self.actionFeatureDiscretSize=pickle.load(file)
+            self.featureSplitSize=pickle.load(file)
+            self.actionNum=pickle.load(file)
+            self.allactions=pickle.load(file)            

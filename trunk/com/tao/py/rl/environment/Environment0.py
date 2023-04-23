@@ -157,12 +157,12 @@ class SimEnvironment0(object):
         return self.getReward() 
     
     def saveSpec(self,path): 
-        with open(path, 'wb') as outp:
-            pickle.dump(self.environmentSpec.max, outp, pickle.HIGHEST_PROTOCOL)
+        with open(path, 'wb') as file:
+            self.environmentSpec.save(pickle, file);
     def loadSpec(self,path):
         self.environmentSpec=TrainDataset(None)
-        with open(path, 'rb') as inp:
-            self.environmentSpec.max = pickle.load(inp)
+        with open(path, 'rb') as file:
+            self.environmentSpec.load(pickle, file)
     
     def drawKPICurve(self): 
         _, ax1 = plt.subplots()

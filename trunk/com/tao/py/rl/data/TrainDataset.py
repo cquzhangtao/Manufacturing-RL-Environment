@@ -195,6 +195,33 @@ class TrainDataset(object):
         self.uniqueAction=[list(set(row)) for row in invertAction]
         self.uniqueState=[list(set(row)) for row in invertState]
      
+    def save(self,pickle,file):
+        pickle.dump(self.minState,file)
+        pickle.dump(self.maxState,file)        
+        pickle.dump(self.minAction,file)
+        pickle.dump(self.maxAction,file) 
+        pickle.dump(self.min,file)
+        pickle.dump(self.max,file)                      
+        pickle.dump(self.countState,file)
+        pickle.dump(self.countAction,file)  
+        pickle.dump(self.uniqueAction,file)
+        pickle.dump(self.uniqueState,file)
+        pickle.dump(self.stateFeatureNum,file)    
+        pickle.dump(self.actionFeatureNum,file)  
+        
+    def load(self,pickle,file):
+        self.minState=pickle.load(file)
+        self.maxState=pickle.load(file)        
+        self.minAction=pickle.load(file)
+        self.maxAction=pickle.load(file) 
+        self.min=pickle.load(file)
+        self.max=pickle.load(file)                      
+        self.countState=pickle.load(file)
+        self.countAction=pickle.load(file)  
+        self.uniqueAction=pickle.load(file)
+        self.uniqueState=pickle.load(file)  
+        self.stateFeatureNum = pickle.load(file) 
+        self.actionFeatureNum = pickle.load(file)         
     def calTargetQValue(self,agent,reward,nextState,nextActions):
         qvalues=([self.calQValue(agent,nextState,nextActions[col:col+self.actionFeatureNum]) for col in range(0,len(nextActions),self.actionFeatureNum) ])
         return reward+self.discount*max(qvalues)

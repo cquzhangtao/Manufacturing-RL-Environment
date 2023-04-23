@@ -5,28 +5,22 @@ Created on Dec 6, 2021
 '''
 import random
 from com.tao.py.rl.kernel.Action import Action
-class AgentPolicy1(object):
+class AgentGreedyPolicy1(object):
     '''
     classdocs
     '''
 
 
-    def __init__(self, agent,epsilon):
+    def __init__(self, agent):
         '''
         Constructor
         '''
         self.agent=agent
-        self.epsilon=epsilon
         self.environment=agent.environment
         
     def getAction(self,state,actions):
-        
         actions=[Action([self.environment.getActionIndex(action)]) for action in actions]
         actionIdices=[feature for action in actions for feature in action.getData() ]
-        prob=random.random()
-        if prob<self.epsilon:
-            idx=random.randint(0, len(actionIdices)-1)
-            return idx,actionIdices[idx]
                 
         maxQ=float('-inf')
         maxIdx=0
