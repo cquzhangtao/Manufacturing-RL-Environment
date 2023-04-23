@@ -5,7 +5,7 @@ Created on Dec 6, 2021
 '''
 import random
 from com.tao.py.rl.kernel.Action import Action
-class AgentPolicy1(object):
+class AgentPolicy2(object):
     '''
     classdocs
     '''
@@ -27,22 +27,13 @@ class AgentPolicy1(object):
         if prob<self.epsilon:
             idx=random.randint(0, len(actionIdices)-1)
             return idx,actionIdices[idx]
-                
-        maxQ=float('-inf')
-        maxIdx=0
-        idx=-1
-        
+
         '''
-        all actions q values
+        actual actions q value
         '''
-        qvalues=self.agent.calQValue(state.getData()) 
-        for qvalue in qvalues[0]:
-            idx+=1
-            if idx not in  actionIdices:
-                continue
-            if(qvalue>maxQ):
-                maxQ=qvalue
-                maxIdx=idx
+        pairs=[(state.getData()[0],action.getData()[0]) for action in actions]
+        qvalues=self.agent.eval(pairs)
+        maxIdx=qvalues.index(max(qvalues))
             
      
-        return actionIdices.index(maxIdx),maxIdx
+        return maxIdx,actionIdices[maxIdx]

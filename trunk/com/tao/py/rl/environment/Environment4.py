@@ -146,18 +146,25 @@ class SimEnvironment4(SimEnvironment3):
     
     def saveSpec(self,path): 
         with open(path, 'wb') as file:
-            self.environmentSpec.save(pickle, file);
-            pickle.dump(self.actionFeatureDiscretSize, file)
-            pickle.dump(self.featureSplitSize, file)
-            pickle.dump(self.actionNum, file)
-            pickle.dump(self.allactions, file)
-            
+            self.saveSpecInner(pickle, file);
+ 
+
+    def saveSpecInner(self,pickle, file): 
+
+        self.environmentSpec.save(pickle, file);
+        pickle.dump(self.actionFeatureDiscretSize, file)
+        pickle.dump(self.featureSplitSize, file)
+        pickle.dump(self.actionNum, file)
+        pickle.dump(self.allactions, file)            
             
     def loadSpec(self,path):
         self.environmentSpec=TrainDataset(None)
         with open(path, 'rb') as file:
-            self.environmentSpec.load(pickle, file)
-            self.actionFeatureDiscretSize=pickle.load(file)
-            self.featureSplitSize=pickle.load(file)
-            self.actionNum=pickle.load(file)
-            self.allactions=pickle.load(file)            
+            self.loadSpecInner(pickle, file)
+           
+    def loadSpecInner(self,pickle, file):
+        self.environmentSpec.load(pickle, file)
+        self.actionFeatureDiscretSize=pickle.load(file)
+        self.featureSplitSize=pickle.load(file)
+        self.actionNum=pickle.load(file)
+        self.allactions=pickle.load(file)            

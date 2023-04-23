@@ -68,16 +68,16 @@ class SimEnvironment2(SimEnvironment0):
     
     def collectOneStepData(self): 
 
-        idxInActualActionSet,idxInFullActionSet=self.policy.getAction(self.state,self.getActions())
+        idxInActualActionSet,idxInFullActionSet=self.policy.getAction(self.getState(),self.getActions())
         #self.action=idxInFullActionSet
         
-        trainData=TrainDataItem(self.state,self.actions[idxInActualActionSet],0,None,None)
+        trainData=TrainDataItem(self.getState(),self.getActions()[idxInActualActionSet],0,None,None)
 
         self.takeAction(idxInFullActionSet)
 
         trainData.reward=self.reward        
-        trainData.nextState=self.state
-        trainData.nextActions=self.actions
+        trainData.nextState=self.getState()
+        trainData.nextActions=self.getActions()
 
         
         return trainData
