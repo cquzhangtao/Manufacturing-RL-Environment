@@ -21,7 +21,7 @@ class AgentPolicy1(object):
         
     def getAction(self,state,actions):
         
-        actions=[Action([self.environment.getActionIndex(action)]) for action in actions]
+        #actions=[Action([self.environment.getActionIndex(action)]) for action in actions]
         actionIdices=[feature for action in actions for feature in action.getData() ]
         prob=random.random()
         if prob<self.epsilon:

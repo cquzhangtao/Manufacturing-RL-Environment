@@ -57,6 +57,7 @@ class SimEnvironment4(SimEnvironment3):
     #   return self.queue[queueIdx]
     
     def getIdxInActualActionSet(self,actionIdx):
+        #print(self.actionIdices)
         idx=self.actionIdices.index(actionIdx)
         #print(idx)
         return idx
