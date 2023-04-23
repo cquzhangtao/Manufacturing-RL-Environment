@@ -15,9 +15,9 @@ import itertools
 class SimEnvironment4(SimEnvironment3):
 
     def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name=""):
-        super().__init__(scenario,scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=200)
+        super().__init__(scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=200)
         #self.init(10)
-        self.actionFeatureDiscretSize=12
+        self.actionFeatureDiscretSize=3
         self.featureSplitSize,self.actionNum=self.calActionNum()
         self.allactions=list(itertools.product(* self.featureSplitSize))
     
@@ -31,21 +31,26 @@ class SimEnvironment4(SimEnvironment3):
             featureSplitSize.append([])
             amax=envSpec.maxAction[idx]
             amin=envSpec.minAction[idx]
+            idenNum=envSpec.countAction[idx]
             if amax==amin:
-                featureSplitSize[idx].extend(0)
-                count*=1
+                featureSplitSize[idx].extend(range(1+2))
+                count*=1+2
+            elif idenNum<self.actionFeatureDiscretSize:
+                featureSplitSize[idx].extend(range(idenNum+2))
+                count*=idenNum+2        
+            
             else:
-                featureSplitSize[idx].extend(range(self.actionFeatureDiscretSize))
-                count*=self.actionFeatureDiscretSize
+                featureSplitSize[idx].extend(range(self.actionFeatureDiscretSize+2))
+                count*=self.actionFeatureDiscretSize+2
         
         return featureSplitSize,count
     
-    def getJobByIndex(self,actionIdx):
+    #def getJobByIndex(self,actionIdx):
         #actionIdices=[feature for action in self.actions for feature in action.getData()]
-        if actionIdx not in self.actionIdices:
-            a=0
-        queueIdx=self.actionIdices.index(actionIdx)
-        return self.queue[queueIdx]
+    #    if actionIdx not in self.actionIdices:
+    #       a=0
+    #   queueIdx=self.actionIdices.index(actionIdx)
+    #   return self.queue[queueIdx]
     
     def getIdxInActualActionSet(self,actionIdx):
         idx=self.actionIdices.index(actionIdx)
@@ -54,7 +59,7 @@ class SimEnvironment4(SimEnvironment3):
     
     def updateCurrentState(self):
         super().updateCurrentState()
-        self.actionIdices=[feature for action in self.actions for feature in action.getData()]
+        self.actionIdices=[feature for action in self.getActions() for feature in action.getData()]
     
     def getMask(self):
         
@@ -77,18 +82,24 @@ class SimEnvironment4(SimEnvironment3):
         for feature in action.getData():
             if len(self.featureSplitSize[idx])==1:
                 continue
-            
+            flen=len(self.featureSplitSize[idx])
             amin=envSpec.minAction[idx] 
             amax=envSpec.maxAction[idx]
+            idenNum=envSpec.countAction[idx]
+            uList=envSpec.uniqueAction[idx]
             avalue=feature 
             if avalue<amin:                
                 featureSplitPos[idx]=0
             elif avalue==amin:
                 featureSplitPos[idx]=1
-            elif avalue>=amax:
-                featureSplitPos[idx]=self.actionFeatureDiscretSize-1
+            elif avalue==amax:
+                featureSplitPos[idx]=flen-2
+            elif avalue>amax:
+                featureSplitPos[idx]=flen-1
+            elif idenNum<self.actionFeatureDiscretSize:
+                featureSplitPos[idx]=uList.index(avalue)+1
             else:
-                fstep=(amax-amin)/(self.actionFeatureDiscretSize-2)
+                fstep=(amax-amin)/(flen-2)
                 iidx=0
                 start=amin
                 end=start+fstep
@@ -113,11 +124,17 @@ class SimEnvironment4(SimEnvironment3):
              
     
     
-    def getActionFromJob(self,job,time):
-        action= super().getActionFromJob(job, time)
+    def getAction(self):
+        action= super().getAction()
         if self.initializing:
             return action
 
         idx=self.getActionIndex(action)
         return Action([idx])
     
+    def getActions(self):
+        actions= super().getActions()
+        if self.initializing:
+            return actions
+
+        return [Action([self.getActionIndex(action)]) for action in actions]

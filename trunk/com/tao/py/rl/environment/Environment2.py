@@ -31,9 +31,8 @@ class SimEnvironment2(SimEnvironment0):
     def start(self,policy,training=True,simListeners=[]):
 
         super().start(policy,training=training,simListeners=simListeners)
-        self.updateCurrentState() 
         self.envState=1
-    
+        self.updateCurrentState()
 
     
     def restart(self):
@@ -45,28 +44,16 @@ class SimEnvironment2(SimEnvironment0):
         self.stepCounter+=1
         
         idxInActualActionSet=self.getIdxInActualActionSet(actionIdx)
-        #self.job=self.queue[queueIdx]
-        
-        #trainData=TrainDataItem(self.state,self.actions[queueIdx],0,None,None)
         event=self.decisionEventListener.decisionMakingEvent.createDecisionMadeEvent(idxInActualActionSet)
-        #event=DecisionMadeEvent(self.time,self.tool,self.job,self.queue)
         self.decisionEventListener.decisionMakingEvent.addEventOnTop(event)
 
         self.sim.resume()
 
-        self.updateCurrentState()
-        #print(self.rep)
         self.reward=self.getRewardForStepByStep()
         self.episodTotalReward+=self.reward
-        #print(self.episodTotalReward)
-        
-        #trainData.reward=self.reward        
-        #trainData.nextState=self.state
-        #trainData.nextActions=self.actions        
-        #print(trainData)
-        
-        
-        
+       
+        self.updateCurrentState()
+
         if self.sim.getState()==3: 
             self.simResult.summarizeReplication(self.scenario.getIndex(), self.rep-1)
             print("LEAR {} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.toString(self.scenario.getIndex(), self.rep-1),self.episodTotalReward))
@@ -81,12 +68,14 @@ class SimEnvironment2(SimEnvironment0):
     
     def collectOneStepData(self): 
 
-        idxInActualActionSet,idxInFullActionSet=self.policy.getAction(self.state,self.actions)
-        self.action=idxInFullActionSet
-        trainData=TrainDataItem(self.state,self.actions[idxInActualActionSet],0,None,None)
-        self.takeAction(idxInFullActionSet)
-        trainData.reward=self.reward
+        idxInActualActionSet,idxInFullActionSet=self.policy.getAction(self.state,self.getActions())
+        #self.action=idxInFullActionSet
         
+        trainData=TrainDataItem(self.state,self.actions[idxInActualActionSet],0,None,None)
+
+        self.takeAction(idxInFullActionSet)
+
+        trainData.reward=self.reward        
         trainData.nextState=self.state
         trainData.nextActions=self.actions
 
@@ -100,11 +89,6 @@ class SimEnvironment2(SimEnvironment0):
         return actionIdx
        
     def updateCurrentState(self):
-        #self.tool=self.decisionMaking.tool;
-        #self.queue=self.decisionMaking.queue;
-        #self.time=self.decisionMaking.time
-        #self.state=self.decisionMaking.getState()
-        #self.actions=self.getActionSet()
         pass
 
         

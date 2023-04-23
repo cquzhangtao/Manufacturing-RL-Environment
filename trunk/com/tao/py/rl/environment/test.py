@@ -5,19 +5,21 @@ from com.tao.py.rl.environment.Environment4 import SimEnvironment4
 from com.tao.py.rl.agent.Agent8_n_step_saras_agg_reward import Agent8
 from com.tao.py.rl.policy.AgentPolicy import AgentPolicy
 from com.tao.py.manu import ModelFactory
+from com.tao.py.manu.stat.SimDataCollector import SimDataCollector
 
 
 def createModel():
     return ModelFactory.create1M2PModel()
-
+def createSimResultContainer():
+    return SimDataCollector()
 
 Log.addFilter("INFO")
-simConfig=SimConfig(1,100);
+simConfig=SimConfig(1,1000);
 
 scenario=Scenario(1,"S1",simConfig,createModel)
 
-environment=SimEnvironment4(scenario)
-# agent=Agent8(environment)
+environment=SimEnvironment4(scenario,createSimResultContainer)
+agent=Agent8(environment)
 # environment.policy=AgentPolicy(agent,0.2)
 # agent.prepare()
 # environment.start()

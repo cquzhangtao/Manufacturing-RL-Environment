@@ -16,6 +16,7 @@ class AgentPolicy1(object):
         '''
         self.agent=agent
         self.epsilon=epsilon
+        self.environment=agent.environment
         
     def getAction(self,state,actions):
         actionIdices=[feature for action in actions for feature in action.getData() ]
