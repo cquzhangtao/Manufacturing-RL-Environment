@@ -18,7 +18,7 @@ class AgentPolicy2(object):
         self.agent=agent
         self.epsilon=epsilon
         self.environment=agent.environment
-        self.epsilonDecay=ExponentialDecay( epsilon,decay_steps=1000,decay_rate=0.96)
+        self.epsilonDecay=ExponentialDecay( epsilon,decay_steps=2000,decay_rate=0.96)
         self.step=0
     def getAction(self,state,actions):
         self.step+=1
