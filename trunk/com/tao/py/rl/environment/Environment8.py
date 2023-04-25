@@ -97,7 +97,12 @@ class SimEnvironment8(SimEnvironment4):
         
         return stateIdx
         
-             
+    def adaptState(self,state):  
+        if self.initializing:
+            return state
+
+        idx=self.getStateIndex(state)
+        return State([idx])               
     
     
     def getState(self):

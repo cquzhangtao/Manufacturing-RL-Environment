@@ -126,8 +126,12 @@ class SimEnvironment4(SimEnvironment3):
         
         return actionIdx
         
-             
-    
+    def adaptAction(self,action):         
+        if self.initializing:
+            return action
+
+        idx=self.getActionIndex(action)
+        return Action([idx])    
     
     def getAction(self):
         action= super().getAction()

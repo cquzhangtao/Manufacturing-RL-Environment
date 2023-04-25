@@ -111,6 +111,7 @@ class SimEnvironment0(object):
 
 
         trainDataset=TrainDataset(trainDataCollector)
+
         
         while len(trainDataset.rawData)==0:
             for _ in range(repNum):
@@ -133,7 +134,10 @@ class SimEnvironment0(object):
         self.clear()
         self.initializing=False
         
-    
+    def adaptAction(self,action):         
+        return action
+    def adaptState(self,state):  
+        return state
     def getState(self):
         return self.state  
     
