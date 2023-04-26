@@ -19,7 +19,7 @@ class SimEnvironment8(SimEnvironment4):
         #self.init(10)
         
         if init_runs>0:
-            self.stateFeatureDiscretSize=3
+            self.stateFeatureDiscretSize=10
             self.stateFeatureSplitSize,self.stateNum=self.calStateNum()
             self.allStates=list(itertools.product(* self.stateFeatureSplitSize))
             print("fixed states number"+str(len(self.allStates)));
