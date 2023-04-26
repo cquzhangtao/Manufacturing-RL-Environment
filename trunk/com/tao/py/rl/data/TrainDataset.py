@@ -73,7 +73,7 @@ class TrainDataset(object):
     def calNextMaxRewardForOneStepState(self,agent,state):
         state=self.normalizeState([state.getData()])
         qvalues=agent.calQValue(state)
-        nextMaxReward=max(qvalues)
+        nextMaxReward=[max(qvalue) for qvalue in qvalues]
             
         return nextMaxReward
     
