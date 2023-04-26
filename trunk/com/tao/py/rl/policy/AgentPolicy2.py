@@ -5,6 +5,7 @@ Created on Dec 6, 2021
 '''
 import random
 from tensorflow.python.keras.optimizer_v2.learning_rate_schedule import ExponentialDecay
+import math
 class AgentPolicy2(object):
     '''
     classdocs
@@ -35,7 +36,10 @@ class AgentPolicy2(object):
         '''
         pairs=[(state.getData()[0],action.getData()[0]) for action in actions]
         qvalues=self.agent.eval(pairs)
-        maxIdx=qvalues.index(max(qvalues))
-            
-     
+        maxvalue=max(qvalues)
+        maxIdx=[idx for idx in range(len(qvalues)) if math.isnan(qvalues[idx]- maxvalue)or abs(qvalues[idx]- maxvalue)<0.0000001]
+        if len(maxIdx)==0:
+            a=0
+        #maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]    
+        maxIdx=maxIdx[0]
         return maxIdx,actionIdices[maxIdx]

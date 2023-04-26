@@ -3,6 +3,7 @@ Created on Dec 6, 2021
 
 @author: Shufang
 '''
+import random
 
 class AgentGreedyPolicy3(object):
     '''
@@ -20,6 +21,8 @@ class AgentGreedyPolicy3(object):
     def getAction(self,state,actions):
         
         probabilities=[self.agent.paiAS[state.getData()[0]][action.getData()[0]] for action in actions]
-        idx=probabilities.index(max(probabilities))
-     
+        maxProb=max(probabilities)
+        indices=[idx for idx in range(len(probabilities)) if abs(probabilities[idx]-maxProb)<0.00000001]
+        idx=indices[random.randint(0,len(indices)-1)]
+        #idx=indices[0]
         return idx,actions[idx].getData()[0]

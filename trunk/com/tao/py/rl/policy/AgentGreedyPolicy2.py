@@ -5,6 +5,7 @@ Created on Dec 6, 2021
 '''
 import random
 from com.tao.py.rl.kernel.Action import Action
+import math
 class AgentGreedyPolicy2(object):
     '''
     classdocs
@@ -31,7 +32,8 @@ class AgentGreedyPolicy2(object):
         '''
         pairs=[(stateidx,actionidx) for actionidx in actionIdices]
         qvalues=self.agent.eval(pairs)
-        maxIdx=qvalues.index(max(qvalues))
-            
-     
+        maxvalue=max(qvalues)
+        maxIdx=[idx for idx in range(len(qvalues)) if math.isnan(qvalues[idx]- maxvalue) or abs(qvalues[idx]- maxvalue)<0.00000001]
+        #maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]                
+        maxIdx=maxIdx[0]
         return maxIdx,actionIdices[maxIdx]
