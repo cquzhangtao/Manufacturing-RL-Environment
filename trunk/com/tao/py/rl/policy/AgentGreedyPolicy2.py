@@ -20,8 +20,8 @@ class AgentGreedyPolicy2(object):
         
     def getAction(self,state,actions):
         
-        stateidx=self.environment.getStateIndex(state)
-        actionIdices=[self.environment.getActionIndex(action) for action in actions]
+        stateidx=state.getData()[0]#self.environment.getStateIndex(state)
+        actionIdices=[action.getData()[0] for action in actions]
 
         
         #actions=[Action([self.environment.getActionIndex(action)]) for action in actions]

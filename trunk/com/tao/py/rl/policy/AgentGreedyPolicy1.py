@@ -19,11 +19,11 @@ class AgentGreedyPolicy1(object):
         self.environment=agent.environment
         
     def getAction(self,state,actions):
-        actions=[Action([self.environment.getActionIndex(action)]) for action in actions]
+        #actions=[Action([self.environment.getActionIndex(action)]) for action in actions]
         actionIdices=[feature for action in actions for feature in action.getData() ]
                 
         maxQ=float('-inf')
-        maxIdx=0
+        maxIdx=[]
         idx=-1
         qvalues=self.agent.calQValue(state.getData()) 
         for qvalue in qvalues[0]:
@@ -32,7 +32,9 @@ class AgentGreedyPolicy1(object):
                 continue
             if(qvalue>maxQ):
                 maxQ=qvalue
-                maxIdx=idx
-            
-     
+                maxIdx=[]
+                maxIdx.append(idx)
+            elif abs(qvalue-maxQ)<0.000000001:
+                maxIdx.append(idx)
+        maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]
         return actionIdices.index(maxIdx),maxIdx

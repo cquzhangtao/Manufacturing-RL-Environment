@@ -146,7 +146,7 @@ class TrainDataset(object):
     def normalizeState(self,listData):
 
         #datalist=[(row-self.mean)/self.std for row in listData ] 
-        datalist=[2*item-1 for item in (row/self.maxState for row in listData) ] 
+        datalist=[2*item-1 for item in (state/self.maxState for state in listData) ] 
         return numpy.vstack(datalist) 
     
     def normalizeOneStep(self,state,action):

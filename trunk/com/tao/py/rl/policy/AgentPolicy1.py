@@ -4,7 +4,6 @@ Created on Dec 6, 2021
 @author: Shufang
 '''
 import random
-from com.tao.py.rl.kernel.Action import Action
 class AgentPolicy1(object):
     '''
     classdocs
@@ -29,12 +28,11 @@ class AgentPolicy1(object):
             return idx,actionIdices[idx]
                 
         maxQ=float('-inf')
-        maxIdx=0
-        idx=-1
-        
         '''
         all actions q values
-        '''
+        '''            
+        maxIdx=[]
+        idx=-1
         qvalues=self.agent.calQValue(state.getData()) 
         for qvalue in qvalues[0]:
             idx+=1
@@ -42,7 +40,9 @@ class AgentPolicy1(object):
                 continue
             if(qvalue>maxQ):
                 maxQ=qvalue
-                maxIdx=idx
-            
-     
+                maxIdx=[]
+                maxIdx.append(idx)
+            elif abs(qvalue-maxQ)<0.000000001:
+                maxIdx.append(idx)
+        maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]
         return actionIdices.index(maxIdx),maxIdx
