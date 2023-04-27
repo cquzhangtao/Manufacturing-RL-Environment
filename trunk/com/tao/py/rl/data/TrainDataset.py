@@ -43,7 +43,12 @@ class TrainDataset(object):
     def getSize(self):
         return len(self.rawData)
     
-
+    def getOutputTarget(self,agent,start,end):
+        nextMaxReward=self.calNextMaxReward(agent,start,end)
+        qvalue=numpy.vstack(self.reward[start:end])+self.discount*numpy.vstack(nextMaxReward)
+        #actQvalue=self.getActualOutput(agent)
+        #qvalue=self.normalizeTargetOutput(qvalue)
+        return qvalue
         
     def calNextMaxReward(self,agent,start,end):
         nextMaxReward=[]
@@ -59,6 +64,12 @@ class TrainDataset(object):
             nextMaxReward.append([max(qvalue)])
             
         return nextMaxReward
+    
+    def calQValueFromInput(self,agent,inputData):
+        inputData=self.normalize(inputData)
+        return agent.eval(inputData)
+    
+
     
     def calNextMaxRewardForOneStep(self,agent,state,actions):
 
@@ -77,12 +88,7 @@ class TrainDataset(object):
             
         return nextMaxReward
     
-    def getOutputTarget(self,agent,start,end):
-        nextMaxReward=self.calNextMaxReward(agent,start,end)
-        qvalue=numpy.vstack(self.reward[start:end])+self.discount*numpy.vstack(nextMaxReward)
-        #actQvalue=self.getActualOutput(agent)
-        #qvalue=self.normalizeTargetOutput(qvalue)
-        return qvalue
+
     
     def getOutputTargetForOneStep(self,agent,reward,newState,newActions,power=1):
         nextMaxReward=self.calNextMaxRewardForOneStep(agent,newState,newActions)
@@ -227,9 +233,7 @@ class TrainDataset(object):
         qvalues=([self.calQValue(agent,nextState,nextActions[col:col+self.actionFeatureNum]) for col in range(0,len(nextActions),self.actionFeatureNum) ])
         return reward+self.discount*max(qvalues)
     
-    def calQValueFromInput(self,agent,inputData):
-        inputData=self.normalize(inputData)
-        return agent.eval(inputData)
+
     
     # def calQValue(self,agent,state,action):
     #     inputData=numpy.concatenate((state,action))
