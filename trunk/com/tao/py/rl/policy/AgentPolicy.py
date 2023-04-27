@@ -39,5 +39,6 @@ class AgentPolicy(object):
                 maxIdx.append(idx)
 
             idx+=1
-        maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]     
+        #maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]  
+        maxIdx=maxIdx[0]
         return maxIdx,maxIdx
