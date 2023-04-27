@@ -36,6 +36,6 @@ class AgentGreedyPolicy1(object):
                 maxIdx.append(idx)
             elif abs(qvalue-maxQ)<0.000000001:
                 maxIdx.append(idx)
-        #maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]
-        maxIdx=maxIdx[len(maxIdx)-1]
+        maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]
+        #maxIdx=maxIdx[len(maxIdx)-1]
         return actionIdices.index(maxIdx),maxIdx

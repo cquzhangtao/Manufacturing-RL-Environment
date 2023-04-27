@@ -23,6 +23,6 @@ class AgentGreedyPolicy3(object):
         probabilities=[self.agent.paiAS[state.getData()[0]][action.getData()[0]] for action in actions]
         maxProb=max(probabilities)
         indices=[idx for idx in range(len(probabilities)) if abs(probabilities[idx]-maxProb)<0.00000001]
-        #idx=indices[random.randint(0,len(indices)-1)]
-        idx=indices[len(indices)-1]
+        idx=indices[random.randint(0,len(indices)-1)]
+        #idx=indices[len(indices)-1]
         return idx,actions[idx].getData()[0]
