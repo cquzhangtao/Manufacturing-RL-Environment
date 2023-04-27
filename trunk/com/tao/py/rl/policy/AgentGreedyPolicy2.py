@@ -35,5 +35,5 @@ class AgentGreedyPolicy2(object):
         maxvalue=max(qvalues)
         maxIdx=[idx for idx in range(len(qvalues)) if math.isnan(qvalues[idx]- maxvalue) or abs(qvalues[idx]- maxvalue)<0.00000001]
         #maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]                
-        maxIdx=maxIdx[0]
+        maxIdx=maxIdx[len(maxIdx)-1]
         return maxIdx,actionIdices[maxIdx]
