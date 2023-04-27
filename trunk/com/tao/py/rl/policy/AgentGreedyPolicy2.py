@@ -4,7 +4,6 @@ Created on Dec 6, 2021
 @author: Shufang
 '''
 import random
-from com.tao.py.rl.kernel.Action import Action
 import math
 class AgentGreedyPolicy2(object):
     '''
@@ -18,6 +17,7 @@ class AgentGreedyPolicy2(object):
         '''
         self.agent=agent
         self.environment=agent.environment
+        self.tiesBreakConstant=False
         
     def getAction(self,state,actions):
         
@@ -34,6 +34,9 @@ class AgentGreedyPolicy2(object):
         qvalues=self.agent.eval(pairs)
         maxvalue=max(qvalues)
         maxIdx=[idx for idx in range(len(qvalues)) if math.isnan(qvalues[idx]- maxvalue) or abs(qvalues[idx]- maxvalue)<0.00000001]
-        maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]                
-        #maxIdx=maxIdx[len(maxIdx)-1]
+        if self.tiesBreakConstant:
+            maxIdx=maxIdx[0]
+                         
+        else:
+            maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)] 
         return maxIdx,actionIdices[maxIdx]

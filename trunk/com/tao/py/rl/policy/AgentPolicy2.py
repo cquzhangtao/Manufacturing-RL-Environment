@@ -21,6 +21,7 @@ class AgentPolicy2(object):
         self.environment=agent.environment
         self.epsilonDecay=ExponentialDecay( epsilon,decay_steps=2000,decay_rate=0.96)
         self.step=0
+        self.tiesBreakConstant=False
     def getAction(self,state,actions):
         self.step+=1
         #actions=[Action([self.environment.getActionIndex(action)]) for action in actions]
@@ -38,6 +39,10 @@ class AgentPolicy2(object):
         qvalues=self.agent.eval(pairs)
         maxvalue=max(qvalues)
         maxIdx=[idx for idx in range(len(qvalues)) if math.isnan(qvalues[idx]- maxvalue)or abs(qvalues[idx]- maxvalue)<0.0000001]
-        maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]    
-        #maxIdx=maxIdx[len(maxIdx)-1]
+        
+        if self.tiesBreakConstant:
+            maxIdx=maxIdx[0]
+        else:
+            maxIdx=maxIdx[random.randint(0,len(maxIdx)-1)]    
+        
         return maxIdx,actionIdices[maxIdx]
