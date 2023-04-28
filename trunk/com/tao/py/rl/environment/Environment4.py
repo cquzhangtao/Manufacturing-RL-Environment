@@ -14,7 +14,7 @@ from com.tao.py.rl.data.TrainDataset import TrainDataset
 
 class SimEnvironment4(SimEnvironment3):
 
-    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=200):
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=100):
         super().__init__(scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=init_runs)
         #self.init(10)
         

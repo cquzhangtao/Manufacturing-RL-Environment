@@ -14,7 +14,7 @@ from com.tao.py.rl.kernel.State import State
 
 class SimEnvironment8(SimEnvironment4):
 
-    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=200):
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=100):
         super().__init__(scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=init_runs)
         #self.init(10)
         

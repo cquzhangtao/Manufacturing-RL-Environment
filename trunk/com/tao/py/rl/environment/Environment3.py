@@ -14,7 +14,7 @@ from com.tao.py.manu.event.JobDepartureEvent import JobDepartureEvent
 
 class SimEnvironment3(SimEnvironment2,SimEventListener):
 
-    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=5):
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=100):
         self.jobs=[]
         self.steps=[]
         self.supportNStep=True

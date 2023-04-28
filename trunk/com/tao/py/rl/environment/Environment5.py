@@ -20,7 +20,7 @@ from com.tao.py.manu.experiment.RewardCalculator import WIPReward
 class SimEnvironment5(SimEnvironment4,PyEnvironment):
 
     def __init__(self,scenario,rewardCalculator=WIPReward(),name=""):
-        super().__init__(scenario,rewardCalculator=rewardCalculator,name=name)
+        super().__init__(scenario,rewardCalculator=rewardCalculator,name=name,init_runs=100)
         self.supportNStep=False
         envSpec=self.environmentSpec
         self.kpiNum=2

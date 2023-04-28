@@ -11,7 +11,7 @@ from com.tao.py.rl.data.TrainDataItem import TrainDataItem
 
 class SimEnvironment2(SimEnvironment0):
 
-    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=5):
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=100):
         self.policy=None
         self.stepCounter=0
         self.envState=0

@@ -16,7 +16,7 @@ from com.tao.py.rl.policy.RandomPolicy import RandomPolicy
 
 class SimEnvironment0(object):
 
-    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=5):
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=100):
         self.name=name
         
         
