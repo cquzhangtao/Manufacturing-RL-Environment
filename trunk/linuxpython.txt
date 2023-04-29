@@ -1,0 +1,145 @@
+export LD_LIBRARY_PATH="/home/i11etazh/i11etazh/program/scons/lib:/home/i11etazh/i11etazh/program/serf/lib:/home/i11etazh/i11etazh/program/lz4/lib:/home/i11etazh/i11etazh/program/apruti/lib:/home/i11etazh/i11etazh/program/apr/lib:/home/i11etazh/i11etazh/program/termcap/lib:/home/i11etazh/i11etazh/program/readline/lib:/home/i11etazh/i11etazh/program/libffi/lib64:/home/i11etazh/i11etazh/program/libffi/lib:/home/i11etazh/i11etazh/program/ssl/lib64":$LD_LIBRARY_PATH
+
+
+export PATH=/home/i11etazh/i11etazh/program/svn/bin:/home/i11etazh/i11etazh/program/python/bin:/home/i11etazh/i11etazh/program/scons/bin:$PATH
+
+/home/i11etazh/python/src/scons.py
+
+/home/i11etazh/i11etazh/program/python/lib/python3.11/site-packages
+
+scons PREFIX=/home/i11etazh/i11etazh/program/serf
+
+
+scons APR=/home/i11etazh/i11etazh/program/apr APU=/home/i11etazh/i11etazh/program/apruti OPENSSL=/home/i11etazh/i11etazh/program/ssl CFLAGS="-L/home/i11etazh/i11etazh/program/ssl/lib64" LINKFLAGS="" LIBS="" PREFIX=/home/i11etazh/i11etazh/program/serf
+
+mv -v /home/i11etazh/i11etazh/program/scons/lib/python3.11/site-packages/SCons-4.5.2-py3.11.egg/*.1   
+
+mv -v *.1   /home/i11etazh/i11etazh/program/scons/share/man/man1
+
+python3 setup.py install --prefix=/home/i11etazh/i11etazh/program/scons  --optimize=1
+
+
+ln -s scons.py scons 
+
+sed -i "/Append/s:RPATH=libdir,::"          SConstruct &&
+sed -i "/Default/s:lib_static,::"           SConstruct &&
+sed -i "/Alias/s:install_static,::"         SConstruct &&
+sed -i "/  print/{s/print/print(/; s/$/)/}" SConstruct &&
+sed -i "/get_contents()/s/,/.decode()&/"    SConstruct &&
+scons PREFIX=/home/i11etazh/i11etazh/program/serf
+
+/home/i11etazh/i11etazh/program/ssl/lib
+cd /home/i11etazh/i11etazh/program/libffi/include
+cd /home/i11etazh/python/src/Python-3.11.3/Modules
+
+tar xzvf file.tar.gz
+tar -xf archive.tar.bz2
+
+https://www.linuxfromscratch.org/blfs/view/svn/basicnet/serf.html
+
+
+ ./configure CFLAGS="-I/home/i11etazh/i11etazh/program/serf/include -I/home/i11etazh/i11etazh/program/termcap/include -I/home/i11etazh/i11etazh/program/readline/include -I/home/i11etazh/i11etazh/program/ssl/include -I/home/i11etazh/i11etazh/program/libffi/include" LDFLAGS="-L/home/i11etazh/i11etazh/program/serf/lib -L/home/i11etazh/i11etazh/program/termcap/lib -L/home/i11etazh/i11etazh/program/readline/lib  -L/home/i11etazh/i11etazh/program/ssl/lib64 -L/home/i11etazh/i11etazh/program/libffi/lib64 -L/home/i11etazh/i11etazh/program/libffi/lib" --prefix=/home/i11etazh/i11etazh/program/python --with-openssl=/home/i11etazh/i11etazh/program/ssl
+
+ LLIBDIR
+--with-system-ffi
+LIBFFI_INCLUDEDIR
+# Thomas Heller's _ctypes module
+
+make install prefix=/home/i11etazh/i11etazh/program/lz4
+
+make install --prefix=/home/i11etazh/i11etazh/program/serf
+
+ ./configure --prefix=/home/i11etazh/i11etazh/program/termcap
+ ./configure --prefix=/home/i11etazh/i11etazh/program/apr
+ ./configure --prefix=/home/i11etazh/i11etazh/program/lz4
+ ./configure CFLAGS="-I/home/i11etazh/i11etazh/program/apr/include" LDFLAGS="-L/home/i11etazh/i11etazh/program/apr/lib" --prefix=/home/i11etazh/i11etazh/program/apruti  --with-apr=/home/i11etazh/i11etazh/program/apr
+
+ ./configure CFLAGS="-I/home/i11etazh/i11etazh/program/serf/include -I/home/i11etazh/i11etazh/program/lz4/include -I/home/i11etazh/i11etazh/program/apruti/include -I/home/i11etazh/i11etazh/program/apr/include" LDFLAGS="-L/home/i11etazh/i11etazh/program/serf/lib -L/home/i11etazh/i11etazh/program/lz4/lib -L/home/i11etazh/i11etazh/program/apr/lib -L/home/i11etazh/i11etazh/program/apruti/lib"  --with-apr=/home/i11etazh/i11etazh/program/apr --with-apr-util=/home/i11etazh/i11etazh/program/apruti --with-utf8proc=internal --with-serf=/home/i11etazh/i11etazh/program/serf --prefix=/home/i11etazh/i11etazh/program/svn 
+
+chmod +x
+
+TC__INCLUDES=-I/home/i11etazh/i11etazh/program/termcap/include
+TC_LDFLAGS=-L/home/i11etazh/i11etazh/program/termcap/lib
+
+$(TC_INCLUDES) $(TC_LDFLAGS)
+
+----------------------------------------------------------------------
+Libraries have been installed in:
+   /home/i11etazh/i11etazh/program/libffi/lib/../lib64
+
+If you ever happen to want to link against installed libraries
+in a given directory, LIBDIR, you must either use libtool, and
+specify the full pathname of the library, or use the '-LLIBDIR'
+flag during linking and do at least one of the following:
+   - add LIBDIR to the 'LD_LIBRARY_PATH' environment variable
+     during execution
+   - add LIBDIR to the 'LD_RUN_PATH' environment variable
+     during linking
+   - use the '-Wl,-rpath -Wl,LIBDIR' linker flag
+   - have your system administrator add LIBDIR to '/etc/ld.so.conf'
+
+See any operating system documentation about shared libraries for
+more information, such as the ld(1) and ld.so(8) manual pages.
+----------------------------------------------------------------------
+
+
+gcc -pthread -shared -L/home/i11etazh/i11etazh/program/termcap/lib -L/home/i11etazh/i11etazh/program/readline/lib -L/home/i11etazh/i11etazh/program/ssl/lib64 -L/home/i11etazh/i11etazh/program/libffi/lib64 build/temp.linux-x86_64-3.11/home/i11etazh/python/src/Python-3.11.3/Modules/_ctypes/_ctypes.o build/temp.linux-x86_64-3.11/home/i11etazh/python/src/Python-3.11.3/Modules/_ctypes/callbacks.o build/temp.linux-x86_64-3.11/home/i11etazh/python/src/Python-3.11.3/Modules/_ctypes/callproc.o build/temp.linux-x86_64-3.11/home/i11etazh/python/src/Python-3.11.3/Modules/_ctypes/cfield.o build/temp.linux-x86_64-3.11/home/i11etazh/python/src/Python-3.11.3/Modules/_ctypes/stgdict.o -L/home/i11etazh/i11etazh/program/python/lib -L/home/i11etazh/i11etazh/program/termcap/lib -L/home/i11etazh/i11etazh/program/readline/lib -L/home/i11etazh/i11etazh/program/ssl/lib64 -L/home/i11etazh/i11etazh/program/libffi/lib64 -L/home/i11etazh/i11etazh/program/libffi/lib -L/usr/local/lib -ldl -o build/lib.linux-x86_64-3.11/_ctypes.cpython-311-x86_64-linux-gnu.so
+
+gcc -pthread -shared 
+build/temp.linux-x86_64-3.11/home/i11etazh/python/src/Python-3.11.3/Modules/_ctypes/_ctypes.o 
+build/temp.linux-x86_64-3.11/home/i11etazh/python/src/Python-3.11.3/Modules/_ctypes/callbacks.o 
+build/temp.linux-x86_64-3.11/home/i11etazh/python/src/Python-3.11.3/Modules/_ctypes/callproc.o 
+build/temp.linux-x86_64-3.11/home/i11etazh/python/src/Python-3.11.3/Modules/_ctypes/cfield.o 
+build/temp.linux-x86_64-3.11/home/i11etazh/python/src/Python-3.11.3/Modules/_ctypes/stgdict.o 
+-L/home/i11etazh/i11etazh/program/python/lib 
+-L/usr/local/lib -ldl 
+-o build/lib.linux-x86_64-3.11/_ctypes.cpython-311-x86_64-linux-gnu.so
+
+https://unix.stackexchange.com/questions/631725/how-do-i-build-pkgconf-and-libffi-and-subsequently-python3-9-with-ctypes-support
+
+*** WARNING: renaming "_ctypes" since importing it failed: /home/i11etazh/python/src/Python-3.11.3/build/lib.linux-x86_64-3.11/_ctypes.cpython-311-x86_64-linux-gnu.so: undefined symbol: ffi_type_void
+
+*** WARNING: renaming "_ctypes" since importing it failed: /home/i11etazh/python/src/Python-3.11.3/build/lib.linux-x86_64-3.11/_ctypes.cpython-311-x86_64-linux-gnu.so: undefined symbol: ffi_type_void
+
+The necessary bits to build these optional modules were not found:
+_curses               _curses_panel         _dbm
+_gdbm                 _lzma                 _tkinter
+_uuid                 readline
+To find the necessary bits, look in setup.py in detect_modules() for the module's name.
+
+
+The following modules found by detect_modules() in setup.py, have been
+built by the Makefile instead, as configured by the Setup files:
+_hashlib              _ssl
+
+
+The following modules found by detect_modules() in setup.py have not
+been built, they are *disabled* by configure:
+_sqlite3
+
+
+Following modules built successfully but were removed because they could not be imported:
+_ctypes
+
+
+configure: Apache Portable Runtime (APR) library configuration
+checking for APR... no
+configure: WARNING: APR not found
+The Apache Portable Runtime (APR) library cannot be found.
+Please install APR on this system and configure Subversion
+with the appropriate --with-apr option.
+
+You probably need to do something similar with the Apache
+Portable Runtime Utility (APRUTIL) library and then configure
+Subversion with both the --with-apr and --with-apr-util options.
+
+configure: error: no suitable APR found
+i11etazh@hpc-login:~/python/src/subversion-1.14.2> ./get-deps.sh
+
+If you require mod_dav_svn, the recommended version of httpd is:
+   https://archive.apache.org/dist/httpd/httpd-2.4.10.tar.bz2
+
+If you require apr-iconv, its recommended version is:
+   https://archive.apache.org/dist/apr/apr-iconv-1.2.1.tar.bz2
+i11etazh@hpc-login:~/python/src/subversion-1.14.2>
+
