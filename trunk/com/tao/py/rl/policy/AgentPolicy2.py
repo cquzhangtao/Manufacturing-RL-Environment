@@ -19,7 +19,7 @@ class AgentPolicy2(object):
         self.agent=agent
         self.epsilon=epsilon
         self.environment=agent.environment
-        self.epsilonDecay=ExponentialDecay( epsilon,decay_steps=2000,decay_rate=0.96)
+        self.epsilonDecay=ExponentialDecay( epsilon,decay_steps=agent.epochs,decay_rate=0.4)
         self.step=0
         self.tiesBreakConstant=False
     def getAction(self,state,actions):
@@ -28,7 +28,8 @@ class AgentPolicy2(object):
         actionIdices=[feature for action in actions for feature in action.getData() ]
         prob=random.random()
         #print(self.epsilonDecay(self.step))
-        if prob<self.epsilonDecay(self.step):
+        #if prob<self.epsilonDecay(self.step):
+        if prob<self.epsilon:
             idx=random.randint(0, len(actionIdices)-1)
             return idx,actionIdices[idx]
 

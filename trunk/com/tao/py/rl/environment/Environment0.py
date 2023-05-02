@@ -170,10 +170,10 @@ class SimEnvironment0(object):
     
     def drawKPICurve(self): 
         _, ax1 = plt.subplots()
-        ax1.plot(self.kpi)
+        ax1.scatter(range(len(self.kpi)),self.kpi)
         plt.title("Avg CT over replications")
         plt.xlabel("Replication")
         plt.ylabel("Avg CT")
         _, ax2 = plt.subplots()
-        ax2.plot(self.allEpisodTotalReward)
+        ax2.scatter(range(len(self.kpi)),self.allEpisodTotalReward)
         plt.show()
