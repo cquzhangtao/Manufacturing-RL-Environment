@@ -168,12 +168,43 @@ class SimEnvironment0(object):
         with open(path, 'rb') as file:
             self.environmentSpec.load(pickle, file)
     
+    
+    def split(self,list_a, chunk_size):
+        splits=[]
+        for i in range(0, len(list_a), chunk_size):
+            splits.append ( list_a[i:i + chunk_size])
+        results=[sum(chunk)/len(chunk) for chunk in splits]
+        return results
+    
     def drawKPICurve(self): 
-        _, ax1 = plt.subplots()
-        ax1.scatter(range(len(self.kpi)),self.kpi)
+        
+        plt.figure(figsize = (12,6))
+        plt.subplot(221)
+        plt.scatter(range(len(self.kpi)),self.kpi)
         plt.title("Avg CT over replications")
         plt.xlabel("Replication")
         plt.ylabel("Avg CT")
-        _, ax2 = plt.subplots()
-        ax2.scatter(range(len(self.kpi)),self.allEpisodTotalReward)
+ 
+        plt.subplot(222)
+        plt.scatter(range(len(self.kpi)),self.allEpisodTotalReward)
+        plt.title("Avg Reward over replications")
+        plt.xlabel("Replication")
+        plt.ylabel("Avg Reward")
+
+        
+        chunks=self.split(self.kpi,50)
+        plt.subplot(223)
+        plt.plot(range(len(chunks)),chunks)
+        plt.title("Avg CT over replications")
+        plt.xlabel("Replication")
+        plt.ylabel("Avg CT")
+
+        
+        chunks=self.split(self.allEpisodTotalReward,50)
+        plt.subplot(224)
+        plt.plot(range(len(chunks)),chunks)
+        plt.title("Avg Reward over replications")
+        plt.xlabel("Replication")
+        plt.ylabel("Avg Reward")
         plt.show()
+        

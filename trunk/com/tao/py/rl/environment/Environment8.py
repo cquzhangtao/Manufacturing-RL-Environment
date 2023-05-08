@@ -24,7 +24,17 @@ class SimEnvironment8(SimEnvironment4):
             self.allStates=list(itertools.product(* self.stateFeatureSplitSize))
             print("fixed states number"+str(len(self.allStates)));
             print(self.allStates)
+            self.calStateCumProduct()
             
+            
+    def calStateCumProduct(self):
+        self.stateCumProduct=[1]*len(self.stateFeatureSplitSize)
+        for idx in range(len(self.stateFeatureSplitSize)-2,-1,-1):
+            self.stateCumProduct[idx]=len(self.stateFeatureSplitSize[idx+1])*self.stateCumProduct[idx+1]
+            
+    
+    
+    
     def calStateNum(self):
         envSpec=self.environmentSpec
         stateFeatureNum=envSpec.stateFeatureNum
@@ -37,15 +47,15 @@ class SimEnvironment8(SimEnvironment4):
             amin=envSpec.minState[idx]
             idenNum=envSpec.countState[idx]
             if amax==amin:
-                featureSplitSize[idx].extend(range(1+2))
-                count*=1+2
+                featureSplitSize[idx].extend(range(1+0))
+                count*=1+0
             elif idenNum<self.stateFeatureDiscretSize:
-                featureSplitSize[idx].extend(range(idenNum+2))
-                count*=idenNum+2        
+                featureSplitSize[idx].extend(range(idenNum+0))
+                count*=idenNum+0        
             
             else:
-                featureSplitSize[idx].extend(range(self.stateFeatureDiscretSize+2))
-                count*=self.stateFeatureDiscretSize+2
+                featureSplitSize[idx].extend(range(self.stateFeatureDiscretSize+0))
+                count*=self.stateFeatureDiscretSize+0
         
         return featureSplitSize,count
             
@@ -68,15 +78,15 @@ class SimEnvironment8(SimEnvironment4):
             if avalue<amin:                
                 featureSplitPos[idx]=0
             elif avalue==amin:
-                featureSplitPos[idx]=1
+                featureSplitPos[idx]=0
             elif avalue==amax:
-                featureSplitPos[idx]=flen-2 
+                featureSplitPos[idx]=flen-1 
             elif avalue>amax:
                 featureSplitPos[idx]=flen-1
             elif idenNum<self.stateFeatureDiscretSize:
-                featureSplitPos[idx]=uList.index(avalue)+1
+                featureSplitPos[idx]=uList.index(avalue)+0
             else:
-                fstep=(amax-amin)/(flen-2)
+                fstep=(amax-amin)/(flen-0)
                 iidx=0
                 start=amin
                 end=start+fstep
@@ -88,13 +98,17 @@ class SimEnvironment8(SimEnvironment4):
                     end=start+fstep
                     
 
-                featureSplitPos[idx]= iidx+1             
+                featureSplitPos[idx]= iidx+0             
             
             idx+=1
             
-        stateIdx=self.allStates.index(tuple(featureSplitPos))
+        stateIdx=0
         
-        
+        idx=0
+        for pos in featureSplitPos:
+            stateIdx+=pos*self.stateCumProduct[idx]
+            idx+=1
+               
         return stateIdx
         
     def adaptState(self,state):  

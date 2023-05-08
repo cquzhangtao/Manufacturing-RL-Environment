@@ -24,6 +24,15 @@ class SimEnvironment4(SimEnvironment3):
             self.allactions=list(itertools.product(* self.featureSplitSize))
             print("fixed action number"+str(len(self.allactions)));
             print(self.allactions)
+            self.calActionCumProduct()
+            
+            
+    def calActionCumProduct(self):
+        self.actionCumProduct=[1]*len(self.featureSplitSize)
+        for idx in range(len(self.featureSplitSize)-2,-1,-1):
+            self.actionCumProduct[idx]=len(self.featureSplitSize[idx+1])*self.actionCumProduct[idx+1]
+            
+    
             
     def calActionNum(self):
         envSpec=self.environmentSpec
@@ -37,15 +46,15 @@ class SimEnvironment4(SimEnvironment3):
             amin=envSpec.minAction[idx]
             idenNum=envSpec.countAction[idx]
             if amax==amin:
-                featureSplitSize[idx].extend(range(1+2))
-                count*=1+2
+                featureSplitSize[idx].extend(range(1+0))
+                count*=1+0
             elif idenNum<self.actionFeatureDiscretSize:
-                featureSplitSize[idx].extend(range(idenNum+2))
-                count*=idenNum+2        
+                featureSplitSize[idx].extend(range(idenNum+0))
+                count*=idenNum+0        
             
             else:
-                featureSplitSize[idx].extend(range(self.actionFeatureDiscretSize+2))
-                count*=self.actionFeatureDiscretSize+2
+                featureSplitSize[idx].extend(range(self.actionFeatureDiscretSize+0))
+                count*=self.actionFeatureDiscretSize+0
         
         return featureSplitSize,count
     
@@ -96,15 +105,15 @@ class SimEnvironment4(SimEnvironment3):
             if avalue<amin:                
                 featureSplitPos[idx]=0
             elif avalue==amin:
-                featureSplitPos[idx]=1
+                featureSplitPos[idx]=0
             elif avalue==amax:
-                featureSplitPos[idx]=flen-2
+                featureSplitPos[idx]=flen-1
             elif avalue>amax:
                 featureSplitPos[idx]=flen-1
             elif idenNum<self.actionFeatureDiscretSize:
-                featureSplitPos[idx]=uList.index(avalue)+1
+                featureSplitPos[idx]=uList.index(avalue)
             else:
-                fstep=(amax-amin)/(flen-2)
+                fstep=(amax-amin)/(flen-0)
                 iidx=0
                 start=amin
                 end=start+fstep
@@ -116,13 +125,15 @@ class SimEnvironment4(SimEnvironment3):
                     end=start+fstep
                     
 
-                featureSplitPos[idx]= iidx+1             
+                featureSplitPos[idx]= iidx+0             
             
             idx+=1
             
-        actionIdx=self.allactions.index(tuple(featureSplitPos))
-        
-        #print(str(action)+" "+str(actionIdx))
+        idx=0
+        actionIdx=0
+        for pos in featureSplitPos:
+            actionIdx+=pos*self.actionCumProduct[idx]
+            idx+=1
         
         return actionIdx
         
