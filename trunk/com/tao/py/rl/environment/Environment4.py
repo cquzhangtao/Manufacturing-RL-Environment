@@ -170,7 +170,8 @@ class SimEnvironment4(SimEnvironment3):
         pickle.dump(self.actionFeatureDiscretSize, file)
         pickle.dump(self.featureSplitSize, file)
         pickle.dump(self.actionNum, file)
-        pickle.dump(self.allactions, file)            
+        pickle.dump(self.allactions, file)   
+        pickle.dump(self.actionCumProduct, file)          
             
     def loadSpec(self,path):
         self.environmentSpec=TrainDataset(None)
@@ -182,4 +183,5 @@ class SimEnvironment4(SimEnvironment3):
         self.actionFeatureDiscretSize=pickle.load(file)
         self.featureSplitSize=pickle.load(file)
         self.actionNum=pickle.load(file)
-        self.allactions=pickle.load(file)            
+        self.allactions=pickle.load(file)
+        self.actionCumProduct=pickle.load(file)        

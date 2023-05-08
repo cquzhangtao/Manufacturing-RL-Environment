@@ -135,6 +135,7 @@ class SimEnvironment8(SimEnvironment4):
             pickle.dump(self.stateFeatureSplitSize, file)
             pickle.dump(self.stateNum, file)
             pickle.dump(self.allStates, file)
+            pickle.dump(self.stateCumProduct, file)
             
             
     def loadSpec(self,path):
@@ -144,4 +145,5 @@ class SimEnvironment8(SimEnvironment4):
             self.stateFeatureDiscretSize=pickle.load(file)
             self.stateFeatureSplitSize=pickle.load(file)
             self.stateNum=pickle.load(file)
-            self.allStates=pickle.load(file)            
+            self.allStates=pickle.load(file)   
+            self.stateCumProduct=pickle.load(file)         
