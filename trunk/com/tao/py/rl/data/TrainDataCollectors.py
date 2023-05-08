@@ -38,7 +38,7 @@ class TrainDataCollectors(SimEventListener):
                 self.collectors[scenario][rep]=TrainDataCollector(self.environment)
                 self.dataset.append(self.collectors[scenario][rep].getDataset())
             subCollector=self.collectors[scenario][rep]
-            subCollector.onDecisionMade()
+            subCollector.onDecisionMade(event)
                 
     def getDataset(self): 
         return  self.dataset  

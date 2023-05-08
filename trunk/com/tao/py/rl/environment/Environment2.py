@@ -71,13 +71,14 @@ class SimEnvironment2(SimEnvironment0):
         idxInActualActionSet,idxInFullActionSet=self.policy.getAction(self.getState(),self.getActions())
         #self.action=idxInFullActionSet
         
-        trainData=TrainDataItem(self.getState(),self.getActions()[idxInActualActionSet],0,None,None)
+        trainData=TrainDataItem(self.sim.time,self.getState(),self.getActions()[idxInActualActionSet],0,None,None)
 
         self.takeAction(idxInFullActionSet)
 
         trainData.reward=self.reward        
         trainData.nextState=self.getState()
         trainData.nextActions=self.getActions()
+        
 
         
         return trainData

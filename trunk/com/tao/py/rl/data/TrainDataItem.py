@@ -12,7 +12,7 @@ class TrainDataItem(object):
     '''
 
 
-    def __init__(self, state,action,reward,nextState,nextActions):
+    def __init__(self,time, state,action,reward,nextState,nextActions):
         '''
         Constructor
         '''
@@ -21,6 +21,7 @@ class TrainDataItem(object):
         self.reward=reward
         self.nextActions=nextActions
         self.nextState=nextState
+        self.time=time
         
     def getState(self):
         return self.state
@@ -29,7 +30,7 @@ class TrainDataItem(object):
         return self.action
     
     def __str__(self):
-        return "S[{}]====a[{}]====r[{:.2f}]====S'[{}]====A'[{}]".format(self.state.__str__(),self.action.__str__(),self.reward,self.nextState.__str__(),";".join(["a{}[{}]".format(idx,action.__str__()) for idx,action in enumerate(self.nextActions)]))
+        return "{}===S[{}]====a[{}]====r[{:.2f}]====S'[{}]====A'[{}]".format(self.time,self.state.__str__(),self.action.__str__(),self.reward,self.nextState.__str__(),";".join(["a{}[{}]".format(idx,action.__str__()) for idx,action in enumerate(self.nextActions)]))
     
     def flatten(self):
         data=[]

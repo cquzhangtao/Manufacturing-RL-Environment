@@ -5,6 +5,8 @@ Created on Dec 6, 2021
 '''
 import random
 import math
+
+
 class AgentGreedyPolicy2(object):
     '''
     classdocs
@@ -33,7 +35,7 @@ class AgentGreedyPolicy2(object):
         pairs=[(stateidx,actionidx) for actionidx in actionIdices]
         qvalues=self.agent.eval(pairs)
         maxvalue=max(qvalues)
-        maxIdx=[idx for idx in range(len(qvalues)) if math.isnan(qvalues[idx]- maxvalue) or abs(qvalues[idx]- maxvalue)<0.00000001]
+        maxIdx=[idx for idx in range(len(qvalues)) if math.isnan(qvalues[idx]- maxvalue) or abs(qvalues[idx]- maxvalue)<0.0000001]
         if self.tiesBreakConstant:
             maxIdx=maxIdx[0]
                          
