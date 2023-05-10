@@ -23,7 +23,6 @@ class Scenario(Entity):
         global scenarioIndex
         self.index=scenarioIndex
         scenarioIndex+=1
-        #self.rule=rule
         
     def getSimConfig(self):
         return self.simConfig

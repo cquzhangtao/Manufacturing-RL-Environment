@@ -19,7 +19,7 @@ class SimEnvironment4(SimEnvironment3):
         #self.init(10)
         
         if init_runs>0:
-            self.actionFeatureDiscretSize=3
+            self.actionFeatureDiscretSize=10
             self.featureSplitSize,self.actionNum=self.calActionNum()
             self.allactions=list(itertools.product(* self.featureSplitSize))
             print("fixed action number"+str(len(self.allactions)));
