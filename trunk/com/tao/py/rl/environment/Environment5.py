@@ -10,7 +10,7 @@ from tf_agents.specs import array_spec
 
 
 from com.tao.py.rl.environment.Environment4 import SimEnvironment4
-from com.tao.py.manu.experiment.RewardCalculator import WIPReward
+
 
 
 
@@ -19,8 +19,8 @@ from com.tao.py.manu.experiment.RewardCalculator import WIPReward
 
 class SimEnvironment5(SimEnvironment4,PyEnvironment):
 
-    def __init__(self,scenario,rewardCalculator=WIPReward(),name=""):
-        super().__init__(scenario,rewardCalculator=rewardCalculator,name=name,init_runs=100)
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=100):
+        super().__init__(scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=init_runs)
         self.supportNStep=False
         envSpec=self.environmentSpec
         self.kpiNum=2
@@ -64,7 +64,7 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         return np.array(self.state.getData()+self.getMask()+kpi, dtype=np.float32)
       
     def _reset(self): 
-        self.start()  
+        self.start(None)  
         return ts.restart(self.getObservation())
     
     def _step(self,actionIdx): 

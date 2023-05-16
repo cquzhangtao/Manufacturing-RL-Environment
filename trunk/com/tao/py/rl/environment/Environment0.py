@@ -86,7 +86,9 @@ class SimEnvironment0(object):
         
         self.policy=policy
         
-        self.model.applyPolicy(policy)
+        
+        if policy!=None:        
+            self.model.applyPolicy(policy)
     
             
         self.sim=Simulator(self.scenario.getSimConfig(),self.eventListeners)                
