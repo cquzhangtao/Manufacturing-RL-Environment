@@ -100,7 +100,7 @@ def train_eval(
 
     # Params for collect
     initial_collect_steps=1000,
-    collect_steps_per_iteration=1,
+    collect_steps_per_iteration=90,
     epsilon_greedy=0.1,
     replay_buffer_capacity=100000,
     # Params for target update
@@ -108,7 +108,7 @@ def train_eval(
     target_update_period=5,
     # Params for train
     train_steps_per_iteration=90,
-    batch_size=1,
+    batch_size=4,
     learning_rate=0.2,
     n_step_update=1,
     gamma=0.99,
@@ -117,7 +117,7 @@ def train_eval(
     use_tf_functions=False,
     # Params for eval
     num_eval_episodes=1,
-    eval_interval=180,
+    eval_interval=1800,
     # Params for checkpoints
     train_checkpoint_interval=1000,
     policy_checkpoint_interval=1000,

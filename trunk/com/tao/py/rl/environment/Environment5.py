@@ -90,5 +90,5 @@ class SimEnvironment5(SimEnvironment4,PyEnvironment):
         if self.finishedEpisode() : 
             return ts.termination(observ, reward=self.reward)
          
-        return ts.transition(observ, reward=self.reward, discount=0.5) 
+        return ts.transition(observ, reward=self.reward, discount=0.9) 
     

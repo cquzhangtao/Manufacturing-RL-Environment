@@ -56,7 +56,7 @@ class SimEnvironment2(SimEnvironment0):
 
         if self.sim.getState()==3: 
             self.simResult.summarizeReplication(self.scenario.getIndex(), self.rep-1)
-            print("LEAR {} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.toString(self.scenario.getIndex(), self.rep-1),self.episodTotalReward))
+            print("{} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.toString(self.scenario.getIndex(), self.rep-1),self.episodTotalReward))
             self.kpi.append(self.simResult.getKPI(self.scenario.getIndex(), self.rep-1))             
             self.allEpisodTotalReward.append(self.episodTotalReward)
             self.envState=2   
