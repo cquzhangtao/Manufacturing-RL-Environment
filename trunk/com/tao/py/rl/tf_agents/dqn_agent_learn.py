@@ -74,7 +74,7 @@ flags.DEFINE_string('root_dir', os.getenv('TEST_UNDECLARED_OUTPUTS_DIR'),
                     'Root directory for writing logs/summaries/checkpoints.')
 flags.DEFINE_integer('num_iterations', 100000,
                      'Total number train/eval iterations to perform.')
-flags.DEFINE_boolean('graph_compute',True,"enable graph computation")
+flags.DEFINE_boolean('graph_compute',False,"enable graph computation")
 flags.DEFINE_multi_string('gin_file', None, 'Paths to the gin-config files.')
 flags.DEFINE_multi_string('gin_param', None, 'Gin binding parameters.')
 
@@ -100,14 +100,14 @@ def train_eval(
 
     # Params for collect
     initial_collect_steps=1000,
-    collect_steps_per_iteration=90,
+    collect_steps_per_iteration=100,
     epsilon_greedy=0.1,
     replay_buffer_capacity=100000,
     # Params for target update
     target_update_tau=0.05,
     target_update_period=5,
     # Params for train
-    train_steps_per_iteration=90,
+    train_steps_per_iteration=100,
     batch_size=4,
     learning_rate=0.2,
     n_step_update=1,
@@ -143,12 +143,7 @@ def train_eval(
     
     eval_summary_writer = create_file_writer(
         eval_dir, flush_millis=summaries_flush_secs * 1000)
-    eval_metrics = [
-        #tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
-        #tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
-        #KPIsInEpisode(kpiName="CT"),
-        #KPIsInEpisode(kpiName="Reward")
-    ]
+
     
     global_step = tf.compat.v1.train.get_or_create_global_step()
     with record_if(
@@ -198,13 +193,20 @@ def train_eval(
     
         train_metrics = [
     
-            #tf_metrics.NumberOfEpisodes(),
-            #tf_metrics.EnvironmentSteps(),
-            #tf_metrics.AverageReturnMetric(),
-            #tf_metrics.AverageEpisodeLengthMetric(),
-            #NumberOfEpisodes(),
-            #KPIsInEpisode(kpiName="CT"),
-            #KPIsInEpisode(kpiName="Reward")
+            tf_metrics.NumberOfEpisodes(),
+            tf_metrics.EnvironmentSteps(),
+            tf_metrics.AverageReturnMetric(batch_size=tf_env.batch_size),
+            tf_metrics.AverageEpisodeLengthMetric(batch_size=tf_env.batch_size),
+            NumberOfEpisodes(),
+            KPIsInEpisode(kpiName="CT"),
+            KPIsInEpisode(kpiName="Reward")
+        ]
+        
+        eval_metrics = [
+            tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes,batch_size=tf_env.batch_size),
+            tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes,batch_size=tf_env.batch_size),
+            KPIsInEpisode(kpiName="CT"),
+            KPIsInEpisode(kpiName="Reward")
         ]
     
         eval_policy = tf_agent.policy
@@ -315,19 +317,19 @@ def train_eval(
                 timed_at_step = global_step.numpy()
                 time_acc = 0
             
-            # for train_metric in train_metrics[:4]:
-            #     train_metric.tf_summaries(
-            #         train_step=global_step, step_metrics=train_metrics[:2])
-            # for train_metric in train_metrics[4:]:
-            #     train_metric.tf_summaries(
-            #         train_step=global_step, step_metrics=[train_metrics[4]])            
-            #
-            # with record_if(time_step.is_last()):
-            #     rep = tf.cast(train_metrics[4].result(), tf.int64)
-            #     tf.compat.v2.summary.scalar(
-            #         name='KPIs/CT', data=time_step.observation[0][-2], step=rep)
-            #     tf.compat.v2.summary.scalar(
-            #         name='KPIs/Total reward', data=time_step.observation[0][-1], step=rep)
+            for train_metric in train_metrics[:4]:
+                train_metric.tf_summaries(
+                    train_step=global_step, step_metrics=train_metrics[:2])
+            for train_metric in train_metrics[4:]:
+                train_metric.tf_summaries(
+                    train_step=global_step, step_metrics=[train_metrics[4]])            
+            
+            with record_if(time_step.is_last()):
+                rep = tf.cast(train_metrics[4].result(), tf.int64)
+                tf.compat.v2.summary.scalar(
+                    name='KPIs/CT', data=time_step.observation[0][-2], step=rep)
+                tf.compat.v2.summary.scalar(
+                    name='KPIs/Total reward', data=time_step.observation[0][-1], step=rep)
             
             if global_step.numpy() % train_checkpoint_interval == 0:
                 train_checkpointer.save(global_step=global_step.numpy())

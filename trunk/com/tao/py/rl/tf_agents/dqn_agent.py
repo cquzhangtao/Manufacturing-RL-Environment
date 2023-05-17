@@ -115,8 +115,8 @@ class DqnAgent(tf_agent.TFAgent):
       reward_scale_factor: types.Float = 1.0,
       gradient_clipping: Optional[types.Float] = None,
       # Params for debugging
-      debug_summaries: bool = False,
-      summarize_grads_and_vars: bool = False,
+      debug_summaries: bool = True,
+      summarize_grads_and_vars: bool = True,
       train_step_counter: Optional[tf.Variable] = None,
       name: Optional[Text] = None):
     """Creates a DQN Agent.
