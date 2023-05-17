@@ -19,18 +19,32 @@ from com.tao.py.rl.environment.Environment4 import SimEnvironment4
 
 class SimEnvironment5(SimEnvironment4,PyEnvironment):
 
-    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=100):
+    def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=0):
         super().__init__(scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=init_runs)
         self.supportNStep=False
-        envSpec=self.environmentSpec
         self.kpiNum=2
+        if init_runs>0:
+            self.setEnvSpec(self)
+    
+    def setEnvSpec(self,env):
+        envSpec=env.environmentSpec
+        
+        self.actionFeatureDiscretSize=env.actionFeatureDiscretSize
+        self.featureSplitSize=env.featureSplitSize
+        self.actionNum=env.actionNum
+        self.allactions=env.allactions
+        self.actionCumProduct=env.actionCumProduct
+        self.environmentSpec=env.environmentSpec
+        
         self._observation_spec = array_spec.BoundedArraySpec(
             shape=(envSpec.stateFeatureNum+self.actionNum+self.kpiNum,), dtype=np.float32, minimum=np.append(envSpec.minState,[0]*(self.actionNum+self.kpiNum)), maximum=np.append(envSpec.maxState,[1]*(self.actionNum+self.kpiNum)),name='observation')
         self._observation_spec_no_mask = array_spec.BoundedArraySpec(
             shape=(envSpec.stateFeatureNum,), dtype=np.float32, minimum=envSpec.minState, maximum=envSpec.maxState,name='observation')
         self._action_spec = array_spec.BoundedArraySpec(
             shape=(), dtype=np.int32, minimum=0, maximum=self.actionNum-1,name='action')
-     
+        
+
+
     
     def observation_spec(self) :
         return self._observation_spec

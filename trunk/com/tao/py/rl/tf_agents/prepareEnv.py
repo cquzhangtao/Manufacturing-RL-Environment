@@ -28,22 +28,23 @@ Log.addFilter("INFO")
 def createModel():
     return ModelFactory.create1M2PModel()
 
-def createEnv(name,scenario,observe_spec,observation_spec_no_mask,action_spec):
+def createEnv(name,scenario,evalEnv):
     env=SimEnvironment5(scenario,createSimResultContainerFn,createRewardCalculatorFn,name=name)
-    env._action_spec=action_spec
-    env._observation_spec=observe_spec
-    env._observation_spec_no_mask=observation_spec_no_mask
+    #env._action_spec=action_spec
+    #env._observation_spec=observe_spec
+    #env._observation_spec_no_mask=observation_spec_no_mask
+    env.setEnvSpec(evalEnv)
 
     return env
 
 def prepare(num_parallel_environments=1):
     simConfig=SimConfig(1,1000);    
     scenario=ManuScenario(1,"S1",simConfig,createModelFn,actionFn,stateFn,actionSetFn)
-    evalEnv=SimEnvironment5(scenario,createSimResultContainerFn,createRewardCalculatorFn,name="Evalu")
+    evalEnv=SimEnvironment5(scenario,createSimResultContainerFn,createRewardCalculatorFn,name="Evalu",init_runs=100)
 
     envs=[]
     for i in range(num_parallel_environments):
-        fun=functools.partial(createEnv,"Train"+str(i),scenario,evalEnv._observation_spec,evalEnv._observation_spec_no_mask,evalEnv._action_spec)
+        fun=functools.partial(createEnv,"Train"+str(i),scenario,evalEnv)
         envs.append(fun)
     
     

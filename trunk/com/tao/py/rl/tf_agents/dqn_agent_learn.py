@@ -107,9 +107,9 @@ def train_eval(
     target_update_tau=0.05,
     target_update_period=5,
     # Params for train
-    train_steps_per_iteration=1,
+    train_steps_per_iteration=90,
     batch_size=1,
-    learning_rate=0.001,
+    learning_rate=0.2,
     n_step_update=1,
     gamma=0.99,
     reward_scale_factor=1.0,
@@ -144,17 +144,17 @@ def train_eval(
     eval_summary_writer = create_file_writer(
         eval_dir, flush_millis=summaries_flush_secs * 1000)
     eval_metrics = [
-        tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
-        tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
-        KPIsInEpisode(kpiName="CT"),
-        KPIsInEpisode(kpiName="Reward")
+        #tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
+        #tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
+        #KPIsInEpisode(kpiName="CT"),
+        #KPIsInEpisode(kpiName="Reward")
     ]
     
     global_step = tf.compat.v1.train.get_or_create_global_step()
     with record_if(
           lambda: tf.math.equal(global_step % summary_interval, 0)):
           
-        env, evalEvn, mask,envs = prepareEnv()
+        env, evalEvn, mask,envs = prepareEnv(num_parallel_environments=7)
         tf_env = tf_py_environment.TFPyEnvironment(parallel_py_environment.ParallelPyEnvironment(envs,start_serially=True))
         eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
     
@@ -198,13 +198,13 @@ def train_eval(
     
         train_metrics = [
     
-            tf_metrics.NumberOfEpisodes(),
-            tf_metrics.EnvironmentSteps(),
-            tf_metrics.AverageReturnMetric(),
-            tf_metrics.AverageEpisodeLengthMetric(),
-            NumberOfEpisodes(),
-            KPIsInEpisode(kpiName="CT"),
-            KPIsInEpisode(kpiName="Reward")
+            #tf_metrics.NumberOfEpisodes(),
+            #tf_metrics.EnvironmentSteps(),
+            #tf_metrics.AverageReturnMetric(),
+            #tf_metrics.AverageEpisodeLengthMetric(),
+            #NumberOfEpisodes(),
+            #KPIsInEpisode(kpiName="CT"),
+            #KPIsInEpisode(kpiName="Reward")
         ]
     
         eval_policy = tf_agent.policy
@@ -315,19 +315,19 @@ def train_eval(
                 timed_at_step = global_step.numpy()
                 time_acc = 0
             
-            for train_metric in train_metrics[:4]:
-                train_metric.tf_summaries(
-                    train_step=global_step, step_metrics=train_metrics[:2])
-            for train_metric in train_metrics[4:]:
-                train_metric.tf_summaries(
-                    train_step=global_step, step_metrics=[train_metrics[4]])            
-            
-            with record_if(time_step.is_last()):
-                rep = tf.cast(train_metrics[4].result(), tf.int64)
-                tf.compat.v2.summary.scalar(
-                    name='KPIs/CT', data=time_step.observation[0][-2], step=rep)
-                tf.compat.v2.summary.scalar(
-                    name='KPIs/Total reward', data=time_step.observation[0][-1], step=rep)
+            # for train_metric in train_metrics[:4]:
+            #     train_metric.tf_summaries(
+            #         train_step=global_step, step_metrics=train_metrics[:2])
+            # for train_metric in train_metrics[4:]:
+            #     train_metric.tf_summaries(
+            #         train_step=global_step, step_metrics=[train_metrics[4]])            
+            #
+            # with record_if(time_step.is_last()):
+            #     rep = tf.cast(train_metrics[4].result(), tf.int64)
+            #     tf.compat.v2.summary.scalar(
+            #         name='KPIs/CT', data=time_step.observation[0][-2], step=rep)
+            #     tf.compat.v2.summary.scalar(
+            #         name='KPIs/Total reward', data=time_step.observation[0][-1], step=rep)
             
             if global_step.numpy() % train_checkpoint_interval == 0:
                 train_checkpointer.save(global_step=global_step.numpy())
