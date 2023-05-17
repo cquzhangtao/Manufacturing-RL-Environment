@@ -111,7 +111,7 @@ def train_eval(
     batch_size=4,
     learning_rate=0.2,
     n_step_update=1,
-    gamma=0.99,
+    gamma=0.9,
     reward_scale_factor=1.0,
     gradient_clipping=None,
     use_tf_functions=False,
