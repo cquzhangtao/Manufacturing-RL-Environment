@@ -4,6 +4,7 @@ Created on Dec 1, 2021
 @author: Shufang
 '''
 import numpy 
+import math
 
 class TrainDataset(object):
     '''
@@ -37,7 +38,7 @@ class TrainDataset(object):
         self.newState=[row[self.newStateIdx:self.newActionSetIdx] for row in self.rawData]
         self.newActionSet=[row[self.newActionSetIdx:len(row)] for row in self.rawData]
         
-        self.normalizedInput=self.normalizeInput()
+        #self.normalizedInput=self.normalizeInput()
         
         #self.getTrainData()
     def getSize(self):
@@ -143,17 +144,45 @@ class TrainDataset(object):
         return self.normalize(self.input) 
     def normalize(self,listData):
         #datalist=[(row-self.mean)/self.std for row in listData ] 
+        adatalist=[]
+        for row in listData:
+            idx=0
+            items=[]
+            for item in row:
+                if self.max[idx]==self.min[idx]:
+                    items.append(0)
+                else:
+                    items.append((item-self.min[idx])/(self.max[idx]-self.min[idx])) 
+                idx+=1
+                
+            adatalist.append(items)
+        #datalist=[2*item-1 for item in (row/self.max for row in listData) ]
 
-        
-        
-        datalist=[2*item-1 for item in (row/self.max for row in listData) ] 
-        return numpy.vstack(datalist) 
+        #datalist=[(row-self.min)/(self.max-self.min) for row in listData ] 
+        return numpy.vstack(adatalist) 
     
     def normalizeState(self,listData):
 
         #datalist=[(row-self.mean)/self.std for row in listData ] 
-        datalist=[2*item-1 for item in (state/self.maxState for state in listData) ] 
-        return numpy.vstack(datalist) 
+        #datalist=[2*item-1 for item in (state/self.maxState for state in listData) ] 
+        #datalist=[(row-self.minState)/(self.maxState-self.minState) for row in listData ] 
+        #return numpy.vstack(datalist) 
+        adatalist=[]
+        for row in listData:
+            idx=0
+            items=[]
+            for item in row:
+                if self.maxState[idx]==self.minState[idx]:
+                    items.append(0)
+                else:
+                    items.append((item-self.minState[idx])/(self.maxState[idx]-self.minState[idx])) 
+                idx+=1
+                
+            adatalist.append(items)
+        #datalist=[2*item-1 for item in (row/self.max for row in listData) ]
+
+        #datalist=[(row-self.min)/(self.max-self.min) for row in listData ] 
+        return numpy.vstack(adatalist) 
     
     def normalizeOneStep(self,state,action):
         return self.normalize([state.getData()+action.getData()])

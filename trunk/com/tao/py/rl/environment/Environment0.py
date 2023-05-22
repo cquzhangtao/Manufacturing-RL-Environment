@@ -124,7 +124,7 @@ class SimEnvironment0(object):
             self.simResult.summarizeReplication(self.scenario.getIndex(),self.rep-1)
             self.kpi.append(self.simResult.getKPI(self.scenario.getIndex(),self.rep-1))
             self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])        
-            print("{},Total Reward:{:.6f}".format(self.simResult.toString(self.scenario.getIndex(),self.rep-1),self.episodTotalReward))
+            print("{}, {},Total Reward:{:.6f}".format(self.rep,self.simResult.toString(self.scenario.getIndex(),self.rep-1),self.episodTotalReward))
             self.allEpisodTotalReward.append(self.episodTotalReward)    
         
         return trainDataset

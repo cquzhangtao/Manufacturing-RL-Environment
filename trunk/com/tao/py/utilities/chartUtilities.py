@@ -1,0 +1,145 @@
+'''
+Created on May 22, 2023
+
+@author: xiesh
+'''
+import matplotlib.pyplot as plt
+import numpy
+
+hlLoss=None
+hlLR=None
+hlReward=None
+hlKPI=None
+stopChartUpdate=False
+
+def enableDynamicChart(environment,agent):
+    initChart()
+    environment.onReplicationDone=onRepDone
+    agent.onStep=onStep
+
+def on_close(event):
+    global stopChartUpdate
+    stopChartUpdate=True
+
+def initChart():
+    
+    global hlLoss,hlLR,hlKPI,hlReward
+    fig=plt.figure(figsize = (18,10))
+    
+    fig.canvas.mpl_connect('close_event', on_close)
+    
+    plt.subplot(221)
+    plt.axis([0,100,12,17])
+    hlKPI,=plt.plot([],[])
+    plt.title("Avg CT over replications")
+    plt.xlabel("Replication")
+    plt.ylabel("Avg CT")
+    
+    plt.subplot(222)
+    plt.axis([0,100,165000,170000])
+    hlReward,=plt.plot([],[])
+    plt.title("Avg Reward over replications")
+    plt.xlabel("Replication")
+    plt.ylabel("Avg Reward")
+    
+    plt.subplot(223)
+    plt.axis([0,5000,0,10000000])
+    hlLoss,=plt.plot([], [])
+    plt.title("NN loss")
+    plt.xlabel("Step")
+    plt.ylabel("Loss")
+    
+    
+    plt.subplot(224)
+    plt.axis([0,5000,0,1])
+    hlLR,=plt.plot([], [])
+    plt.title("Learning rate")
+    plt.xlabel("Step")
+    plt.ylabel("learning rate")
+    
+    plt.ion()
+    plt.show()
+    
+
+
+def onStep(step,actual,target,loss,learningRate):
+    if stopChartUpdate:
+        return
+    hlLoss.set_xdata(numpy.append(hlLoss.get_xdata(), len(hlLoss.get_xdata())))
+    hlLoss.set_ydata(numpy.append(hlLoss.get_ydata(), loss.numpy()))
+    hlLR.set_xdata(numpy.append(hlLR.get_xdata(), len(hlLR.get_xdata())))
+    hlLR.set_ydata(numpy.append(hlLR.get_ydata(), learningRate.numpy()))
+    if step % 200 ==0:
+        plt.draw()
+        plt.pause(0.1)
+        
+def onStepTabular(step,actual,target,loss,learningRate):
+    if stopChartUpdate:
+        return
+    hlLoss.set_xdata(numpy.append(hlLoss.get_xdata(), len(hlLoss.get_xdata())))
+    hlLoss.set_ydata(numpy.append(hlLoss.get_ydata(), loss))
+    hlLR.set_xdata(numpy.append(hlLR.get_xdata(), len(hlLR.get_xdata())))
+    hlLR.set_ydata(numpy.append(hlLR.get_ydata(), learningRate))
+    if step % 200 ==0:
+        plt.draw()
+        plt.pause(0.1)
+    
+def onRepDone(rep,kpi,reward):
+    if stopChartUpdate:
+        return
+    hlKPI.set_xdata(numpy.append(hlKPI.get_xdata(), len(hlKPI.get_xdata())))
+    hlKPI.set_ydata(numpy.append(hlKPI.get_ydata(), kpi))
+    hlReward.set_xdata(numpy.append(hlReward.get_xdata(), len(hlReward.get_xdata())))
+    hlReward.set_ydata(numpy.append(hlReward.get_ydata(), reward))
+    if rep % 2 ==0:
+        plt.draw()
+        plt.pause(0.1)
+
+
+def drawChart(environment,agent): 
+    
+    plt.figure(figsize = (18,10))
+    plt.subplot(321)
+    plt.scatter(range(len(environment.kpi)),environment.kpi)
+    plt.title("Avg CT over replications")
+    plt.xlabel("Replication")
+    plt.ylabel("Avg CT")
+
+    plt.subplot(322)
+    plt.scatter(range(len(environment.kpi)),environment.allEpisodTotalReward)
+    plt.title("Avg Reward over replications")
+    plt.xlabel("Replication")
+    plt.ylabel("Avg Reward")
+
+    
+    chunks=environment.split(environment.kpi,50)
+    plt.subplot(323)
+    plt.plot(range(len(chunks)),chunks)
+    plt.title("Avg CT over replications")
+    plt.xlabel("Replication")
+    plt.ylabel("Avg CT")
+
+    
+    chunks=environment.split(environment.allEpisodTotalReward,50)
+    plt.subplot(324)
+    plt.plot(range(len(chunks)),chunks)
+    plt.title("Avg Reward over replications")
+    plt.xlabel("Replication")
+    plt.ylabel("Avg Reward")
+    
+    
+    plt.subplot(325)
+    plt.scatter(range(len(agent.losses)),agent.losses)
+    plt.title("loss over step")
+    plt.xlabel("step")
+    plt.ylabel("loss")
+    
+    chunks=environment.split(agent.losses,500)    
+    plt.subplot(326)
+    plt.plot(range(len(chunks)),chunks)
+    plt.title("loss over step")
+    plt.xlabel("step")
+    plt.ylabel("loss")    
+    
+    plt.show()
+    
