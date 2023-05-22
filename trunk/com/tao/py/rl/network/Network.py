@@ -18,10 +18,10 @@ class Network(Model):
         self.stateFeatureNum=stateFeatureNum
         self.actionFeatureNum=actionFeatureNum
         #self.inputLayer=InputLayer(input_shape=(stateFeatureNum,))
-        self.layer1=Dense(5,activation='sigmoid')
-        self.layer2=Dense(5,activation='sigmoid')
-        self.layer3=Dense(actionFeatureNum)
-        self.layer4=Dense(5,activation='sigmoid')
+        self.layer1=Dense(5,activation='relu')
+        self.layer2=Dense(5,activation='relu')
+        self.layer3=Dense(actionFeatureNum+stateFeatureNum,activation='relu')
+        self.layer4=Dense(5,activation='relu')
         self.layer5=Dense(1)
         
     def call(self, inputs, training=None, mask=None):
@@ -30,13 +30,13 @@ class Network(Model):
         state=inputs[:,0:self.stateFeatureNum]
         action=inputs[:,self.stateFeatureNum:self.stateFeatureNum+self.actionFeatureNum]
         #y=self.inputLayer(state)
-        y=self.layer1(state)
-        y=self.layer2(y) 
-        y=self.layer3(y)
-        y=y*action
-        #y=self.layer4(y)
-        #qvalue=self.layer5(y)
+        x=self.layer1(state)
+        y=self.layer2(action) 
+        y=self.layer3(tf.concat([x,y],1))
+        #y=y*action
+        y=self.layer4(y)
+        qvalue=self.layer5(y)
         
-        outputs=tf.reduce_sum(y, axis=1, keepdims=True)
-        return outputs
+       # outputs=tf.reduce_sum(y, axis=1, keepdims=True)
+        return qvalue
         

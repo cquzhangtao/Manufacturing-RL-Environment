@@ -21,7 +21,7 @@ from tf_agents.utils import common
 from tensorflow.python.framework.tensor_spec import BoundedTensorSpec
 
 from com.tao.py.rl.tf_agents.prepareEnv import prepare as prepareEnv
-
+from tf_agents.environments import parallel_py_environment
 
 
 @gin.configurable
@@ -30,9 +30,9 @@ def train_eval(
     epsilon_greedy=0.1,
     target_update_tau=0.05,
     target_update_period=5,
-    learning_rate=1e-3,
+    learning_rate=0.2,
     n_step_update=1,
-    gamma=0.99,
+    gamma=0.9,
     reward_scale_factor=1.0,
     gradient_clipping=None,
     debug_summaries=False,
@@ -40,9 +40,9 @@ def train_eval(
 
 
     global_step = tf.compat.v1.train.get_or_create_global_step()
-    env, evalEvn, mask = prepareEnv()
+    env, evalEvn, mask,envs = prepareEnv()
 
-    tf_env = tf_py_environment.TFPyEnvironment(env)
+    tf_env = tf_py_environment.TFPyEnvironment(envs[0])
     
 
 
@@ -128,17 +128,18 @@ fused_lstm_cell = functools.partial(
 
 def create_feedforward_network( num_actions,env):
     net= sequential.Sequential(
-        [dense(100) ,dense(100)]
+        [dense(10) ,dense(10)]
         + [logits(num_actions)])
-    net.build((env.environmentSpec.actionFeatureNum,))
+    net.build((env.environmentSpec.stateFeatureNum,))
     print(net.summary())
     return net
 
 
-def main(_):
+def main():
     tf.compat.v1.enable_v2_behavior()
     train_eval()
 
 
 if __name__ == '__main__':
-    app.run(main)
+    #app.run(main)
+    main()

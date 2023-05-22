@@ -57,9 +57,12 @@ class SimEnvironment2(SimEnvironment0):
         if self.sim.getState()==3: 
             self.simResult.summarizeReplication(self.scenario.getIndex(), self.rep-1)
             print("{} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.toString(self.scenario.getIndex(), self.rep-1),self.episodTotalReward))
-            self.kpi.append(self.simResult.getKPI(self.scenario.getIndex(), self.rep-1))             
+            kpi=self.simResult.getKPI(self.scenario.getIndex(), self.rep-1)
+            self.kpi.append(kpi)             
             self.allEpisodTotalReward.append(self.episodTotalReward)
-            self.envState=2   
+            self.envState=2 
+            if hasattr(self, "onReplicationDone") and self.onReplicationDone is not None:
+                self.onReplicationDone(self.rep,kpi,self.episodTotalReward)   
             if self.autoRestart:       
                 self.restart()
 

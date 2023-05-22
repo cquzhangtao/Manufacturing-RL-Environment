@@ -99,8 +99,8 @@ def train_eval(
     output_fc_layer_params=(20,45,),
 
     # Params for collect
-    initial_collect_steps=1000,
-    collect_steps_per_iteration=100,
+    initial_collect_steps=1,
+    collect_steps_per_iteration=2,
     epsilon_greedy=0.1,
     replay_buffer_capacity=100000,
     # Params for target update
@@ -108,7 +108,7 @@ def train_eval(
     target_update_period=5,
     # Params for train
     train_steps_per_iteration=100,
-    batch_size=4,
+    batch_size=1,
     learning_rate=0.2,
     n_step_update=1,
     gamma=0.9,
@@ -149,7 +149,7 @@ def train_eval(
     with record_if(
           lambda: tf.math.equal(global_step % summary_interval, 0)):
           
-        env, evalEvn, mask,envs = prepareEnv(num_parallel_environments=7)
+        env, evalEvn, mask,envs = prepareEnv(num_parallel_environments=1)
         tf_env = tf_py_environment.TFPyEnvironment(parallel_py_environment.ParallelPyEnvironment(envs,start_serially=True))
         eval_tf_env = tf_py_environment.TFPyEnvironment(evalEvn)
     
@@ -198,13 +198,13 @@ def train_eval(
             tf_metrics.AverageReturnMetric(batch_size=tf_env.batch_size),
             tf_metrics.AverageEpisodeLengthMetric(batch_size=tf_env.batch_size),
             NumberOfEpisodes(),
-            KPIsInEpisode(kpiName="CT"),
-            KPIsInEpisode(kpiName="Reward")
+            KPIsInEpisode(kpiName="CT",batch_size=tf_env.batch_size),
+            KPIsInEpisode(kpiName="Reward",batch_size=tf_env.batch_size)
         ]
         
         eval_metrics = [
-            tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes,batch_size=tf_env.batch_size),
-            tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes,batch_size=tf_env.batch_size),
+            tf_metrics.AverageReturnMetric(buffer_size=num_eval_episodes),
+            tf_metrics.AverageEpisodeLengthMetric(buffer_size=num_eval_episodes),
             KPIsInEpisode(kpiName="CT"),
             KPIsInEpisode(kpiName="Reward")
         ]
@@ -295,7 +295,7 @@ def train_eval(
         if use_tf_functions:
             train_step = common.function(train_step)
     
-        for _ in range(num_iterations):
+        for curiter in range(num_iterations):
             start_time = time.time()
             time_step, policy_state = collect_driver.run(
                 time_step=time_step,
@@ -324,12 +324,10 @@ def train_eval(
                 train_metric.tf_summaries(
                     train_step=global_step, step_metrics=[train_metrics[4]])            
             
-            with record_if(time_step.is_last()):
-                rep = tf.cast(train_metrics[4].result(), tf.int64)
-                tf.compat.v2.summary.scalar(
-                    name='KPIs/CT', data=time_step.observation[0][-2], step=rep)
-                tf.compat.v2.summary.scalar(
-                    name='KPIs/Total reward', data=time_step.observation[0][-1], step=rep)
+            tf.compat.v2.summary.scalar(
+                name='KPIs/CT', data=train_metrics[5].result(),step=curiter)
+            tf.compat.v2.summary.scalar(
+                name='KPIs/Total reward', data=train_metrics[6].result(),step=curiter)
             
             if global_step.numpy() % train_checkpoint_interval == 0:
                 train_checkpointer.save(global_step=global_step.numpy())
