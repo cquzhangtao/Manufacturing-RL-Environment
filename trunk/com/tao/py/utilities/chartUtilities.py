@@ -143,3 +143,29 @@ def drawChart(environment,agent):
     
     plt.show()
     
+    drawMoreChart(environment,agent)
+    
+def drawMoreChart(environment,agent): 
+    
+    plt.figure(figsize = (18,10))
+    
+    idx=1
+    if hasattr(agent, "losses1"):
+        plt.subplot(320+idx)
+        plt.scatter(range(len(agent.losses1)),agent.losses1)
+        plt.title("loss over step")
+        plt.xlabel("step")
+        plt.ylabel("loss")
+        
+        idx+=1
+        chunks=environment.split(agent.losses1,500)    
+        plt.subplot(320+idx)
+        plt.plot(range(len(chunks)),chunks)
+        plt.title("loss over step")
+        plt.xlabel("step")
+        plt.ylabel("loss") 
+        idx+=1   
+        
+    if idx>1:
+        plt.show()
+    
