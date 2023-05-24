@@ -125,11 +125,13 @@ class SimEnvironment0(object):
             self.simResult.summarizeReplication(self.scenario.getIndex(),self.rep-1)
             kpi=self.simResult.getKPI(self.scenario.getIndex(),self.rep-1)
             self.kpi.append(kpi)
-            self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])        
-            print("{}, {},Total Reward:{:.6f}".format(self.rep,self.simResult.toString(self.scenario.getIndex(),self.rep-1),self.episodTotalReward))
+            self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])  
+            console="{}, {},Total Reward:{:.6f}".format(self.rep,self.simResult.toString(self.scenario.getIndex(),self.rep-1),self.episodTotalReward)      
+            print(console)
             self.allEpisodTotalReward.append(self.episodTotalReward)
             tf.summary.scalar("env/KPI",kpi,step=self.rep)
-            tf.summary.scalar("env/Reward",self.episodTotalReward,step=self.rep)    
+            tf.summary.scalar("env/Reward",self.episodTotalReward,step=self.rep) 
+            tf.summary.text("env/log", console ,step=self.rep)    
         
         return trainDataset
     

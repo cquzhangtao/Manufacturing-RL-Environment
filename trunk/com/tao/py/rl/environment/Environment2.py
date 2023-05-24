@@ -56,12 +56,14 @@ class SimEnvironment2(SimEnvironment0):
 
         if self.sim.getState()==3: 
             self.simResult.summarizeReplication(self.scenario.getIndex(), self.rep-1)
-            print("{} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.toString(self.scenario.getIndex(), self.rep-1),self.episodTotalReward))
+            console="{} {} {},Total Reward:{:.6f}".format(self.name,self.rep,self.simResult.toString(self.scenario.getIndex(), self.rep-1),self.episodTotalReward)
+            print(console)
             kpi=self.simResult.getKPI(self.scenario.getIndex(), self.rep-1)
             self.kpi.append(kpi)             
             self.allEpisodTotalReward.append(self.episodTotalReward)
             tf.summary.scalar("env/KPI",kpi,step=self.rep)
-            tf.summary.scalar("env/Reward",self.episodTotalReward,step=self.rep)  
+            tf.summary.scalar("env/Reward",self.episodTotalReward,step=self.rep) 
+            tf.summary.text("env/log", console ,step=self.rep) 
             self.envState=2 
             if hasattr(self, "onReplicationDone") and self.onReplicationDone is not None:
                 self.onReplicationDone(self.rep,kpi,self.episodTotalReward)   
