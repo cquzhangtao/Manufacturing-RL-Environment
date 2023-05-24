@@ -13,6 +13,10 @@ from com.tao.py.rl.kernel.State import State
 
 
 class SimEnvironment8(SimEnvironment4):
+    '''
+    fixed number of states and actions
+    states and actions are described by their indices
+    '''
 
     def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=100):
         super().__init__(scenario,resultContainerFn,rewardCalculatorFn=rewardCalculatorFn,name=name,init_runs=init_runs)
