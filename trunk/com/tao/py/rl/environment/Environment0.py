@@ -11,6 +11,7 @@ from com.tao.py.rl.data.TrainDataset import TrainDataset
 import matplotlib.pyplot as plt
 from com.tao.py.rl.event.DecisionEventListener import DecisionEventListener
 from com.tao.py.rl.policy.RandomPolicy import RandomPolicy
+import tensorflow as tf
 
 
 
@@ -122,10 +123,13 @@ class SimEnvironment0(object):
         
         if not self.initializing:
             self.simResult.summarizeReplication(self.scenario.getIndex(),self.rep-1)
-            self.kpi.append(self.simResult.getKPI(self.scenario.getIndex(),self.rep-1))
+            kpi=self.simResult.getKPI(self.scenario.getIndex(),self.rep-1)
+            self.kpi.append(kpi)
             self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])        
             print("{}, {},Total Reward:{:.6f}".format(self.rep,self.simResult.toString(self.scenario.getIndex(),self.rep-1),self.episodTotalReward))
-            self.allEpisodTotalReward.append(self.episodTotalReward)    
+            self.allEpisodTotalReward.append(self.episodTotalReward)
+            tf.summary.scalar("env/KPI",kpi,step=self.rep)
+            tf.summary.scalar("env/Reward",self.episodTotalReward,step=self.rep)    
         
         return trainDataset
     

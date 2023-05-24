@@ -5,7 +5,7 @@ Created on Dec 4, 2021
 '''
 from com.tao.py.rl.environment.Environment0 import SimEnvironment0
 from com.tao.py.rl.data.TrainDataItem import TrainDataItem
-
+import tensorflow as tf
 
 
 
@@ -60,6 +60,8 @@ class SimEnvironment2(SimEnvironment0):
             kpi=self.simResult.getKPI(self.scenario.getIndex(), self.rep-1)
             self.kpi.append(kpi)             
             self.allEpisodTotalReward.append(self.episodTotalReward)
+            tf.summary.scalar("env/KPI",kpi,step=self.rep)
+            tf.summary.scalar("env/Reward",self.episodTotalReward,step=self.rep)  
             self.envState=2 
             if hasattr(self, "onReplicationDone") and self.onReplicationDone is not None:
                 self.onReplicationDone(self.rep,kpi,self.episodTotalReward)   
