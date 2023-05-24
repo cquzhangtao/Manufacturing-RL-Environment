@@ -31,9 +31,9 @@ def initChart():
     plt.subplot(221)
     plt.axis([0,100,12,17])
     hlKPI,=plt.plot([],[])
-    plt.title("Avg CT over replications")
+    plt.title("KPI over replications")
     plt.xlabel("Replication")
-    plt.ylabel("Avg CT")
+    plt.ylabel("KPI")
     
     plt.subplot(222)
     plt.axis([0,100,165000,170000])
@@ -98,14 +98,14 @@ def onRepDone(rep,kpi,reward):
 
 def drawChart(environment,agent): 
     
-    plt.figure(figsize = (18,10))
-    plt.subplot(321)
+    plt.figure(1,figsize = (18,10))
+    plt.subplot(331)
     plt.scatter(range(len(environment.kpi)),environment.kpi)
-    plt.title("Avg CT over replications")
+    plt.title("KPI over replications")
     plt.xlabel("Replication")
-    plt.ylabel("Avg CT")
+    plt.ylabel("KPI")
 
-    plt.subplot(322)
+    plt.subplot(332)
     plt.scatter(range(len(environment.kpi)),environment.allEpisodTotalReward)
     plt.title("Avg Reward over replications")
     plt.xlabel("Replication")
@@ -113,59 +113,88 @@ def drawChart(environment,agent):
 
     
     chunks=environment.split(environment.kpi,50)
-    plt.subplot(323)
+    plt.subplot(333)
     plt.plot(range(len(chunks)),chunks)
-    plt.title("Avg CT over replications")
-    plt.xlabel("Replication")
-    plt.ylabel("Avg CT")
+    plt.title("KPI over replications")
+    plt.xlabel("Replication x 50")
+    plt.ylabel("KPI")
 
     
     chunks=environment.split(environment.allEpisodTotalReward,50)
-    plt.subplot(324)
+    plt.subplot(334)
     plt.plot(range(len(chunks)),chunks)
     plt.title("Avg Reward over replications")
-    plt.xlabel("Replication")
+    plt.xlabel("Replication x 50")
     plt.ylabel("Avg Reward")
     
     
-    plt.subplot(325)
+    plt.subplot(335)
     plt.scatter(range(len(agent.losses)),agent.losses)
     plt.title("loss over step")
     plt.xlabel("step")
     plt.ylabel("loss")
     
     chunks=environment.split(agent.losses,500)    
-    plt.subplot(326)
+    plt.subplot(336)
     plt.plot(range(len(chunks)),chunks)
     plt.title("loss over step")
-    plt.xlabel("step")
-    plt.ylabel("loss")    
+    plt.xlabel("step x 500")
+    plt.ylabel("loss")  
     
-    plt.show()
+    idx=7
+    if hasattr(agent, "losses1"):
+        plt.subplot(330+idx)
+        plt.scatter(range(len(agent.losses1)),agent.losses1)
+        plt.title("extra loss over step")
+        plt.xlabel("step")
+        plt.ylabel("loss")        
+        idx+=1
+        
+        chunks=environment.split(agent.losses1,500)    
+        plt.subplot(330+idx)
+        plt.plot(range(len(chunks)),chunks)
+        plt.title("extra loss over step")
+        plt.xlabel("step x 500")
+        plt.ylabel("loss") 
+        idx+=1     
+    if hasattr(agent, "hisLearningRate"): 
+        
+        plt.subplot(330+idx)
+        plt.plot(range(len(agent.hisLearningRate)),agent.hisLearningRate)
+        plt.title("learning rate over step")
+        plt.xlabel("step")
+        plt.ylabel("learning rate") 
+        idx+=1 
+            
+    plt.tight_layout()
+    
+    
     
     drawMoreChart(environment,agent)
     
+    
+    plt.show()
+    
 def drawMoreChart(environment,agent): 
     
-    plt.figure(figsize = (18,10))
+    plt.figure(2,figsize = (18,10))
     
     idx=1
-    if hasattr(agent, "losses1"):
-        plt.subplot(320+idx)
-        plt.scatter(range(len(agent.losses1)),agent.losses1)
-        plt.title("loss over step")
-        plt.xlabel("step")
-        plt.ylabel("loss")
+
+    if hasattr(agent, "variables"):
         
-        idx+=1
-        chunks=environment.split(agent.losses1,500)    
-        plt.subplot(320+idx)
-        plt.plot(range(len(chunks)),chunks)
-        plt.title("loss over step")
-        plt.xlabel("step")
-        plt.ylabel("loss") 
-        idx+=1   
+        vidx=0
+        for vari in agent.variables :
+            varis=[list(i) for i in zip(*vari)] 
+            
+            plt.subplot(330+idx)
+            
+            for i in range(min(len(varis),100)):
+                plt.plot(range(len(varis[i])),varis[i])
+            plt.title( agent.variableNames[vidx])
+            plt.xlabel("step")
+            plt.ylabel(str(len(varis))+"variable")
+            idx+=1
+            vidx+=1
         
-    if idx>1:
-        plt.show()
-    
+    plt.tight_layout()
