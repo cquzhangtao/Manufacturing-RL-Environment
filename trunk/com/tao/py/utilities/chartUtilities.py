@@ -5,6 +5,8 @@ Created on May 22, 2023
 '''
 import matplotlib.pyplot as plt
 import numpy
+import io
+import tensorflow as tf
 
 hlLoss=None
 hlLR=None
@@ -167,13 +169,13 @@ def drawChart(environment,agent):
         idx+=1 
             
     plt.tight_layout()
-    
-    
+    saveImgToTensorboard("main")
+
     
     drawMoreChart(environment,agent)
     
     
-    plt.show()
+    #plt.show()
     
 def drawMoreChart(environment,agent): 
     
@@ -198,3 +200,14 @@ def drawMoreChart(environment,agent):
             vidx+=1
         
     plt.tight_layout()
+    saveImgToTensorboard("extra")
+
+def saveImgToTensorboard(imgName):
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    # Convert PNG buffer to TF image
+    image = tf.image.decode_png(buf.getvalue(), channels=4)    
+    # Add the batch dimension
+    image = tf.expand_dims(image, 0)    
+    tf.summary.image("plot/"+imgName, image,step=0)

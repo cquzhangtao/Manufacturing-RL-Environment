@@ -61,9 +61,20 @@ class SimEnvironment2(SimEnvironment0):
             kpi=self.simResult.getKPI(self.scenario.getIndex(), self.rep-1)
             self.kpi.append(kpi)             
             self.allEpisodTotalReward.append(self.episodTotalReward)
+
+
+            self.kpiChunk.append(kpi)
+            self.totalRewardChunk.append(self.episodTotalReward)
             tf.summary.scalar("env/KPI",kpi,step=self.rep)
             tf.summary.scalar("env/Reward",self.episodTotalReward,step=self.rep) 
             tf.summary.text("env/log", console ,step=self.rep) 
+            
+            if len(self.kpiChunk)>20:
+                tf.summary.scalar("env/KPI_chunk",tf.reduce_mean(self.kpiChunk),step=self.rep)
+                tf.summary.scalar("env/Reward_chunk",tf.reduce_mean(self.totalRewardChunk),step=self.rep) 
+                self.kpiChunk=[]
+                self.totalRewardChunk=[] 
+                
             self.envState=2 
             if hasattr(self, "onReplicationDone") and self.onReplicationDone is not None:
                 self.onReplicationDone(self.rep,kpi,self.episodTotalReward)   

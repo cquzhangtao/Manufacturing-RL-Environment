@@ -31,8 +31,10 @@ class SimEnvironment0(object):
         self.eventListeners=[]
         self.simResult=resultContainerFn()
         self.kpi=[]
+        self.kpiChunk=[]
         self.allEpisodTotalReward=[]
         self.episodTotalReward=0
+        self.totalRewardChunk=[]
         
         self.environmentSpec=None
         self.initializing=False
@@ -50,7 +52,9 @@ class SimEnvironment0(object):
     def clear(self):
         self.rep=0        
         self.kpi=[] 
+        self.kpiChunk=[]
         self.allEpisodTotalReward=[]
+        self.totalRewardChunk=[]
         self.episodTotalReward=0 
         
         self.state=None
@@ -125,13 +129,24 @@ class SimEnvironment0(object):
             self.simResult.summarizeReplication(self.scenario.getIndex(),self.rep-1)
             kpi=self.simResult.getKPI(self.scenario.getIndex(),self.rep-1)
             self.kpi.append(kpi)
+            
             self.episodTotalReward=sum([j for sub in trainDataset.reward for j in sub])  
             console="{}, {},Total Reward:{:.6f}".format(self.rep,self.simResult.toString(self.scenario.getIndex(),self.rep-1),self.episodTotalReward)      
             print(console)
             self.allEpisodTotalReward.append(self.episodTotalReward)
+            
+            
+            self.kpiChunk.append(kpi)
+            self.totalRewardChunk.append(self.episodTotalReward)
             tf.summary.scalar("env/KPI",kpi,step=self.rep)
             tf.summary.scalar("env/Reward",self.episodTotalReward,step=self.rep) 
-            tf.summary.text("env/log", console ,step=self.rep)    
+            tf.summary.text("env/log", console ,step=self.rep) 
+            
+            if len(self.kpiChunk)>20:
+                tf.summary.scalar("env/KPI_chunk",tf.reduce_mean(self.kpiChunk),step=self.rep)
+                tf.summary.scalar("env/Reward_chunk",tf.reduce_mean(self.totalRewardChunk),step=self.rep) 
+                self.kpiChunk=[]
+                self.totalRewardChunk=[]                
         
         return trainDataset
     
