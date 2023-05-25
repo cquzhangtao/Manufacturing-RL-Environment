@@ -8,6 +8,7 @@ import datetime
 from tensorflow.python.ops.summary_ops_v2 import create_file_writer
 import tensorflow as tf 
 from tensorflow.python.keras.models import Model
+import random
 
 def init(model,agent):
     tf.data.experimental.enable_debug_mode()
@@ -46,7 +47,7 @@ def saveStepInfo(agent,step,loss,grads,inputD,output,target,learningRate):
                 idxRow+=1
     
     
-    if step % 100 ==0:
+    if step % random.randint(80,120) ==0:
         tf.summary.scalar("agent/loss",tf.reduce_mean(loss),step=step)
         tf.summary.scalar("agent/learning rate",learningRate,step=step) 
         
