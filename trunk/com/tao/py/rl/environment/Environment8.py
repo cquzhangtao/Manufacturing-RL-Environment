@@ -72,6 +72,8 @@ class SimEnvironment8(SimEnvironment4):
         featureSplitPos=[0] * stateFeatureNum
         for feature in state.getData():
             if len(self.stateFeatureSplitSize[idx])==1:
+                featureSplitPos[idx]=0
+                idx+=1
                 continue
             flen=len(self.stateFeatureSplitSize[idx])
             amin=envSpec.minState[idx] 

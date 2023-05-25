@@ -95,6 +95,8 @@ class SimEnvironment4(SimEnvironment3):
         featureSplitPos=[0] * actionFeatureNum
         for feature in action.getData():
             if len(self.featureSplitSize[idx])==1:
+                featureSplitPos[idx]=0
+                idx+=1
                 continue
             flen=len(self.featureSplitSize[idx])
             amin=envSpec.minAction[idx] 
