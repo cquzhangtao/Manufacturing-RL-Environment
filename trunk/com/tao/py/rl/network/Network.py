@@ -20,9 +20,11 @@ class Network(Model):
         #self.inputLayer=InputLayer(input_shape=(stateFeatureNum,))
         self.layer1=Dense(5,activation='relu')
         self.layer2=Dense(5,activation='relu')
-        self.layer3=Dense(actionFeatureNum+stateFeatureNum,activation='relu')
+        self.layer3=tf.keras.layers.Concatenate(axis=1)
         self.layer4=Dense(5,activation='relu')
-        self.layer5=Dense(1)
+        self.layer5=Dense(5,activation='relu')
+        self.layer6=Dense(1)
+        #self.layers=[self.layer1,self.layer2,self.layer3,self.layer4,self.layer5,self.layer6];
         
     def call(self, inputs, training=None, mask=None):
         #state=[[row[0:self.stateFeatureNum]] for row in inputs]  
@@ -32,10 +34,11 @@ class Network(Model):
         #y=self.inputLayer(state)
         x=self.layer1(state)
         y=self.layer2(action) 
-        y=self.layer3(tf.concat([x,y],1))
+        y=self.layer3([x,y])
         #y=y*action
         y=self.layer4(y)
-        qvalue=self.layer5(y)
+        y=self.layer5(y)
+        qvalue=self.layer6(y)
         
        # outputs=tf.reduce_sum(y, axis=1, keepdims=True)
         return qvalue

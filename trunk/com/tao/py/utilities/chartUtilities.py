@@ -183,7 +183,7 @@ def drawMoreChart(environment,agent):
     
     idx=1
 
-    if hasattr(agent, "variables"):
+    if hasattr(agent, "variables") and agent.variableNames!=None:
         
         vidx=0
         for vari in agent.variables :

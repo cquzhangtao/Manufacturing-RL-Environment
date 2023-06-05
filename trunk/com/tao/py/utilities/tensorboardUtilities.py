@@ -9,6 +9,7 @@ from tensorflow.python.ops.summary_ops_v2 import create_file_writer
 import tensorflow as tf 
 from tensorflow.python.keras.models import Model
 import random
+from tensorflow.python.keras.engine.sequential import Sequential
 
 def init(model,agent):
     tf.data.experimental.enable_debug_mode()
@@ -21,6 +22,7 @@ def init(model,agent):
     summary_writer = create_file_writer(
         root_dir, flush_millis=120 * 1000)
     summary_writer.set_as_default()
+    return summary_writer
     #agent.drawGraph()
 
 def saveStepInfo(agent,step,loss,grads,inputD,output,target,learningRate):
@@ -64,7 +66,7 @@ def saveStepInfo(agent,step,loss,grads,inputD,output,target,learningRate):
         
         #for layer in agent.network.layers:
         #    tf.summary.histogram("output_layer/layer"+layer.name,layer.output,step=step)
-        if hasattr(agent, "network"):
+        if hasattr(agent, "network") and isinstance(agent.network,Sequential):
             for i in range(0, len(agent.network.layers)):
                 tmp_model = Model(inputs=agent.network.layers[0].input, outputs=agent.network.layers[i].output)
                 tmp_output = tmp_model.predict(inputD)
@@ -113,7 +115,7 @@ def saveStepInfo(agent,step,loss,grads,inputD,output,target,learningRate):
                     idx1+=1  
                 idx0+=1   
 
-    if hasattr(agent, "network"):    
+    if hasattr(agent, "network") and isinstance(agent.network,Sequential):    
         allVars=[varis.numpy().flatten() for varis in agent.network.trainable_variables]        
         idx=0
         for vari in allVars:
