@@ -5,12 +5,12 @@ Created on May 24, 2023
 '''
 import os
 import datetime
-from tensorflow.python.ops.summary_ops_v2 import create_file_writer
 import tensorflow as tf 
 from tensorflow.python.keras.models import Model
 import random
 from tensorflow.python.keras.engine.sequential import Sequential
 from tensorflow.python.types.core import Tensor
+from tensorflow.python.ops.summary_ops_v2 import create_file_writer_v2
 
 def init(model,agent):
     tf.data.experimental.enable_debug_mode()
@@ -19,8 +19,8 @@ def init(model,agent):
     root_dir = os.path.expanduser(root_dir)
     current_time = agent+"_"+datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
     root_dir = os.path.join(root_dir, current_time)
-    
-    summary_writer = create_file_writer(
+
+    summary_writer = create_file_writer_v2(
         root_dir, flush_millis=120 * 1000)
     summary_writer.set_as_default()
     return summary_writer,root_dir
