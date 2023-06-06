@@ -19,7 +19,7 @@ class SimEnvironment0(object):
 
     def __init__(self,scenario,resultContainerFn,rewardCalculatorFn=None,name="",init_runs=100):
         self.name=name
-        
+        self.summaryWriter=None
         
         self.state=None
         self.actions=None
@@ -138,13 +138,17 @@ class SimEnvironment0(object):
             
             self.kpiChunk.append(kpi)
             self.totalRewardChunk.append(self.episodTotalReward)
-            tf.summary.scalar("env/KPI",kpi,step=self.rep)
-            tf.summary.scalar("env/Reward",self.episodTotalReward,step=self.rep) 
-            tf.summary.text("env/log", console ,step=self.rep) 
+            
+            if self.summaryWriter is None:
+                self.summaryWriter=tf.summary
+            
+            self.summaryWriter.scalar("env/KPI",kpi,step=self.rep)
+            self.summaryWriter.scalar("env/Reward",self.episodTotalReward,step=self.rep) 
+            self.summaryWriter.text("env/log", console ,step=self.rep) 
             
             if len(self.kpiChunk)>20:
-                tf.summary.scalar("env/KPI_chunk",tf.reduce_mean(self.kpiChunk),step=self.rep)
-                tf.summary.scalar("env/Reward_chunk",tf.reduce_mean(self.totalRewardChunk),step=self.rep) 
+                self.summaryWriter.scalar("env/KPI_chunk",tf.reduce_mean(self.kpiChunk),step=self.rep)
+                self.summaryWriter.scalar("env/Reward_chunk",tf.reduce_mean(self.totalRewardChunk),step=self.rep) 
                 self.kpiChunk=[]
                 self.totalRewardChunk=[]                
         
