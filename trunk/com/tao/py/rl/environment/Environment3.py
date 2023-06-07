@@ -62,9 +62,9 @@ class SimEnvironment3(SimEnvironment2,SimEventListener):
         del self.steps[0:idx]
         del self.jobs[0:idx]
         
-        if self.summaryWriter is None:
-            self.summaryWriter=tf.summary
-            
-        self.summaryWriter.scalar("env/n_step_reward",reward,step=start)
+        # if self.summaryWriter is None:
+        #     self.summaryWriter=tf.summary
+        #
+        # self.summaryWriter.scalar("env/n_step_reward",reward,step=start)
             
         return reward          
