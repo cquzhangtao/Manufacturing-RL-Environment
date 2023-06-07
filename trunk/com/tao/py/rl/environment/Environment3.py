@@ -9,7 +9,7 @@ from com.tao.py.rl.environment.Environment2 import SimEnvironment2
 
 from com.tao.py.sim.kernel.SimEventListener import SimEventListener
 from com.tao.py.manu.event.JobDepartureEvent import JobDepartureEvent
-
+import tensorflow as tf
 
 
 class SimEnvironment3(SimEnvironment2,SimEventListener):
@@ -61,5 +61,10 @@ class SimEnvironment3(SimEnvironment2,SimEventListener):
             
         del self.steps[0:idx]
         del self.jobs[0:idx]
+        
+        if self.summaryWriter is None:
+            self.summaryWriter=tf.summary
+            
+        self.summaryWriter.scalar("env/n_step_reward",reward,step=start)
             
         return reward          

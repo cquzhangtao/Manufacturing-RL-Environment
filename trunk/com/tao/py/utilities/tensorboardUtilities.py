@@ -26,7 +26,7 @@ def init(model,agent):
     return summary_writer,root_dir
     #agent.drawGraph()
 
-def saveStepInfo(agent,step,loss,grads,inputD,output,target,learningRate,episodeData=False):
+def saveStepInfo(agent,step,loss,grads,inputD,output,target,reward,learningRate,episodeData=False):
     if agent.summaryWriter is None:
         agent.summaryWriter=tf.summary
     agent.hisLearningRate.append(learningRate) 
@@ -57,7 +57,11 @@ def saveStepInfo(agent,step,loss,grads,inputD,output,target,learningRate,episode
     
     if step % random.randint(80,120) ==0 or episodeData:
         agent.summaryWriter.scalar("agent/loss",tf.reduce_mean(loss),step=step)
-        agent.summaryWriter.scalar("agent/learning rate",learningRate,step=step) 
+        agent.summaryWriter.scalar("agent/learning rate",learningRate,step=step)
+        
+        if reward is not None:
+            for r in reward:
+                agent.summaryWriter.scalar("env_reward/n_step_reward",r,step=step) 
         
         idx=0
         for inD in tf.reduce_mean(inputD,0):

@@ -99,6 +99,19 @@ class SimEnvironment2(SimEnvironment0):
         trainData.nextState=self.getState()
         trainData.nextActions=self.getActions()
         
+        if self.summaryWriter is None:
+            self.summaryWriter=tf.summary
+
+        idx=0
+        for data in trainData.state.getData():
+            self.summaryWriter.scalar("env_state/state"+str(idx),data,step=self.stepCounter)
+            idx+=1
+        idx=0
+        for data in trainData.action.getData():
+            self.summaryWriter.scalar("env_action/action"+str(idx),data,step=self.stepCounter)
+            idx+=1
+        self.summaryWriter.scalar("env_reward/imm_reward",trainData.reward,step=self.stepCounter)
+        
 
         
         return trainData
