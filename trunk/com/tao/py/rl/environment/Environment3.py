@@ -8,7 +8,7 @@ Created on Dec 4, 2021
 from com.tao.py.rl.environment.Environment2 import SimEnvironment2
 
 from com.tao.py.sim.kernel.SimEventListener import SimEventListener
-from com.tao.py.sim.event.IJobDepartureEvent import IJobDepartureEvent
+from com.tao.py.sim.rl.IJobDepartureEvent import IJobDepartureEvent
 import tensorflow as tf
 
 
