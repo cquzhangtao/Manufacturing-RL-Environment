@@ -30,7 +30,7 @@ class SimEnvironment3(SimEnvironment2,SimEventListener):
         return [self]+super().getSimEventListeners()        
     
     def onEventTriggered(self,event): 
-        if self.supportNStep and isinstance(event, JobDepartureEvent):
+        if self.supportNStep and isinstance(event, IJobDepartureEvent):
             self.jobs.append(event.getJob())
             self.steps.append(self.stepCounter)
     
