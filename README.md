@@ -20,3 +20,13 @@ def learn(self):
             # write algorithm here to update Q function.
         self.environment.restart()
 ```
+## Experiment
+```
+# model = createYourSimModelHere()
+environment=SimEnvironment2(model.getScenario(sceName),model.createSimResultContainerFn,model.createRewardCalculatorFn)
+agent=YourAgent(environment)
+agent.epochs=150
+policy=AgentPolicy(agent,0.1)
+environment.start(policy)
+agent.learn()
+```
