@@ -1,6 +1,6 @@
 # Introduction
 In many cases involving Reinforcement Learning (RL), adequately defining and quantifying the state, action, and reward within a simulation or environment poses a significant challenge, often overlooked in RL studies. This project creates a wrapper on simulation and handles the definitions. Eight types of environments are built based on the definition of state, action, and reward function. For example, one environment supports n-step reward, and one supports dynamic and stochastic action sets. Some convert featured action space to categorical action space. Some also implement environment interfaces from the gym and TF-agent. 
-[](pic2.png)
+![](pic2.png)
 # How to use?
 ## Simulation model
 1) create your simulation model which extends the class SimModel.
